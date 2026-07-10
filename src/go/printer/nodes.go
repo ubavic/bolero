@@ -644,6 +644,76 @@ func (p *printer) fieldList(fields *ast.FieldList, isStruct, isIncomplete bool) 
 	p.print(token.RBRACE)
 }
 
+// enumValueList prints the value list of an enum type. Each value is a
+// Field with exactly one Name and a nil Type.
+func (p *printer) enumValueList(values *ast.FieldList, isIncomplete bool) {
+	lbrace := values.Opening
+	list := values.List
+	rbrace := values.Closing
+	srcIsOneLine := lbrace.IsValid() && rbrace.IsValid() && p.lineFor(lbrace) == p.lineFor(rbrace)
+
+	if !isIncomplete && !p.commentBefore(p.posFor(rbrace)) && srcIsOneLine {
+		if len(list) == 0 {
+			p.print(blank)
+			p.setPos(lbrace)
+			p.print(token.LBRACE)
+			p.setPos(rbrace)
+			p.print(token.RBRACE)
+			return
+		}
+		// small enough to print on one line
+		p.print(blank)
+		p.setPos(lbrace)
+		p.print(token.LBRACE, blank)
+		for i, f := range list {
+			if i > 0 {
+				p.print(token.SEMICOLON, blank)
+			}
+			if len(f.Names) > 0 {
+				p.expr(f.Names[0])
+			}
+		}
+		p.print(blank)
+		p.setPos(rbrace)
+		p.print(token.RBRACE)
+		return
+	}
+
+	p.print(blank)
+	p.setPos(lbrace)
+	p.print(token.LBRACE, indent)
+	if len(list) > 0 || isIncomplete {
+		p.print(formfeed)
+	}
+
+	var line int
+	for i, f := range list {
+		if i > 0 {
+			p.linebreak(p.lineFor(f.Pos()), 1, ignore, p.linesFrom(line) > 0)
+		}
+		p.setComment(f.Doc)
+		p.recordLine(&line)
+		if len(f.Names) > 0 {
+			p.expr(f.Names[0])
+		}
+		if f.Comment != nil {
+			p.setComment(f.Comment)
+		}
+	}
+
+	if isIncomplete {
+		if len(list) > 0 {
+			p.print(formfeed)
+		}
+		p.flush(p.posFor(rbrace), token.RBRACE)
+		p.setLineComment("// contains filtered or unexported values")
+	}
+
+	p.print(unindent, formfeed)
+	p.setPos(rbrace)
+	p.print(token.RBRACE)
+}
+
 // ----------------------------------------------------------------------------
 // Expressions
 
@@ -893,6 +963,11 @@ func (p *printer) expr1(expr ast.Expr, prec1, depth int) {
 	case *ast.SelectorExpr:
 		p.selectorExpr(x, depth, false)
 
+	case *ast.EnumAccessExpr:
+		p.expr1(x.X, token.HighestPrec, depth)
+		p.print(token.ENUM_ACCESS)
+		p.expr1(x.Sel, token.HighestPrec, depth)
+
 	case *ast.TypeAssertExpr:
 		p.expr1(x.X, token.HighestPrec, depth)
 		p.print(token.PERIOD)
@@ -1058,6 +1133,10 @@ func (p *printer) expr1(expr ast.Expr, prec1, depth int) {
 	case *ast.InterfaceType:
 		p.print(token.INTERFACE)
 		p.fieldList(x.Methods, false, x.Incomplete)
+
+	case *ast.EnumType:
+		p.print(token.ENUM)
+		p.enumValueList(x.Values, x.Incomplete)
 
 	case *ast.MapType:
 		p.print(token.MAP, token.LBRACK)

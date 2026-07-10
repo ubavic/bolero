@@ -135,6 +135,10 @@ func (w walker) node(n Node) {
 		w.node(n.X)
 		w.node(n.Sel)
 
+	case *EnumAccessExpr:
+		w.node(n.X)
+		w.node(n.Sel)
+
 	case *IndexExpr:
 		w.node(n.X)
 		w.node(n.Index)
@@ -199,6 +203,9 @@ func (w walker) node(n Node) {
 
 	case *InterfaceType:
 		w.fieldList(n.MethodList)
+
+	case *EnumType:
+		w.nameList(n.ValueList)
 
 	case *FuncType:
 		w.fieldList(n.ParamList)

@@ -350,6 +350,9 @@ func (check *Checker) typInternal(e0 ast.Expr, def *TypeName) (T Type) {
 		check.interfaceType(typ, e, def)
 		return typ
 
+	case *ast.EnumType:
+		return check.enumType(e, def)
+
 	case *ast.MapType:
 		typ := new(Map)
 		typ.key = check.varType(e.Key)

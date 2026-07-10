@@ -332,6 +332,16 @@ func walk(v *visitor, ek edge.Kind, index int, node ast.Node) {
 		// visited already through the individual
 		// nodes
 
+	// Bolero
+	case *ast.EnumAccessExpr:
+		walk(v, edge.EnumAccessExpr_X, -1, n.X)
+		walk(v, edge.EnumAccessExpr_Sel, -1, n.Sel)
+
+	case *ast.EnumType:
+		if n.Values != nil {
+			walk(v, edge.EnumType_Values, -1, n.Values)
+		}
+
 	default:
 		// (includes *ast.Package)
 		panic(fmt.Sprintf("Walk: unexpected node type %T", n))

@@ -873,7 +873,11 @@ scanAgain:
 			lit, rawLen = s.scanRawString()
 			s.stringEnd = pos + token.Pos(rawLen)
 		case ':':
-			tok = s.switch2(token.COLON, token.DEFINE)
+			if s.mode&Bolero != 0 {
+				tok = s.switch3(token.COLON, token.DEFINE, ':', token.ENUM_ACCESS)
+			} else {
+				tok = s.switch2(token.COLON, token.DEFINE)
+			}
 		case '.':
 			// fractions starting with a '.' are handled by outer switch
 			tok = token.PERIOD

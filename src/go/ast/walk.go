@@ -90,6 +90,10 @@ func Walk(v Visitor, node Node) {
 		Walk(v, n.X)
 		Walk(v, n.Sel)
 
+	case *EnumAccessExpr:
+		Walk(v, n.X)
+		Walk(v, n.Sel)
+
 	case *IndexExpr:
 		Walk(v, n.X)
 		Walk(v, n.Index)
@@ -157,6 +161,9 @@ func Walk(v Visitor, node Node) {
 
 	case *InterfaceType:
 		Walk(v, n.Methods)
+
+	case *EnumType:
+		Walk(v, n.Values)
 
 	case *MapType:
 		Walk(v, n.Key)

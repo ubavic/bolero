@@ -290,7 +290,7 @@ func (check *Checker) convertUntyped(x *operand, target Type) {
 	newType, val, code := check.implicitTypeAndValue(x, target)
 	if code != 0 {
 		t := target
-		if !isTypeParam(target) {
+		if !isTypeParam(target) && enumInfoOf(target) == nil {
 			t = safeUnderlying(target)
 		}
 		check.invalidConversion(code, x, t)

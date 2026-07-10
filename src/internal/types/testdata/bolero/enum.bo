@@ -1,0 +1,110 @@
+// Copyright 2026 The Bolero Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package enums
+
+type Color enum {
+	Red
+	Green
+	Blue
+}
+
+func (c Color) Hex() string {
+	switch c {
+	case Color::Red:
+		return "F00"
+	case Color::Green:
+		return "0F0"
+	case Color::Blue:
+		return "00F"
+	}
+	panic("unreachable")
+}
+
+var _ Color = Color::Red
+var _ bool = Color::Red < Color::Blue
+
+func _() {
+	for c := range Color {
+		var _ Color = c
+	}
+}
+
+var _ Color = 0 /* ERROR "cannot use" */
+var _ = Color::Purple /* ERROR "Purple is not a value of enum" */
+var _ = int /* ERROR "int is not an enum type" */ ::Red
+
+type Duplicate enum {
+	A
+	A /* ERROR "duplicate enum value A" */
+}
+
+type Generic[T any] enum /* ERROR "enum types cannot have type parameters" */ {
+	G
+}
+
+// Conversions to enum types: constants must be values of the enum, and
+// only integers can be converted. Non-constant conversions are checked at
+// run time.
+
+var _ Color = Color(2)
+var _ = Color(3 /* ERROR "cannot convert 3 (untyped int constant) to enum type Color: 3 is not a value of Color" */)
+var _ = Color(1.5 /* ERROR "only integers can be converted to enum types" */)
+var _ = Color("red" /* ERROR "only integers can be converted to enum types" */)
+
+func _(n int, u uint8, f float64, d Duplicate) {
+	_ = Color(n)
+	_ = Color(u)
+	_ = Color(d)
+	_ = Color(f /* ERROR "only integers can be converted to enum types" */)
+	_ = int(Color::Red)
+}
+
+// Only comparison operators are defined on enum types.
+
+const blue = Color::Blue
+
+func _(c Color, n int) {
+	_ = c == Color::Red
+	_ = c != Color::Red
+	_ = c < Color::Blue
+	_ = c >= blue
+	_ = c /* ERROR "operator + not defined on c" */ + Color::Red
+	_ = blue /* ERROR "enum types only support comparison" */ + blue
+	_ = n << c /* ERROR "enum types only support comparison" */
+	_ = -c /* ERROR "enum types only support comparison" */
+	c /* ERROR "enum types only support comparison" */ ++
+	c /* ERROR "enum types only support comparison" */ |= Color::Green
+	_ = &c
+	_ = [3]int{}[c]
+	_ = c == 1 /* ERROR "to type Color" */
+}
+
+// A switch on an enum value has a case for every value, or a default clause.
+
+func _(c Color) {
+	switch c /* ERROR "switch on Color has no case for Blue and no default case" */ {
+	case Color::Red, Color::Green:
+	}
+
+	switch c /* ERROR "switch on Color has no case for Red, Green, Blue and no default case" */ {
+	}
+
+	switch c {
+	case Color::Red:
+	default:
+	}
+
+	switch c {
+	case Color::Red, Color::Green, Color::Blue:
+	}
+
+	switch {
+	case c == Color::Red:
+	}
+
+	switch n := 1; n {
+	case 1:
+	}
+}

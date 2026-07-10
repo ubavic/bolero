@@ -1,0 +1,98 @@
+# Enum types work across packages, and with bolero vet and bolero test.
+
+bolero vet . ./colors
+bolero test ./colors
+stdout '^ok'
+
+bolero run .
+stdout '^red green blue$'
+stdout '^true$'
+stdout '^Red Blue$'
+stdout '^runtime error: 5 is not a value of enum colors.Color$'
+
+# Conversions and switches are checked for imported enum types too.
+! bolero build ./bad
+stderr 'switch on colors.Color has no case for Blue and no default case'
+stderr 'cannot convert 7 \(untyped int constant\) to enum type colors.Color: 7 is not a value of colors.Color'
+stderr 'operator \+ not defined on c .*: enum types only support comparison'
+
+-- go.mod --
+module example.com/m
+
+go 1.26
+-- colors/colors.bo --
+package colors
+
+type Color enum {
+	Red
+	Green
+	Blue
+}
+
+func (c Color) Name() string {
+	switch c {
+	case Color::Red:
+		return "red"
+	case Color::Green:
+		return "green"
+	default:
+		return "blue"
+	}
+}
+
+// FromInt is inlined into callers in other packages, and the conversion
+// must still be checked there.
+func FromInt(n int) Color { return Color(n) }
+-- colors/colors_test.bo --
+package colors
+
+import "testing"
+
+func TestName(t *testing.T) {
+	if got := Color::Green.Name(); got != "green" {
+		t.Errorf("Color::Green.Name() = %q, want green", got)
+	}
+}
+
+func TestString(t *testing.T) {
+	if got := Color::Green.String(); got != "Green" {
+		t.Errorf("Color::Green.String() = %q, want Green", got)
+	}
+}
+-- main.bo --
+package main
+
+import (
+	"fmt"
+	"strings"
+
+	"example.com/m/colors"
+)
+
+func main() {
+	var names []string
+	for c := range colors.Color {
+		names = append(names, c.Name())
+	}
+	fmt.Println(strings.Join(names, " "))
+	fmt.Println(colors.FromInt(2) == colors.Color::Blue)
+
+	// Enum types get a String method returning the value names.
+	var s fmt.Stringer = colors.Color::Blue
+	fmt.Println(colors.Color::Red, s.String())
+
+	defer func() { fmt.Println(recover()) }()
+	colors.FromInt(5)
+}
+-- bad/bad.bo --
+package bad
+
+import "example.com/m/colors"
+
+func F(c colors.Color) {
+	switch c {
+	case colors.Color::Red, colors.Color::Green:
+	}
+	_ = colors.Color(7)
+	_ = c + colors.Color::Red
+}

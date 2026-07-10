@@ -167,6 +167,10 @@ func (check *Checker) unary(x *operand, e *ast.UnaryExpr) {
 		op = token.XOR
 	}
 
+	if !check.enumOperand(x, op) {
+		x.mode = invalid
+		return
+	}
 	if !check.op(unaryOpPredicates, x, op) {
 		x.mode = invalid
 		return
@@ -360,7 +364,7 @@ func (check *Checker) updateExprType(x ast.Expr, typ Type, final bool) {
 	if old.val != nil {
 		// If x is a constant, it must be representable as a value of typ.
 		c := operand{old.mode, x, old.typ, old.val, 0}
-		check.convertUntyped(&c, typ)
+		check.convertUntyped(&c, enumUnderlying(typ))
 		if c.mode == invalid {
 			return
 		}
@@ -389,6 +393,12 @@ func (check *Checker) implicitTypeAndValue(x *operand, target Type) (Type, const
 		return x.typ, nil, 0
 	}
 	// x is untyped
+
+	// Enums do not accept implicit conversions from untyped values.
+	// Use a Color::Value or explicit Color(n) conversion instead.
+	if enumInfoOf(target) != nil {
+		return nil, nil, InvalidUntypedConversion
+	}
 
 	if isUntyped(target) {
 		// both x and target are untyped
@@ -791,6 +801,11 @@ func (check *Checker) binary(x *operand, e ast.Expr, lhs, rhs ast.Expr, op token
 		return
 	}
 
+	if !isComparison(op) && !(check.enumOperand(x, op) && check.enumOperand(&y, op)) {
+		x.mode = invalid
+		return
+	}
+
 	if isShift(op) {
 		check.shift(x, &y, e, op)
 		return
@@ -1086,6 +1101,12 @@ func (check *Checker) exprInternal(T *target, x *operand, e ast.Expr, hint Type)
 
 	case *ast.SelectorExpr:
 		check.selector(x, e, false)
+
+	case *ast.EnumAccessExpr:
+		check.enumAccess(x, e)
+		if x.mode == invalid {
+			goto Error
+		}
 
 	case *ast.IndexExpr, *ast.IndexListExpr:
 		ix := unpackIndexedExpr(e)

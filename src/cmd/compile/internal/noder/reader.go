@@ -2551,6 +2551,9 @@ func (r *reader) expr() (res ir.Node) {
 	case exprRuntimeBuiltin:
 		builtin := typecheck.LookupRuntime(r.String())
 		return builtin
+
+	case exprEnumConvert:
+		return r.enumConvert()
 	}
 }
 

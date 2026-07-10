@@ -399,6 +399,9 @@ func (p *printer) printRawNode(n Node) {
 	case *SelectorExpr:
 		p.print(n.X, _Dot, n.Sel)
 
+	case *EnumAccessExpr:
+		p.print(n.X, _EnumAccess, n.Sel)
+
 	case *IndexExpr:
 		p.print(n.X, _Lbrack, n.Index, _Rbrack)
 
@@ -499,6 +502,33 @@ func (p *printer) printRawNode(n Node) {
 		} else {
 			p.print(_Lbrace)
 			p.printMethodList(n.MethodList)
+		}
+		p.print(_Rbrace)
+
+	case *EnumType:
+		p.print(_Enum)
+		if len(n.ValueList) > 0 && p.linebreaks {
+			p.print(blank)
+		}
+		p.print(_Lbrace)
+		if len(n.ValueList) > 0 {
+			if p.linebreaks {
+				p.print(newline, indent)
+				for i, v := range n.ValueList {
+					if i > 0 {
+						p.print(_Semi, newline)
+					}
+					p.printNode(v)
+				}
+				p.print(outdent, newline)
+			} else {
+				for i, v := range n.ValueList {
+					if i > 0 {
+						p.print(_Semi, blank)
+					}
+					p.printNode(v)
+				}
+			}
 		}
 		p.print(_Rbrace)
 

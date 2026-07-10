@@ -1106,6 +1106,20 @@ loop:
 	for {
 		pos := p.pos()
 		switch p.tok {
+		case _EnumAccess:
+			// pexpr '::' sym
+			p.next()
+			if p.tok != _Name {
+				p.syntaxError("expected name after ::")
+				p.advance(_Semi, _Rparen, _Rbrace)
+				break loop
+			}
+			t := new(EnumAccessExpr)
+			t.pos = pos
+			t.X = x
+			t.Sel = p.name()
+			x = t
+
 		case _Dot:
 			p.next()
 			switch p.tok {
@@ -1407,6 +1421,9 @@ func (p *parser) typeOrNil() Expr {
 	case _Interface:
 		return p.interfaceType()
 
+	case _Enum:
+		return p.enumType()
+
 	case _Name:
 		return p.qualifiedName(nil)
 
@@ -1571,6 +1588,38 @@ func (p *parser) interfaceType() *InterfaceType {
 		typ.MethodList = append(typ.MethodList, f)
 		return false
 	})
+
+	return typ
+}
+
+// EnumType = "enum" "{" identifier { ";" identifier } [ ";" ] "}" .
+//
+// Each enum must declare at least one value. Duplicate names are
+// detected by the type checker. Methods on the enum type are
+// declared separately, like for any other defined type.
+func (p *parser) enumType() *EnumType {
+	if trace {
+		defer p.trace("enumType")()
+	}
+
+	typ := new(EnumType)
+	typ.pos = p.pos()
+
+	p.want(_Enum)
+	p.want(_Lbrace)
+	p.list("enum type", _Semi, _Rbrace, func() bool {
+		if p.tok == _Name {
+			typ.ValueList = append(typ.ValueList, p.name())
+		} else {
+			p.syntaxError("expected enum value name")
+			p.advance(_Semi, _Rbrace)
+		}
+		return false
+	})
+
+	if len(typ.ValueList) == 0 {
+		p.syntaxErrorAt(typ.pos, "enum type must declare at least one value")
+	}
 
 	return typ
 }

@@ -484,6 +484,9 @@ func (check *Checker) stmt(ctxt stmtContext, s syntax.Stmt) {
 				check.errorf(s.Lhs, NonNumericIncDec, invalidOp+"%s%s%s (non-numeric type %s)", s.Lhs, s.Op, s.Op, x.typ)
 				return
 			}
+			if !check.enumOperand(&x, s.Op) {
+				return
+			}
 			check.assignVar(s.Lhs, nil, &x, "assignment")
 			return
 		}
@@ -758,6 +761,7 @@ func (check *Checker) switchStmt(inner stmtContext, s *syntax.SwitchStmt) {
 		check.stmtList(inner, clause.Body)
 		check.closeScope()
 	}
+	check.enumSwitch(&x, s, seen)
 }
 
 func (check *Checker) typeSwitchStmt(inner stmtContext, s *syntax.SwitchStmt, guard *syntax.TypeSwitchGuard) {

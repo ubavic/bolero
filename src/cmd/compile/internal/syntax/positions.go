@@ -42,6 +42,8 @@ func StartPos(n Node) Pos {
 		// case *ParenExpr:
 		case *SelectorExpr:
 			m = n.X
+		case *EnumAccessExpr:
+			m = n.X
 		case *IndexExpr:
 			m = n.X
 		// case *SliceExpr:
@@ -190,6 +192,8 @@ func EndPos(n Node) Pos {
 			m = n.X
 		case *SelectorExpr:
 			m = n.Sel
+		case *EnumAccessExpr:
+			m = n.Sel
 		case *IndexExpr:
 			m = n.Index
 		case *SliceExpr:
@@ -246,6 +250,12 @@ func EndPos(n Node) Pos {
 		case *InterfaceType:
 			if l := lastField(n.MethodList); l != nil {
 				m = l
+				continue
+			}
+			return n.Pos()
+		case *EnumType:
+			if l := len(n.ValueList); l > 0 {
+				m = n.ValueList[l-1]
 				continue
 			}
 			return n.Pos()

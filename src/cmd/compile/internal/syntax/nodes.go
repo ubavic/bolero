@@ -290,6 +290,29 @@ type (
 		expr
 	}
 
+	// enum { ValueList[0]; ValueList[1]; ... }
+	//
+	// Represents the type definition of an enum. The values are
+	// identifier names that become constants of the enum's type
+	// when lowered. Methods on the enum type are declared
+	// separately (like for any other defined type).
+	EnumType struct {
+		ValueList []*Name
+		expr
+	}
+
+	// X "::" Sel
+	//
+	// Represents the type-qualified access to an enum value, e.g.
+	// Color::Red. The left-hand side X must syntactically be a
+	// type name (a Name or qualified SelectorExpr); this is
+	// enforced by the type checker.
+	EnumAccessExpr struct {
+		X   Expr
+		Sel *Name
+		expr
+	}
+
 	FuncType struct {
 		ParamList  []*Field
 		ResultList []*Field

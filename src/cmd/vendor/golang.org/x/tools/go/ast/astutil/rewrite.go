@@ -449,6 +449,14 @@ func (a *application) apply(parent ast.Node, name string, iter *iterator, n ast.
 			a.apply(n, name, nil, n.Files[name])
 		}
 
+	// Bolero
+	case *ast.EnumAccessExpr:
+		a.apply(n, "X", nil, n.X)
+		a.apply(n, "Sel", nil, n.Sel)
+
+	case *ast.EnumType:
+		a.apply(n, "Values", nil, n.Values)
+
 	default:
 		panic(fmt.Sprintf("Apply: unexpected node type %T", n))
 	}

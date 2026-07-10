@@ -1300,6 +1300,47 @@ parseElements:
 	}
 }
 
+// parseEnumType parses an enum type literal:
+//
+//	EnumType  = "enum" "{" { EnumValue ";" } "}" .
+//	EnumValue = identifier .
+//
+// Each enum value is recorded as a *ast.Field with a single Name and a
+// nil Type; the type is implicit (the enum type being defined).
+func (p *parser) parseEnumType() *ast.EnumType {
+	if p.trace {
+		defer un(trace(p, "EnumType"))
+	}
+
+	pos := p.expect(token.ENUM)
+	lbrace := p.expect(token.LBRACE)
+
+	var list []*ast.Field
+	for p.tok == token.IDENT {
+		name := p.parseIdent()
+		comment := p.expectSemi()
+		list = append(list, &ast.Field{
+			Names:   []*ast.Ident{name},
+			Comment: comment,
+		})
+	}
+
+	rbrace := p.expect(token.RBRACE)
+
+	if len(list) == 0 {
+		p.error(pos, "enum type must declare at least one value")
+	}
+
+	return &ast.EnumType{
+		Enum: pos,
+		Values: &ast.FieldList{
+			Opening: lbrace,
+			List:    list,
+			Closing: rbrace,
+		},
+	}
+}
+
 func (p *parser) parseMapType() *ast.MapType {
 	if p.trace {
 		defer un(trace(p, "MapType"))
@@ -1396,6 +1437,8 @@ func (p *parser) tryIdentOrType() ast.Expr {
 		return p.parseMapType()
 	case token.CHAN, token.ARROW:
 		return p.parseChanType()
+	case token.ENUM:
+		return p.parseEnumType()
 	case token.LPAREN:
 		lparen := p.pos
 		p.next()
@@ -1733,6 +1776,20 @@ func (p *parser) parsePrimaryExpr(x ast.Expr) ast.Expr {
 	for n = 1; ; n++ {
 		incNestLev(p)
 		switch p.tok {
+		case token.ENUM_ACCESS:
+			p.next()
+			if p.tok != token.IDENT {
+				pos := p.pos
+				p.errorExpected(pos, "enum value name after ::")
+				if p.tok != token.RBRACE {
+					p.next()
+				}
+				sel := &ast.Ident{NamePos: pos, Name: "_"}
+				x = &ast.EnumAccessExpr{X: x, Sel: sel}
+			} else {
+				sel := p.parseIdent()
+				x = &ast.EnumAccessExpr{X: x, Sel: sel}
+			}
 		case token.PERIOD:
 			p.next()
 			switch p.tok {

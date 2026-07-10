@@ -63,6 +63,7 @@ const (
 	exprRecv
 	exprReshape
 	exprRuntimeBuiltin // a reference to a runtime function from transformed syntax. Followed by string name, e.g., "panicrangeexit"
+	exprEnumConvert    // a conversion to an enum type, checked at run time
 )
 
 type codeAssign int

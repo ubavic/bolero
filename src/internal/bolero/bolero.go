@@ -49,6 +49,11 @@ func TrimExt(name string) (stem, ext string) {
 // which can construct go/types objects only through its exported API.
 var MarkGoTypesObject func(obj any)
 
+// SetGoTypesEnum, if set, records that a go/types type name declares an
+// enum type with the given values. Like MarkGoTypesObject, it is set by
+// go/types and called by importers.
+var SetGoTypesEnum func(tn any, names []string)
+
 func hasSuffix(s, suffix string) bool {
 	return len(s) >= len(suffix) && s[len(s)-len(suffix):] == suffix
 }

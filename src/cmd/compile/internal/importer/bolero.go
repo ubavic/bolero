@@ -21,6 +21,9 @@ func (pr *pkgReader) markBolero() {
 		if bo.Decl {
 			types2.MarkBolero(obj)
 		}
+		if len(bo.Enum) > 0 {
+			types2.SetEnumValues(obj.(*types2.TypeName), bo.Enum)
+		}
 		if len(bo.Methods) == 0 {
 			continue
 		}

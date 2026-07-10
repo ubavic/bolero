@@ -162,6 +162,11 @@ const (
 	ValueSpec_Type
 	ValueSpec_Values
 
+	// Bolero
+	EnumAccessExpr_Sel
+	EnumAccessExpr_X
+	EnumType_Values
+
 	maxKind
 )
 
@@ -292,4 +297,9 @@ var fieldInfos = [...]fieldInfo{
 	ValueSpec_Names:       info[*ast.ValueSpec]("Names"),
 	ValueSpec_Type:        info[*ast.ValueSpec]("Type"),
 	ValueSpec_Values:      info[*ast.ValueSpec]("Values"),
+
+	// Bolero
+	EnumAccessExpr_Sel: info[*ast.EnumAccessExpr]("Sel"),
+	EnumAccessExpr_X:   info[*ast.EnumAccessExpr]("X"),
+	EnumType_Values:    info[*ast.EnumType]("Values"),
 }

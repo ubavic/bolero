@@ -30,8 +30,9 @@ func (pw *pkgWriter) writeBoleroRoot() {
 					bo.Methods = append(bo.Methods, m.Name())
 				}
 			}
+			bo.Enum = types2.EnumValues(named.Obj())
 		}
-		if bo.Decl || len(bo.Methods) > 0 {
+		if bo.Decl || len(bo.Methods) > 0 || len(bo.Enum) > 0 {
 			objs[idx] = bo
 		}
 	}

@@ -315,6 +315,7 @@ func readBodies(target *ir.Package, duringInlining bool) {
 // writes an export data package stub representing them,
 // and returns the result.
 func writePkgStub(m posMap, noders []*noder) string {
+	addEnumStringMethods(noders)
 	pkg, info, otherInfo := checkFiles(m, noders)
 
 	pw := newPkgWriter(m, pkg, info, otherInfo)

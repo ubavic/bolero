@@ -669,6 +669,7 @@ func (check *Checker) stmt(ctxt stmtContext, s ast.Stmt) {
 			check.stmtList(inner, clause.Body)
 			check.closeScope()
 		}
+		check.enumSwitch(&x, s, seen)
 
 	case *ast.TypeSwitchStmt:
 		inner |= breakOk | inTypeSwitch

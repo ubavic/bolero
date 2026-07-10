@@ -17,6 +17,7 @@ const BoleroRootIdx RelElemIdx = 2
 type BoleroObj struct {
 	Decl    bool     // the object is declared in a Bolero source file
 	Methods []string // names of the object's methods declared in Bolero source files
+	Enum    []string // if the object declares an enum type, the names of its values
 }
 
 // WriteBoleroRoot writes the Bolero root, which describes the objects in
@@ -41,6 +42,10 @@ func (pw *PkgEncoder) WriteBoleroRoot(objs map[RelElemIdx]BoleroObj) {
 		for _, name := range obj.Methods {
 			w.String(name)
 		}
+		w.Len(len(obj.Enum))
+		for _, name := range obj.Enum {
+			w.String(name)
+		}
 	}
 	w.Flush()
 }
@@ -58,6 +63,9 @@ func (pr *PkgDecoder) BoleroRoot() map[RelElemIdx]BoleroObj {
 		obj := BoleroObj{Decl: r.Bool()}
 		for range r.Len() {
 			obj.Methods = append(obj.Methods, r.String())
+		}
+		for range r.Len() {
+			obj.Enum = append(obj.Enum, r.String())
 		}
 		objs[idx] = obj
 	}

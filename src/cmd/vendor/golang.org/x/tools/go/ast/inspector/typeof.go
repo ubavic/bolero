@@ -71,6 +71,10 @@ const (
 	nTypeSwitchStmt
 	nUnaryExpr
 	nValueSpec
+
+	// Bolero
+	nEnumAccessExpr
+	nEnumType
 )
 
 // typeOf returns a distinct single-bit value that represents the type of n.
@@ -211,6 +215,12 @@ func typeOf(n ast.Node) uint64 {
 		return 1 << nUnaryExpr
 	case *ast.ValueSpec:
 		return 1 << nValueSpec
+
+	// Bolero
+	case *ast.EnumAccessExpr:
+		return 1 << nEnumAccessExpr
+	case *ast.EnumType:
+		return 1 << nEnumType
 	}
 	return 0
 }

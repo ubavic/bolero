@@ -1,0 +1,11 @@
+0 red
+1 green
+2 blue
+Large
+Small Small 0 "Large"
+0 red
+2 blue
+3 runtime error: 3 is not a value of enum main.Color
+-1 runtime error: -1 is not a value of enum main.Color
+-128 runtime error: -128 is not a value of enum main.Color
+9223372036854775808 runtime error: 9223372036854775808 is not a value of enum main.Color

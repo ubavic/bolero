@@ -70,6 +70,8 @@ const (
 
 	// Bolero tokens, recognized only in Bolero mode;
 	// those spelled like identifiers are Bolero keywords
+	_Enum       // enum
+	_EnumAccess // ::
 
 	// empty line comment to exclude it from .String
 	tokenCount //

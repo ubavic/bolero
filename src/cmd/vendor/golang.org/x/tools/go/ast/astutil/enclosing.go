@@ -653,6 +653,11 @@ func NodeDescription(n ast.Node) string {
 	case *ast.ValueSpec:
 		return "value specification"
 
+	// Bolero
+	case *ast.EnumAccessExpr:
+		return "enum value"
+	case *ast.EnumType:
+		return "enum type"
 	}
 	panic(fmt.Sprintf("unexpected node type: %T", n))
 }

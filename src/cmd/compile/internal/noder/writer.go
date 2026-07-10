@@ -2313,6 +2313,9 @@ func (w *writer) implicitConvExpr(dst types2.Type, expr syntax.Expr) {
 }
 
 func (w *writer) convertExpr(dst types2.Type, expr syntax.Expr, implicit bool) {
+	if w.enumConvertExpr(dst, expr) {
+		return
+	}
 	src := w.p.typeOf(expr)
 
 	// Omit implicit no-op conversions.

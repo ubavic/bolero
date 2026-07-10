@@ -1,0 +1,15 @@
+pkg go/ast, method (*EnumAccessExpr) End() token.Pos
+pkg go/ast, method (*EnumAccessExpr) Pos() token.Pos
+pkg go/ast, method (*EnumType) End() token.Pos
+pkg go/ast, method (*EnumType) Pos() token.Pos
+pkg go/ast, type EnumAccessExpr struct
+pkg go/ast, type EnumAccessExpr struct, Sel *Ident
+pkg go/ast, type EnumAccessExpr struct, X Expr
+pkg go/ast, type EnumType struct
+pkg go/ast, type EnumType struct, Enum token.Pos
+pkg go/ast, type EnumType struct, Incomplete bool
+pkg go/ast, type EnumType struct, Values *FieldList
+pkg go/token, const ENUM = 91
+pkg go/token, const ENUM Token
+pkg go/token, const ENUM_ACCESS = 92
+pkg go/token, const ENUM_ACCESS Token

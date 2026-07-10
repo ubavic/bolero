@@ -133,6 +133,8 @@ const (
 	bolero_beg
 	// Bolero tokens, recognized only in Bolero mode;
 	// those spelled like identifiers are Bolero keywords
+	ENUM        // enum
+	ENUM_ACCESS // ::
 	bolero_end
 )
 
@@ -236,6 +238,9 @@ var tokens = [...]string{
 	VAR:    "var",
 
 	TILDE: "~",
+
+	ENUM:        "enum",
+	ENUM_ACCESS: "::",
 }
 
 // String returns the string corresponding to the token tok.

@@ -52,6 +52,12 @@ func typeExprEndPos(expr0 syntax.Expr) syntax.Pos {
 				return expr.Pos()
 			}
 
+		case *syntax.EnumType:
+			if l := len(expr.ValueList); l > 0 {
+				return expr.ValueList[l-1].Pos()
+			}
+			return expr.Pos()
+
 		case *syntax.FuncType:
 			expr0 = lastFieldType(expr.ResultList)
 			if expr0 == nil {

@@ -21,6 +21,9 @@ func (pr *pkgReader) markBolero() {
 		if bo.Decl {
 			bolero.MarkGoTypesObject(obj)
 		}
+		if len(bo.Enum) > 0 {
+			bolero.SetGoTypesEnum(obj, bo.Enum)
+		}
 		if len(bo.Methods) == 0 {
 			continue
 		}

@@ -21,13 +21,17 @@ import (
 
 // A boleroPackage holds the Bolero information about a package.
 type boleroPackage struct {
-	decls map[Object]bool // package-level objects and methods declared in Bolero source files
+	decls map[Object]bool         // package-level objects and methods declared in Bolero source files
+	enums map[*TypeName]*enumInfo // enum types declared in the package
 }
 
 // boleroInfo returns the Bolero information about pkg, creating it if needed.
 func (pkg *Package) boleroInfo() *boleroPackage {
 	if pkg.bolero == nil {
-		pkg.bolero = &boleroPackage{decls: make(map[Object]bool)}
+		pkg.bolero = &boleroPackage{
+			decls: make(map[Object]bool),
+			enums: make(map[*TypeName]*enumInfo),
+		}
 	}
 	return pkg.bolero
 }

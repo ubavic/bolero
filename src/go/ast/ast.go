@@ -194,8 +194,8 @@ func isDirective(c string) bool {
 // Expressions and types
 
 // A Field represents a Field declaration list in a struct type,
-// a method list in an interface type, or a parameter/result declaration
-// in a signature.
+// a method list in an interface type, value definition in enum type,
+// or a parameter/result declaration in a signature.
 // [Field.Names] is nil for unnamed parameters (parameter lists which only contain types)
 // and embedded struct fields. In the latter case, the field name is the type name.
 type Field struct {
@@ -348,6 +348,14 @@ type (
 		Sel *Ident // field selector
 	}
 
+	// An EnumAccessExpr node represents a type-qualified access to an
+	// enum value of the form T::Value. The type checker enforces that
+	// X is the name of an enum type.
+	EnumAccessExpr struct {
+		X   Expr   // enum type (must be a type name)
+		Sel *Ident // enum value
+	}
+
 	// An IndexExpr node represents an expression followed by an index.
 	IndexExpr struct {
 		X      Expr      // expression
@@ -457,6 +465,23 @@ type (
 		Incomplete bool       // true if (source) fields are missing in the Fields list
 	}
 
+	// An EnumType node represents an enum type:
+	//
+	//	type Color enum {
+	//		Red
+	//		Green
+	//		Blue
+	//	}
+	//
+	// The Values list contains one Field per declared enum value.
+	// Each Field has exactly one Name and a nil Type (the type is
+	// implicitly the enum type being defined).
+	EnumType struct {
+		Enum       token.Pos  // position of "enum" keyword
+		Values     *FieldList // list of value declarations; each entry has a single Name
+		Incomplete bool       // true if (source) values are missing in the Values list
+	}
+
 	// Pointer types are represented via StarExpr nodes.
 
 	// A FuncType node represents a function type.
@@ -505,6 +530,7 @@ func (x *CompositeLit) Pos() token.Pos {
 }
 func (x *ParenExpr) Pos() token.Pos      { return x.Lparen }
 func (x *SelectorExpr) Pos() token.Pos   { return x.X.Pos() }
+func (x *EnumAccessExpr) Pos() token.Pos { return x.X.Pos() }
 func (x *IndexExpr) Pos() token.Pos      { return x.X.Pos() }
 func (x *IndexListExpr) Pos() token.Pos  { return x.X.Pos() }
 func (x *SliceExpr) Pos() token.Pos      { return x.X.Pos() }
@@ -523,6 +549,7 @@ func (x *FuncType) Pos() token.Pos {
 	return x.Params.Pos() // interface method declarations have no "func" keyword
 }
 func (x *InterfaceType) Pos() token.Pos { return x.Interface }
+func (x *EnumType) Pos() token.Pos      { return x.Enum }
 func (x *MapType) Pos() token.Pos       { return x.Map }
 func (x *ChanType) Pos() token.Pos      { return x.Begin }
 
@@ -547,6 +574,7 @@ func (x *FuncLit) End() token.Pos        { return x.Body.End() }
 func (x *CompositeLit) End() token.Pos   { return x.Rbrace + 1 }
 func (x *ParenExpr) End() token.Pos      { return x.Rparen + 1 }
 func (x *SelectorExpr) End() token.Pos   { return x.Sel.End() }
+func (x *EnumAccessExpr) End() token.Pos { return x.Sel.End() }
 func (x *IndexExpr) End() token.Pos      { return x.Rbrack + 1 }
 func (x *IndexListExpr) End() token.Pos  { return x.Rbrack + 1 }
 func (x *SliceExpr) End() token.Pos      { return x.Rbrack + 1 }
@@ -565,6 +593,7 @@ func (x *FuncType) End() token.Pos {
 	return x.Params.End()
 }
 func (x *InterfaceType) End() token.Pos { return x.Methods.End() }
+func (x *EnumType) End() token.Pos      { return x.Values.End() }
 func (x *MapType) End() token.Pos       { return x.Value.End() }
 func (x *ChanType) End() token.Pos      { return x.Value.End() }
 
@@ -578,6 +607,7 @@ func (*FuncLit) exprNode()        {}
 func (*CompositeLit) exprNode()   {}
 func (*ParenExpr) exprNode()      {}
 func (*SelectorExpr) exprNode()   {}
+func (*EnumAccessExpr) exprNode() {}
 func (*IndexExpr) exprNode()      {}
 func (*IndexListExpr) exprNode()  {}
 func (*SliceExpr) exprNode()      {}
@@ -592,6 +622,7 @@ func (*ArrayType) exprNode()     {}
 func (*StructType) exprNode()    {}
 func (*FuncType) exprNode()      {}
 func (*InterfaceType) exprNode() {}
+func (*EnumType) exprNode()      {}
 func (*MapType) exprNode()       {}
 func (*ChanType) exprNode()      {}
 

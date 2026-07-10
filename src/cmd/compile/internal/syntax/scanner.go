@@ -177,6 +177,11 @@ redo:
 			s.tok = _Define
 			break
 		}
+		if s.ch == ':' && s.mode&boleroTok != 0 {
+			s.nextch()
+			s.tok = _EnumAccess
+			break
+		}
 		s.tok = _Colon
 
 	case '.':

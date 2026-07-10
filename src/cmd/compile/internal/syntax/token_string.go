@@ -54,17 +54,19 @@ func _() {
 	_ = x[_Switch-44]
 	_ = x[_Type-45]
 	_ = x[_Var-46]
-	_ = x[tokenCount-47]
+	_ = x[_Enum-47]
+	_ = x[_EnumAccess-48]
+	_ = x[tokenCount-49]
 }
 
-const _token_name = "EOFnameliteralopop=opop=:=<-*([{)]},;:....breakcasechanconstcontinuedefaultdeferelsefallthroughforfuncgogotoifimportinterfacemappackagerangereturnselectstructswitchtypevar"
+const _token_name = "EOFnameliteralopop=opop=:=<-*([{)]},;:....breakcasechanconstcontinuedefaultdeferelsefallthroughforfuncgogotoifimportinterfacemappackagerangereturnselectstructswitchtypevarenum::"
 
-var _token_index = [...]uint8{0, 3, 7, 14, 16, 19, 23, 24, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 42, 47, 51, 55, 60, 68, 75, 80, 84, 95, 98, 102, 104, 108, 110, 116, 125, 128, 135, 140, 146, 152, 158, 164, 168, 171, 171}
+var _token_index = [...]uint8{0, 3, 7, 14, 16, 19, 23, 24, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 42, 47, 51, 55, 60, 68, 75, 80, 84, 95, 98, 102, 104, 108, 110, 116, 125, 128, 135, 140, 146, 152, 158, 164, 168, 171, 175, 177, 177}
 
 func (i token) String() string {
-	i -= 1
-	if i >= token(len(_token_index)-1) {
-		return "token(" + strconv.FormatInt(int64(i+1), 10) + ")"
+	idx := int(i) - 1
+	if i < 1 || idx >= len(_token_index)-1 {
+		return "token(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _token_name[_token_index[i]:_token_index[i+1]]
+	return _token_name[_token_index[idx]:_token_index[idx+1]]
 }

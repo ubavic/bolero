@@ -310,3 +310,6 @@ func asanregisterglobals(unsafe.Pointer, uintptr)
 
 // used by testing.B.Loop
 func KeepAlive(interface{})
+
+// used by Bolero conversions to enum types
+func boleroEnumValue(x, n uint64, signed bool, typ string) uint64
