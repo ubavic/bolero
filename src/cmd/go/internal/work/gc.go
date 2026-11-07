@@ -579,7 +579,7 @@ func pluginPath(a *Action) string {
 	}
 	fmt.Fprintf(h, "build ID: %s\n", buildID)
 	for _, file := range str.StringList(p.GoFiles, p.CgoFiles, p.SFiles) {
-		data, err := os.ReadFile(filepath.Join(p.Dir, file))
+		data, err := os.ReadFile(mkAbs(p.Dir, file))
 		if err != nil {
 			base.Fatalf("bolero: %s", err)
 		}

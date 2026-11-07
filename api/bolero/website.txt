@@ -1,0 +1,81 @@
+pkg bolero/ui, const Boolean = 7
+pkg bolero/ui, const Boolean Kind
+pkg bolero/ui, const Date = 4
+pkg bolero/ui, const Date Kind
+pkg bolero/ui, const DateTime = 6
+pkg bolero/ui, const DateTime Kind
+pkg bolero/ui, const Decimal = 2
+pkg bolero/ui, const Decimal Kind
+pkg bolero/ui, const Integer = 1
+pkg bolero/ui, const Integer Kind
+pkg bolero/ui, const Selection = 3
+pkg bolero/ui, const Selection Kind
+pkg bolero/ui, const Text = 0
+pkg bolero/ui, const Text Kind
+pkg bolero/ui, const Time = 5
+pkg bolero/ui, const Time Kind
+pkg bolero/ui, func Handler() http.Handler
+pkg bolero/ui, func ListenAndServe(string) error
+pkg bolero/ui, func Register(Route)
+pkg bolero/ui, func SetAppName(string)
+pkg bolero/ui, method (*Context) ClearInput(string, string)
+pkg bolero/ui, method (*Context) FieldError(string, string) string
+pkg bolero/ui, method (*Context) Input(string, string) (string, bool)
+pkg bolero/ui, method (*Context) Path() string
+pkg bolero/ui, method (*Context) Query() url.Values
+pkg bolero/ui, method (*Context) SetInput(string, string, string)
+pkg bolero/ui, method (*Context) Valid(string) bool
+pkg bolero/ui, type Action struct
+pkg bolero/ui, type Action struct, Form string
+pkg bolero/ui, type Action struct, Label string
+pkg bolero/ui, type Action struct, Name string
+pkg bolero/ui, type Action struct, OnClick func(*Context)
+pkg bolero/ui, type ActionPicker struct
+pkg bolero/ui, type ActionPicker struct, Actions []Action
+pkg bolero/ui, type ActionPicker struct, Name string
+pkg bolero/ui, type ActionPicker struct, Title string
+pkg bolero/ui, type Context struct
+pkg bolero/ui, type Elem interface, unexported methods
+pkg bolero/ui, type Field struct
+pkg bolero/ui, type Field struct, Description string
+pkg bolero/ui, type Field struct, Error string
+pkg bolero/ui, type Field struct, Kind Kind
+pkg bolero/ui, type Field struct, Label string
+pkg bolero/ui, type Field struct, Max string
+pkg bolero/ui, type Field struct, Min string
+pkg bolero/ui, type Field struct, Name string
+pkg bolero/ui, type Field struct, Options []Option
+pkg bolero/ui, type Field struct, ReadOnly bool
+pkg bolero/ui, type Field struct, Required bool
+pkg bolero/ui, type Field struct, Validate func(string) error
+pkg bolero/ui, type Field struct, Value string
+pkg bolero/ui, type FieldGroup struct
+pkg bolero/ui, type FieldGroup struct, Fields []Field
+pkg bolero/ui, type FieldGroup struct, Title string
+pkg bolero/ui, type Form struct
+pkg bolero/ui, type Form struct, FieldGroups []FieldGroup
+pkg bolero/ui, type Form struct, Name string
+pkg bolero/ui, type Form struct, Title string
+pkg bolero/ui, type Group struct
+pkg bolero/ui, type Group struct, Collapsible bool
+pkg bolero/ui, type Group struct, Description string
+pkg bolero/ui, type Group struct, Items []Elem
+pkg bolero/ui, type Group struct, Title string
+pkg bolero/ui, type Kind int
+pkg bolero/ui, type Option struct
+pkg bolero/ui, type Option struct, Label string
+pkg bolero/ui, type Option struct, Value string
+pkg bolero/ui, type Page struct
+pkg bolero/ui, type Page struct, Groups []Group
+pkg bolero/ui, type Page struct, Title string
+pkg bolero/ui, type Route struct
+pkg bolero/ui, type Route struct, Order int
+pkg bolero/ui, type Route struct, Page func(*Context) Page
+pkg bolero/ui, type Route struct, Path string
+pkg bolero/ui, type Route struct, Title string
+pkg bolero/ui, type Table struct
+pkg bolero/ui, type Table struct, FieldGroups []FieldGroup
+pkg bolero/ui, type Table struct, Name string
+pkg bolero/ui, type Table struct, OnRow func(*Context, int)
+pkg bolero/ui, type Table struct, Rows [][]string
+pkg bolero/ui, type Table struct, Title string

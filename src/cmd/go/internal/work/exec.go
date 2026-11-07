@@ -424,7 +424,7 @@ func (b *Builder) buildActionID(a *Action) cache.ActionID {
 		p.EmbedFiles,
 	)
 	for _, file := range inputFiles {
-		fmt.Fprintf(h, "file %s %s\n", file, b.fileHash(filepath.Join(p.Dir, file)))
+		fmt.Fprintf(h, "file %s %s\n", file, b.fileHash(mkAbs(p.Dir, file)))
 	}
 	for _, a1 := range a.Deps {
 		p1 := a1.Package
@@ -677,8 +677,12 @@ func (b *Builder) runCover(a, buildAction *Action, objdir string, gofiles, cgofi
 			sourceFile = file
 			coverFile = objdir + base + ".cgo1.go"
 		} else {
-			sourceFile = filepath.Join(p.Dir, file)
+			sourceFile = mkAbs(p.Dir, file)
 			coverFile = objdir + file
+			if filepath.IsAbs(file) {
+				// Generated files may live outside the package directory.
+				coverFile = objdir + filepath.Base(file)
+			}
 		}
 		stem, ext := bolero.TrimExt(coverFile)
 		coverFile = stem + ".cover" + ext
@@ -3053,10 +3057,10 @@ func (b *Builder) runCgo(ctx context.Context, a *Action) error {
 	}
 
 	a.Provider = &runCgoProvider{
-		CFLAGS:                          str.StringList(cgoCPPFLAGS, cgoCFLAGS),
-		CXXFLAGS:                        str.StringList(cgoCPPFLAGS, cgoCXXFLAGS),
-		FFLAGS:                          str.StringList(cgoCPPFLAGS, cgoFFLAGS),
-		LDFLAGS:                         cgoLDFLAGS,
+		CFLAGS:   str.StringList(cgoCPPFLAGS, cgoCFLAGS),
+		CXXFLAGS: str.StringList(cgoCPPFLAGS, cgoCXXFLAGS),
+		FFLAGS:   str.StringList(cgoCPPFLAGS, cgoFFLAGS),
+		LDFLAGS:  cgoLDFLAGS,
 		notCompatibleForInternalLinking: notCompatibleWithInternalLinking,
 		nonGoOverlay:                    a.nonGoOverlay,
 		goFiles:                         gofiles,

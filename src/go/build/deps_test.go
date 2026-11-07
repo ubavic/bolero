@@ -860,6 +860,35 @@ var depsRules = `
 	# user packages do, and the bolero command adds the edge for .bo files.
 	reflect, sync
 	< bolero/meta;
+
+	# Bolero pages. Nothing in std imports bolero/ui.
+	bufio,
+	cmp,
+	crypto/rand,
+	crypto/sha1,
+	embed,
+	encoding/base64,
+	encoding/binary,
+	encoding/hex,
+	encoding/json,
+	errors,
+	fmt,
+	html,
+	io,
+	io/fs,
+	log,
+	math/big,
+	net,
+	net/http,
+	net/url,
+	os,
+	runtime/debug,
+	slices,
+	strconv,
+	strings,
+	sync,
+	time
+	< bolero/ui;
 `
 
 // listStdPkgs returns the same list of packages as "bolero list std".

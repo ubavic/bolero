@@ -1915,6 +1915,13 @@ func (p *Package) load(loaderstate *modload.State, ctx context.Context, opts Pac
 		}
 	}
 
+	// Page packages of an app.json module are imported by generated code.
+	// Add them before the import list below is loaded.
+	if werr := attachWebsite(loaderstate, ctx, p); werr != nil && p.Error == nil {
+		setError(werr)
+		return
+	}
+
 	// Build augmented import list to add implicit dependencies.
 	// Be careful not to add imports twice, just to avoid confusion.
 	importPaths := p.Imports
@@ -2760,7 +2767,10 @@ func externalLinkingReason(s *modload.State, p *Package) (what string) {
 // convenience also returns list back to its caller.
 func (p *Package) mkAbs(list []string) []string {
 	for i, f := range list {
-		list[i] = filepath.Join(p.Dir, f)
+		if !filepath.IsAbs(f) {
+			f = filepath.Join(p.Dir, f)
+		}
+		list[i] = f
 	}
 	sort.Strings(list)
 	return list

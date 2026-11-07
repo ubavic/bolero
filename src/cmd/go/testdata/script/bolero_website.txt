@@ -1,0 +1,83 @@
+# The directory layout of an app.json module is the URL scheme.
+# The bolero command wires page packages into main.
+
+cd shop
+bolero list -f '{{join .Imports "\n"}}'
+stdout 'example.com/shop/customers'
+stdout 'example.com/shop/invoices'
+stdout 'example.com/shop/products'
+stdout 'example.com/shop/customers/notes'
+stdout 'bolero/ui'
+! stdout 'internal/secret'
+
+# The source of main does not mention the page packages.
+! grep customers main.go
+! grep invoices main.go
+! grep products main.go
+
+bolero vet .
+bolero vet ./customers ./invoices ./products ./customers/notes
+bolero fmt ./...
+! stdout .
+bolero build -o shopbin .
+
+-- shop/app.json --
+{
+  "module": "example.com/shop",
+  "go": "1.26",
+  "name": "Shop"
+}
+-- shop/main.go --
+package main
+
+import "bolero/ui"
+
+func main() {
+	ui.ListenAndServe("")
+}
+-- shop/customers/page.go --
+package customers
+
+import "bolero/ui"
+
+const PageOrder = 2
+
+func Page(c *ui.Context) ui.Page {
+	return ui.Page{Title: "Customer " + c.Query().Get("id")}
+}
+-- shop/invoices/page.bo --
+package invoices
+
+import "bolero/ui"
+
+func Page(c *ui.Context) ui.Page {
+	return ui.Page{Title: "Invoices"}
+}
+-- shop/products/page.go --
+package products
+
+import "bolero/ui"
+
+const PageTitle = "Products"
+
+func Page(c *ui.Context) ui.Page {
+	return ui.Page{Title: "Products"}
+}
+-- shop/customers/notes/page.go --
+package notes
+
+import "bolero/ui"
+
+const PageTitle = "Notes"
+
+func Page(c *ui.Context) ui.Page {
+	return ui.Page{Title: "Notes"}
+}
+-- shop/internal/secret/page.go --
+package secret
+
+import "bolero/ui"
+
+func Page(c *ui.Context) ui.Page {
+	return ui.Page{Title: "Hidden"}
+}
