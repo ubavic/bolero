@@ -5,8 +5,11 @@
 package gcimporter
 
 import (
+	"go/constant"
 	"go/types"
 	"internal/bolero"
+	"internal/pkgbits"
+	"math/big"
 	"slices"
 )
 
@@ -24,6 +27,11 @@ func (pr *pkgReader) markBolero() {
 		if len(bo.Enum) > 0 {
 			bolero.SetGoTypesEnum(obj, bo.Enum)
 		}
+		if len(bo.Props) > 0 && bolero.AddGoTypesProp != nil {
+			for _, p := range bo.Props {
+				bolero.AddGoTypesProp(obj, p.On, p.Name, p.Key, constToAny(p.Val), pr.boleroConstType(p))
+			}
+		}
 		if len(bo.Methods) == 0 {
 			continue
 		}
@@ -33,5 +41,43 @@ func (pr *pkgReader) markBolero() {
 				bolero.MarkGoTypesObject(m)
 			}
 		}
+	}
+}
+
+func (pr *pkgReader) boleroConstType(p pkgbits.BoleroProp) types.Type {
+	if p.Basic >= 0 {
+		return types.Typ[types.BasicKind(p.Basic)]
+	}
+	pkg := pr.imports[p.TypePkg]
+	if pkg == nil {
+		return types.Typ[types.Invalid]
+	}
+	obj := pkg.Scope().Lookup(p.TypeName)
+	if obj == nil {
+		return types.Typ[types.Invalid]
+	}
+	return obj.Type()
+}
+
+func constToAny(v constant.Value) any {
+	switch v.Kind() {
+	case constant.Bool:
+		return constant.BoolVal(v)
+	case constant.String:
+		return constant.StringVal(v)
+	case constant.Int:
+		if i, ok := constant.Int64Val(v); ok {
+			return i
+		}
+		return constant.Val(v).(*big.Int)
+	case constant.Float:
+		return constant.Val(v).(*big.Float)
+	case constant.Complex:
+		return bolero.ComplexVal{Re: constToAny(constant.Real(v)), Im: constToAny(constant.Imag(v))}
+	default:
+		if r, ok := constant.Val(v).(*big.Rat); ok {
+			return r
+		}
+		return constant.Val(v)
 	}
 }

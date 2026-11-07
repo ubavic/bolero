@@ -57,6 +57,9 @@ func Walk(v Visitor, node Node) {
 		if n.Tag != nil {
 			Walk(v, n.Tag)
 		}
+		if n.Props != nil {
+			Walk(v, n.Props)
+		}
 		if n.Comment != nil {
 			Walk(v, n.Comment)
 		}
@@ -93,6 +96,21 @@ func Walk(v Visitor, node Node) {
 	case *EnumAccessExpr:
 		Walk(v, n.X)
 		Walk(v, n.Sel)
+
+	case *PropertyExpr:
+		Walk(v, n.X)
+		Walk(v, n.Name)
+
+	case *Property:
+		Walk(v, n.Name)
+		if n.Value != nil {
+			Walk(v, n.Value)
+		}
+
+	case *PropertyList:
+		for _, prop := range n.List {
+			Walk(v, prop)
+		}
 
 	case *IndexExpr:
 		Walk(v, n.X)
@@ -313,6 +331,9 @@ func Walk(v Visitor, node Node) {
 			Walk(v, n.TypeParams)
 		}
 		Walk(v, n.Type)
+		if n.Props != nil {
+			Walk(v, n.Props)
+		}
 		if n.Comment != nil {
 			Walk(v, n.Comment)
 		}

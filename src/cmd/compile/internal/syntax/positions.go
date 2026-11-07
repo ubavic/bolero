@@ -44,6 +44,8 @@ func StartPos(n Node) Pos {
 			m = n.X
 		case *EnumAccessExpr:
 			m = n.X
+		case *PropertyExpr:
+			m = n.X
 		case *IndexExpr:
 			m = n.X
 		// case *SliceExpr:
@@ -151,6 +153,10 @@ func EndPos(n Node) Pos {
 			}
 			return n.Pos()
 		case *TypeDecl:
+			if n.Props != nil {
+				m = n.Props
+				continue
+			}
 			m = n.Type
 		case *VarDecl:
 			if n.Values != nil {
@@ -194,6 +200,16 @@ func EndPos(n Node) Pos {
 			m = n.Sel
 		case *EnumAccessExpr:
 			m = n.Sel
+		case *PropertyExpr:
+			m = n.Name
+		case *Property:
+			if n.Value != nil {
+				m = n.Value
+				continue
+			}
+			m = n.Name
+		case *PropertyList:
+			return n.Rbrace
 		case *IndexExpr:
 			m = n.Index
 		case *SliceExpr:
@@ -242,6 +258,10 @@ func EndPos(n Node) Pos {
 			return n.Pos()
 			// TODO(gri) need to take TagList into account
 		case *Field:
+			if n.Props != nil {
+				m = n.Props
+				continue
+			}
 			if n.Type != nil {
 				m = n.Type
 				continue
@@ -255,6 +275,10 @@ func EndPos(n Node) Pos {
 			return n.Pos()
 		case *EnumType:
 			if l := len(n.ValueList); l > 0 {
+				if l <= len(n.Props) && n.Props[l-1] != nil {
+					m = n.Props[l-1]
+					continue
+				}
 				m = n.ValueList[l-1]
 				continue
 			}

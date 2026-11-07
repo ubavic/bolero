@@ -31,14 +31,48 @@ func (pw *pkgWriter) writeBoleroRoot() {
 				}
 			}
 			bo.Enum = types2.EnumValues(named.Obj())
+			bo.Props = boleroProps(named.Obj())
 		}
-		if bo.Decl || len(bo.Methods) > 0 || len(bo.Enum) > 0 {
+		if bo.Decl || len(bo.Methods) > 0 || len(bo.Enum) > 0 || len(bo.Props) > 0 {
 			objs[idx] = bo
 		}
 	}
 	if len(objs) > 0 {
 		pw.WriteBoleroRoot(objs)
 	}
+}
+
+func boleroProps(tn *types2.TypeName) []pkgbits.BoleroProp {
+	typ, fields, values := types2.PropertiesOf(tn)
+	var out []pkgbits.BoleroProp
+	for _, p := range typ {
+		out = append(out, encodeProp('t', "", p))
+	}
+	for _, f := range fields {
+		for _, p := range f.List {
+			out = append(out, encodeProp('f', f.Name, p))
+		}
+	}
+	for _, v := range values {
+		for _, p := range v.List {
+			out = append(out, encodeProp('v', v.Name, p))
+		}
+	}
+	return out
+}
+
+func encodeProp(on byte, name string, p types2.Prop) pkgbits.BoleroProp {
+	bp := pkgbits.BoleroProp{On: on, Name: name, Key: p.Name, Val: p.Val, Basic: -1}
+	t := types2.Unalias(p.Typ)
+	if n, ok := t.(*types2.Named); ok && n.Obj() != nil && n.Obj().Pkg() != nil {
+		bp.TypePkg = n.Obj().Pkg().Path()
+		bp.TypeName = n.Obj().Name()
+		return bp
+	}
+	if b, ok := t.(*types2.Basic); ok {
+		bp.Basic = int(b.Kind())
+	}
+	return bp
 }
 
 // definedNamed returns the defined type declared by obj, or nil.

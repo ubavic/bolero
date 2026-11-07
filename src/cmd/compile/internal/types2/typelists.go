@@ -27,6 +27,10 @@ func (l *TypeParamList) list() []*TypeParam {
 // TypeList holds a list of types.
 type TypeList struct{ types []Type }
 
+// NewTypeList returns a type list containing the types in list.
+// It is used when lowering Bolero field descriptors.
+func NewTypeList(list []Type) *TypeList { return newTypeList(list) }
+
 // newTypeList returns a new TypeList with the types in list.
 func newTypeList(list []Type) *TypeList {
 	if len(list) == 0 {

@@ -47,6 +47,9 @@ func walk(v *visitor, ek edge.Kind, index int, node ast.Node) {
 		if n.Tag != nil {
 			walk(v, edge.Field_Tag, -1, n.Tag)
 		}
+		if n.Props != nil {
+			walk(v, edge.Field_Props, -1, n.Props)
+		}
 		if n.Comment != nil {
 			walk(v, edge.Field_Comment, -1, n.Comment)
 		}
@@ -296,6 +299,9 @@ func walk(v *visitor, ek edge.Kind, index int, node ast.Node) {
 			walk(v, edge.TypeSpec_TypeParams, -1, n.TypeParams)
 		}
 		walk(v, edge.TypeSpec_Type, -1, n.Type)
+		if n.Props != nil {
+			walk(v, edge.TypeSpec_Props, -1, n.Props)
+		}
 		if n.Comment != nil {
 			walk(v, edge.TypeSpec_Comment, -1, n.Comment)
 		}
@@ -341,6 +347,19 @@ func walk(v *visitor, ek edge.Kind, index int, node ast.Node) {
 		if n.Values != nil {
 			walk(v, edge.EnumType_Values, -1, n.Values)
 		}
+
+	case *ast.Property:
+		walk(v, edge.Property_Name, -1, n.Name)
+		if n.Value != nil {
+			walk(v, edge.Property_Value, -1, n.Value)
+		}
+
+	case *ast.PropertyExpr:
+		walk(v, edge.PropertyExpr_X, -1, n.X)
+		walk(v, edge.PropertyExpr_Name, -1, n.Name)
+
+	case *ast.PropertyList:
+		walkList(v, edge.PropertyList_List, n.List)
 
 	default:
 		// (includes *ast.Package)

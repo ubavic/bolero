@@ -92,6 +92,7 @@ func (check *Checker) enumType(e *ast.EnumType, def *TypeName) Type {
 		}
 	}
 	def.pkg.boleroInfo().enums[def] = newEnumInfo(names)
+	check.enumProperties(def, e)
 	if def.parent == check.pkg.scope && !slices.ContainsFunc(check.methods[def], func(m *Func) bool { return m.name == "String" }) {
 		check.addEnumString(def)
 	}
@@ -130,7 +131,7 @@ func (check *Checker) enumAccess(x *operand, e *ast.EnumAccessExpr) {
 
 	info := enumInfoOf(tx.typ)
 	if info == nil {
-		check.errorf(e.X, NotAnExpr, "%s is not an enum type", tx.typ)
+		check.fieldDesc(x, e, tx.typ)
 		return
 	}
 	val := info.values[e.Sel.Name]

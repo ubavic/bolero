@@ -75,6 +75,9 @@ const (
 	// Bolero
 	nEnumAccessExpr
 	nEnumType
+	nProperty
+	nPropertyExpr
+	nPropertyList
 )
 
 // typeOf returns a distinct single-bit value that represents the type of n.
@@ -221,6 +224,12 @@ func typeOf(n ast.Node) uint64 {
 		return 1 << nEnumAccessExpr
 	case *ast.EnumType:
 		return 1 << nEnumType
+	case *ast.Property:
+		return 1 << nProperty
+	case *ast.PropertyExpr:
+		return 1 << nPropertyExpr
+	case *ast.PropertyList:
+		return 1 << nPropertyList
 	}
 	return 0
 }

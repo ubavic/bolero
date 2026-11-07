@@ -658,6 +658,12 @@ func NodeDescription(n ast.Node) string {
 		return "enum value"
 	case *ast.EnumType:
 		return "enum type"
+	case *ast.Property:
+		return "property"
+	case *ast.PropertyExpr:
+		return "property read"
+	case *ast.PropertyList:
+		return "property block"
 	}
 	panic(fmt.Sprintf("unexpected node type: %T", n))
 }

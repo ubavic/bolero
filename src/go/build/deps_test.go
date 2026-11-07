@@ -31,7 +31,7 @@ import (
 //
 // "a < b" means package b can import package a.
 //
-// See `go doc internal/dag` for the full syntax.
+// See `bolero doc internal/dag` for the full syntax.
 //
 // All-caps names are pseudo-names for specific points
 // in the dependency lattice.
@@ -855,9 +855,14 @@ var depsRules = `
 
 	FMT
 	< math/big/internal/asmgen;
+
+	# Bolero static properties. Nothing in std imports bolero/meta;
+	# user packages do, and the bolero command adds the edge for .bo files.
+	reflect, sync
+	< bolero/meta;
 `
 
-// listStdPkgs returns the same list of packages as "go list std".
+// listStdPkgs returns the same list of packages as "bolero list std".
 func listStdPkgs(goroot string) ([]string, error) {
 	// Based on cmd/go's matchPackages function.
 	var pkgs []string

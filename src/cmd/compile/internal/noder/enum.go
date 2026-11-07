@@ -23,7 +23,18 @@ import (
 // The method is added to the syntax trees before type checking, so it is
 // compiled, exported and inlined like a method written by hand. go/types
 // adds a matching method object (see go/types.Checker.enumType).
+// enumStrings remembers the string table of a generated String method
+// so a Label property can replace the value's name after type checking.
+type enumStrings struct {
+	name   *syntax.Name
+	values []string
+	lits   []*syntax.BasicLit
+}
+
+var enumStringLits []enumStrings
+
 func addEnumStringMethods(noders []*noder) {
+	enumStringLits = nil
 	declared := make(map[string]bool)
 	for _, p := range noders {
 		for _, decl := range p.file.DeclList {
@@ -72,9 +83,15 @@ func recvBaseName(t syntax.Expr) string {
 func enumStringMethod(name *syntax.Name, enum *syntax.EnumType) *syntax.FuncDecl {
 	pos := name.Pos()
 	var values []syntax.Expr
+	var lits []*syntax.BasicLit
+	var names []string
 	for _, v := range enum.ValueList {
-		values = append(values, at(pos, &syntax.BasicLit{Value: strconv.Quote(v.Value), Kind: syntax.StringLit}))
+		lit := &syntax.BasicLit{Value: strconv.Quote(v.Value), Kind: syntax.StringLit}
+		lits = append(lits, lit)
+		names = append(names, v.Value)
+		values = append(values, at(pos, lit))
 	}
+	enumStringLits = append(enumStringLits, enumStrings{name: name, values: names, lits: lits})
 	table := at(pos, &syntax.CompositeLit{
 		Type:     at(pos, &syntax.ArrayType{Elem: syntax.NewName(pos, "string")}),
 		ElemList: values,

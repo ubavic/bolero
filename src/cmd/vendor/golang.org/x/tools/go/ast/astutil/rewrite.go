@@ -223,6 +223,7 @@ func (a *application) apply(parent ast.Node, name string, iter *iterator, n ast.
 		a.applyList(n, "Names")
 		a.apply(n, "Type", nil, n.Type)
 		a.apply(n, "Tag", nil, n.Tag)
+		a.apply(n, "Props", nil, n.Props)
 		a.apply(n, "Comment", nil, n.Comment)
 
 	case *ast.FieldList:
@@ -414,6 +415,7 @@ func (a *application) apply(parent ast.Node, name string, iter *iterator, n ast.
 			a.apply(n, "TypeParams", nil, tparams)
 		}
 		a.apply(n, "Type", nil, n.Type)
+		a.apply(n, "Props", nil, n.Props)
 		a.apply(n, "Comment", nil, n.Comment)
 
 	case *ast.BadDecl:
@@ -456,6 +458,17 @@ func (a *application) apply(parent ast.Node, name string, iter *iterator, n ast.
 
 	case *ast.EnumType:
 		a.apply(n, "Values", nil, n.Values)
+
+	case *ast.Property:
+		a.apply(n, "Name", nil, n.Name)
+		a.apply(n, "Value", nil, n.Value)
+
+	case *ast.PropertyExpr:
+		a.apply(n, "X", nil, n.X)
+		a.apply(n, "Name", nil, n.Name)
+
+	case *ast.PropertyList:
+		a.applyList(n, "List")
 
 	default:
 		panic(fmt.Sprintf("Apply: unexpected node type %T", n))

@@ -434,11 +434,12 @@ func (p *Package) copyBuild(opts PackageOpts, pp *build.Package) {
 	// We modify p.Imports in place, so make copy now.
 	p.Imports = make([]string, len(pp.Imports))
 	copy(p.Imports, pp.Imports)
-	p.Internal.RawImports = pp.Imports
+	p.Imports = addMetaDep(p.ImportPath, pp.GoFiles, p.Imports)
+	p.Internal.RawImports = append([]string(nil), p.Imports...)
 	p.TestGoFiles = pp.TestGoFiles
-	p.TestImports = pp.TestImports
+	p.TestImports = addMetaDep(p.ImportPath, pp.TestGoFiles, append([]string(nil), pp.TestImports...))
 	p.XTestGoFiles = pp.XTestGoFiles
-	p.XTestImports = pp.XTestImports
+	p.XTestImports = addMetaDep(p.ImportPath, pp.XTestGoFiles, append([]string(nil), pp.XTestImports...))
 	if opts.IgnoreImports {
 		p.Imports = nil
 		p.Internal.RawImports = nil

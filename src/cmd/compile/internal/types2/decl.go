@@ -538,6 +538,13 @@ func (check *Checker) typeDecl(obj *TypeName, tdecl *syntax.TypeDecl) {
 		check.collectTypeParams(&named.tparams, tdecl.TParamList)
 	}
 
+	if syntaxHasProps(tdecl) {
+		b := check.pkg.boleroInfo()
+		prevObj, prevDecl := b.curObj, b.curDecl
+		b.curObj, b.curDecl = obj, tdecl
+		defer func() { b.curObj, b.curDecl = prevObj, prevDecl }()
+	}
+
 	rhs = check.declaredType(tdecl.Type, obj)
 	assert(rhs != nil)
 	named.fromRHS = rhs
@@ -548,6 +555,7 @@ func (check *Checker) typeDecl(obj *TypeName, tdecl *syntax.TypeDecl) {
 		check.error(tdecl.Type, MisplacedTypeParam, "cannot use a type parameter as RHS in type declaration")
 		named.fromRHS = Typ[Invalid]
 	}
+	check.typeProperties(obj, tdecl)
 }
 
 func (check *Checker) collectTypeParams(dst **TypeParamList, list []*syntax.Field) {

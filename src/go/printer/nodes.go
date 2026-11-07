@@ -524,6 +524,9 @@ func (p *printer) fieldList(fields *ast.FieldList, isStruct, isIncomplete bool) 
 					p.print(blank)
 				}
 				p.expr(f.Type)
+				if f.Props != nil {
+					p.propertyList(f.Props)
+				}
 			} else { // interface
 				if len(f.Names) > 0 {
 					name := f.Names[0] // method name
@@ -573,6 +576,9 @@ func (p *printer) fieldList(fields *ast.FieldList, isStruct, isIncomplete bool) 
 				// anonymous field
 				p.expr(f.Type)
 				extraTabs = 2
+			}
+			if f.Props != nil {
+				p.propertyList(f.Props)
 			}
 			if f.Tag != nil {
 				if len(f.Names) > 0 && sep == vtab {
@@ -646,6 +652,55 @@ func (p *printer) fieldList(fields *ast.FieldList, isStruct, isIncomplete bool) 
 
 // enumValueList prints the value list of an enum type. Each value is a
 // Field with exactly one Name and a nil Type.
+// propertyList prints a static property block. A block whose braces are on
+// different lines is printed with one entry per line and a trailing comma.
+func (p *printer) propertyList(list *ast.PropertyList) {
+	if list == nil {
+		return
+	}
+	oneLine := !list.Lbrace.IsValid() || !list.Rbrace.IsValid() || p.lineFor(list.Lbrace) == p.lineFor(list.Rbrace)
+	p.print(blank)
+	p.setPos(list.Lbrace)
+	if oneLine {
+		p.print(token.LBRACE)
+		if len(list.List) > 0 {
+			p.print(blank)
+			for i, prop := range list.List {
+				if i > 0 {
+					p.print(token.COMMA, blank)
+				}
+				p.property(prop)
+			}
+			p.print(blank)
+		}
+		p.setPos(list.Rbrace)
+		p.print(token.RBRACE)
+		return
+	}
+	p.print(token.LBRACE, indent, formfeed)
+	for i, prop := range list.List {
+		if i > 0 {
+			p.linebreak(p.lineFor(prop.Pos()), 1, ignore, true)
+		}
+		p.property(prop)
+		p.print(token.COMMA)
+	}
+	p.print(unindent, formfeed)
+	p.setPos(list.Rbrace)
+	p.print(token.RBRACE)
+}
+
+func (p *printer) property(prop *ast.Property) {
+	p.expr(prop.Name)
+	if prop.Value != nil {
+		if prop.Colon.IsValid() {
+			p.setPos(prop.Colon)
+		}
+		p.print(token.COLON, blank)
+		p.expr(prop.Value)
+	}
+}
+
 func (p *printer) enumValueList(values *ast.FieldList, isIncomplete bool) {
 	lbrace := values.Opening
 	list := values.List
@@ -672,6 +727,9 @@ func (p *printer) enumValueList(values *ast.FieldList, isIncomplete bool) {
 			if len(f.Names) > 0 {
 				p.expr(f.Names[0])
 			}
+			if f.Props != nil {
+				p.propertyList(f.Props)
+			}
 		}
 		p.print(blank)
 		p.setPos(rbrace)
@@ -695,6 +753,9 @@ func (p *printer) enumValueList(values *ast.FieldList, isIncomplete bool) {
 		p.recordLine(&line)
 		if len(f.Names) > 0 {
 			p.expr(f.Names[0])
+		}
+		if f.Props != nil {
+			p.propertyList(f.Props)
 		}
 		if f.Comment != nil {
 			p.setComment(f.Comment)
@@ -967,6 +1028,12 @@ func (p *printer) expr1(expr ast.Expr, prec1, depth int) {
 		p.expr1(x.X, token.HighestPrec, depth)
 		p.print(token.ENUM_ACCESS)
 		p.expr1(x.Sel, token.HighestPrec, depth)
+
+	case *ast.PropertyExpr:
+		p.expr1(x.X, token.HighestPrec, depth)
+		p.setPos(x.At)
+		p.print(token.AT)
+		p.expr1(x.Name, token.HighestPrec, depth)
 
 	case *ast.TypeAssertExpr:
 		p.expr1(x.X, token.HighestPrec, depth)
@@ -1804,6 +1871,9 @@ func (p *printer) spec(spec ast.Spec, n int, doIndent bool) {
 			p.print(token.ASSIGN, blank)
 		}
 		p.expr(s.Type)
+		if s.Props != nil {
+			p.propertyList(s.Props)
+		}
 		p.setComment(s.Comment)
 
 	default:

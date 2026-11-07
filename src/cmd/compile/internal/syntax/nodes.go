@@ -42,6 +42,12 @@ type File struct {
 	EOF       Pos
 	GoVersion string
 	node
+
+	// BoleroInit is the generated init that registers this file's static
+	// properties. BoleroMeta is the local name of bolero/meta in that init;
+	// an empty name means the package was dot-imported.
+	BoleroInit *FuncDecl
+	BoleroMeta string
 }
 
 // ----------------------------------------------------------------------------
@@ -83,6 +89,7 @@ type (
 		TParamList []*Field // nil means no type parameters
 		Alias      bool
 		Type       Expr
+		Props      *PropertyList // static properties; Bolero only, nil if none
 		decl
 	}
 
@@ -279,8 +286,25 @@ type (
 	// Name Type
 	//      Type
 	Field struct {
-		Name *Name // nil means anonymous field/parameter (structs/parameters), or embedded element (interfaces)
-		Type Expr  // field names declared in a list share the same Type (identical pointers)
+		Name  *Name         // nil means anonymous field/parameter (structs/parameters), or embedded element (interfaces)
+		Type  Expr          // field names declared in a list share the same Type (identical pointers)
+		Props *PropertyList // static properties of a struct field; nil if none
+		node
+	}
+
+	// Property is one entry of a static property block: Name or Name: Value.
+	// A nil Value is the flag form, equivalent to Name: true.
+	Property struct {
+		Name  *Name
+		Value Expr
+		node
+	}
+
+	// PropertyList is a static property block { Name, Name: Value, ... }.
+	// Pos is the opening brace.
+	PropertyList struct {
+		List   []*Property
+		Rbrace Pos
 		node
 	}
 
@@ -298,6 +322,7 @@ type (
 	// separately (like for any other defined type).
 	EnumType struct {
 		ValueList []*Name
+		Props     []*PropertyList // static properties of each value; nil entries mean none
 		expr
 	}
 
@@ -310,6 +335,14 @@ type (
 	EnumAccessExpr struct {
 		X   Expr
 		Sel *Name
+		expr
+	}
+
+	// X@Name reads the static property Name of the type, field or enum
+	// value denoted by X. The result is a constant.
+	PropertyExpr struct {
+		X    Expr
+		Name *Name
 		expr
 	}
 

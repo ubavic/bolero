@@ -85,6 +85,7 @@ const (
 	Field_Names
 	Field_Tag
 	Field_Type
+	Field_Props
 	File_Decls
 	File_Doc
 	File_Name
@@ -152,6 +153,7 @@ const (
 	TypeSpec_Name
 	TypeSpec_Type
 	TypeSpec_TypeParams
+	TypeSpec_Props
 	TypeSwitchStmt_Assign
 	TypeSwitchStmt_Body
 	TypeSwitchStmt_Init
@@ -166,6 +168,11 @@ const (
 	EnumAccessExpr_Sel
 	EnumAccessExpr_X
 	EnumType_Values
+	Property_Name
+	Property_Value
+	PropertyExpr_Name
+	PropertyExpr_X
+	PropertyList_List
 
 	maxKind
 )
@@ -220,6 +227,7 @@ var fieldInfos = [...]fieldInfo{
 	Field_Doc:             info[*ast.Field]("Doc"),
 	Field_Names:           info[*ast.Field]("Names"),
 	Field_Tag:             info[*ast.Field]("Tag"),
+	Field_Props:           info[*ast.Field]("Props"),
 	Field_Type:            info[*ast.Field]("Type"),
 	File_Decls:            info[*ast.File]("Decls"),
 	File_Doc:              info[*ast.File]("Doc"),
@@ -288,6 +296,7 @@ var fieldInfos = [...]fieldInfo{
 	TypeSpec_Name:         info[*ast.TypeSpec]("Name"),
 	TypeSpec_Type:         info[*ast.TypeSpec]("Type"),
 	TypeSpec_TypeParams:   info[*ast.TypeSpec]("TypeParams"),
+	TypeSpec_Props:        info[*ast.TypeSpec]("Props"),
 	TypeSwitchStmt_Assign: info[*ast.TypeSwitchStmt]("Assign"),
 	TypeSwitchStmt_Body:   info[*ast.TypeSwitchStmt]("Body"),
 	TypeSwitchStmt_Init:   info[*ast.TypeSwitchStmt]("Init"),
@@ -302,4 +311,9 @@ var fieldInfos = [...]fieldInfo{
 	EnumAccessExpr_Sel: info[*ast.EnumAccessExpr]("Sel"),
 	EnumAccessExpr_X:   info[*ast.EnumAccessExpr]("X"),
 	EnumType_Values:    info[*ast.EnumType]("Values"),
+	Property_Name:      info[*ast.Property]("Name"),
+	Property_Value:     info[*ast.Property]("Value"),
+	PropertyExpr_Name:  info[*ast.PropertyExpr]("Name"),
+	PropertyExpr_X:     info[*ast.PropertyExpr]("X"),
+	PropertyList_List:  info[*ast.PropertyList]("List"),
 }

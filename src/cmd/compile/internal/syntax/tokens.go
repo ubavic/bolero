@@ -72,6 +72,7 @@ const (
 	// those spelled like identifiers are Bolero keywords
 	_Enum       // enum
 	_EnumAccess // ::
+	_At         // @
 
 	// empty line comment to exclude it from .String
 	tokenCount //

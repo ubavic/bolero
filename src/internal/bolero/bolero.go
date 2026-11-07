@@ -54,6 +54,16 @@ var MarkGoTypesObject func(obj any)
 // go/types and called by importers.
 var SetGoTypesEnum func(tn any, names []string)
 
+// AddGoTypesProp, if set, records one static property on a go/types type
+// name. on is 't', 'f' or 'v'. name is the field or enum value name.
+// val is the constant's Go value: bool, string, int64, *big.Int, *big.Rat,
+// *big.Float, or ComplexVal. typ is the go/types type of the constant.
+var AddGoTypesProp func(tn any, on byte, name, key string, val, typ any)
+
+// ComplexVal is the real and imaginary parts of a complex constant,
+// each a value as accepted by AddGoTypesProp.
+type ComplexVal struct{ Re, Im any }
+
 func hasSuffix(s, suffix string) bool {
 	return len(s) >= len(suffix) && s[len(s)-len(suffix):] == suffix
 }

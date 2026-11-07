@@ -316,7 +316,9 @@ func readBodies(target *ir.Package, duringInlining bool) {
 // and returns the result.
 func writePkgStub(m posMap, noders []*noder) string {
 	addEnumStringMethods(noders)
+	prepareProperties(noders)
 	pkg, info, otherInfo := checkFiles(m, noders)
+	patchEnumLabels(info)
 
 	pw := newPkgWriter(m, pkg, info, otherInfo)
 

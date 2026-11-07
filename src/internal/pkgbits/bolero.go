@@ -4,7 +4,10 @@
 
 package pkgbits
 
-import "slices"
+import (
+	"go/constant"
+	"slices"
+)
 
 // BoleroRootIdx is the index, within SectionMeta, of the optional Bolero
 // root. It records which objects of the bitstream are declared in Bolero
@@ -18,6 +21,21 @@ type BoleroObj struct {
 	Decl    bool     // the object is declared in a Bolero source file
 	Methods []string // names of the object's methods declared in Bolero source files
 	Enum    []string // if the object declares an enum type, the names of its values
+	Props   []BoleroProp
+}
+
+// BoleroProp is one static property of a type, field or enum value.
+// On is 't' for the type, 'f' for a field named Name, or 'v' for an
+// enum value named Name. Basic >= 0 is the constant's basic kind;
+// otherwise the constant's type is the named type TypePkg.TypeName.
+type BoleroProp struct {
+	On       byte
+	Name     string
+	Key      string
+	Val      constant.Value
+	Basic    int
+	TypePkg  string
+	TypeName string
 }
 
 // WriteBoleroRoot writes the Bolero root, which describes the objects in
@@ -46,6 +64,19 @@ func (pw *PkgEncoder) WriteBoleroRoot(objs map[RelElemIdx]BoleroObj) {
 		for _, name := range obj.Enum {
 			w.String(name)
 		}
+		w.Len(len(obj.Props))
+		for _, p := range obj.Props {
+			w.Uint64(uint64(p.On))
+			w.String(p.Name)
+			w.String(p.Key)
+			w.Value(p.Val)
+			if w.Bool(p.Basic >= 0) {
+				w.Len(p.Basic)
+			} else {
+				w.String(p.TypePkg)
+				w.String(p.TypeName)
+			}
+		}
 	}
 	w.Flush()
 }
@@ -66,6 +97,20 @@ func (pr *PkgDecoder) BoleroRoot() map[RelElemIdx]BoleroObj {
 		}
 		for range r.Len() {
 			obj.Enum = append(obj.Enum, r.String())
+		}
+		for range r.Len() {
+			p := BoleroProp{On: byte(r.Uint64())}
+			p.Name = r.String()
+			p.Key = r.String()
+			p.Val = r.Value()
+			if r.Bool() {
+				p.Basic = r.Len()
+			} else {
+				p.Basic = -1
+				p.TypePkg = r.String()
+				p.TypeName = r.String()
+			}
+			obj.Props = append(obj.Props, p)
 		}
 		objs[idx] = obj
 	}

@@ -1,0 +1,38 @@
+pkg bolero/meta, func NewField[$0 interface{}, $1 interface{}](string, Properties, func($0) $1, func(*$0, $1)) Field[$0, $1]
+pkg bolero/meta, func NewProperties(...interface{}) Properties
+pkg bolero/meta, func RegisterType[$0 interface{}](Properties)
+pkg bolero/meta, func RegisterValue[$0 interface{ ~int }]($0, Properties)
+pkg bolero/meta, func TypeProperties[$0 interface{}]() Properties
+pkg bolero/meta, func ValueProperties[$0 interface{ ~int }]($0) Properties
+pkg bolero/meta, method (Field[$0, $1]) Get($0) $1
+pkg bolero/meta, method (Field[$0, $1]) Name() string
+pkg bolero/meta, method (Field[$0, $1]) Properties() Properties
+pkg bolero/meta, method (Field[$0, $1]) Set(*$0, $1)
+pkg bolero/meta, method (Properties) Lookup(string) (interface{}, bool)
+pkg bolero/meta, method (Properties) Names() []string
+pkg bolero/meta, type Field[$0 interface{}, $1 interface{}] struct
+pkg bolero/meta, type Properties struct
+pkg go/ast, method (*Property) End() token.Pos
+pkg go/ast, method (*Property) Pos() token.Pos
+pkg go/ast, method (*PropertyExpr) End() token.Pos
+pkg go/ast, method (*PropertyExpr) Pos() token.Pos
+pkg go/ast, method (*PropertyList) End() token.Pos
+pkg go/ast, method (*PropertyList) Pos() token.Pos
+pkg go/ast, type Field struct, Props *PropertyList
+pkg go/ast, type Property struct
+pkg go/ast, type Property struct, Colon token.Pos
+pkg go/ast, type Property struct, Name *Ident
+pkg go/ast, type Property struct, Value Expr
+pkg go/ast, type PropertyExpr struct
+pkg go/ast, type PropertyExpr struct, At token.Pos
+pkg go/ast, type PropertyExpr struct, Name *Ident
+pkg go/ast, type PropertyExpr struct, X Expr
+pkg go/ast, type PropertyList struct
+pkg go/ast, type PropertyList struct, Lbrace token.Pos
+pkg go/ast, type PropertyList struct, List []*Property
+pkg go/ast, type PropertyList struct, Rbrace token.Pos
+pkg go/ast, type TypeSpec struct, Props *PropertyList
+pkg go/token, const AT = 93
+pkg go/token, const AT Token
+pkg go/types, func NewFieldSelection(Type, Object, []int, bool) *Selection
+pkg go/types, func NewTypeList([]Type) *TypeList

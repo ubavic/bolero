@@ -1,0 +1,15 @@
+// Copyright 2026 The Bolero Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package nometta
+
+type Person struct {
+	Name string { MaxLength: 50 }
+}
+
+// Reading with @ does not require bolero/meta.
+const _ = Person::Name@MaxLength
+
+// A field descriptor does.
+var _ = Person::Name /* ERROR "must import \"bolero/meta\"" */

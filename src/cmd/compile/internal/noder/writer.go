@@ -1873,6 +1873,9 @@ func (w *writer) expr(expr syntax.Expr) {
 	default:
 		w.p.unexpected("expression", expr)
 
+	case *syntax.EnumAccessExpr:
+		w.fieldDescExpr(expr)
+
 	case *syntax.CompositeLit:
 		w.Code(exprCompLit)
 		w.compLit(expr)

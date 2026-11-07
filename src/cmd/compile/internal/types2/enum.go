@@ -113,6 +113,7 @@ func (check *Checker) enumType(e *syntax.EnumType, def *TypeName) Type {
 		}
 	}
 	def.pkg.boleroInfo().enums[def] = newEnumInfo(names)
+	check.enumProperties(def, e)
 
 	return Typ[Int]
 }
@@ -135,7 +136,7 @@ func (check *Checker) enumAccess(x *operand, e *syntax.EnumAccessExpr) {
 
 	info := enumInfoOf(tx.typ)
 	if info == nil {
-		check.errorf(e.X, NotAnExpr, "%s is not an enum type", tx.typ)
+		check.fieldDesc(x, e, tx.typ)
 		return
 	}
 	val := info.values[e.Sel.Value]

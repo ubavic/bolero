@@ -675,6 +675,8 @@ func (p *parser) typeDecl(group *Group) Decl {
 		d.Type = p.badExpr()
 		p.syntaxError("in type declaration")
 		p.advance(_Semi, _Rparen)
+	} else if p.mode&Bolero != 0 && p.tok == _Lbrace {
+		d.Props = p.propertyList()
 	}
 
 	return d
@@ -1118,6 +1120,20 @@ loop:
 			t.pos = pos
 			t.X = x
 			t.Sel = p.name()
+			x = t
+
+		case _At:
+			// pexpr '@' sym
+			p.next()
+			if p.tok != _Name {
+				p.syntaxError("expected name after @")
+				p.advance(_Semi, _Rparen, _Rbrace)
+				break loop
+			}
+			t := new(PropertyExpr)
+			t.pos = pos
+			t.X = x
+			t.Name = p.name()
 			x = t
 
 		case _Dot:
@@ -1610,6 +1626,11 @@ func (p *parser) enumType() *EnumType {
 	p.list("enum type", _Semi, _Rbrace, func() bool {
 		if p.tok == _Name {
 			typ.ValueList = append(typ.ValueList, p.name())
+			var props *PropertyList
+			if p.mode&Bolero != 0 && p.tok == _Lbrace {
+				props = p.propertyList()
+			}
+			typ.Props = append(typ.Props, props)
 		} else {
 			p.syntaxError("expected enum value name")
 			p.advance(_Semi, _Rbrace)
@@ -1645,7 +1666,7 @@ func (p *parser) funcResult() []*Field {
 	return nil
 }
 
-func (p *parser) addField(styp *StructType, pos Pos, name *Name, typ Expr, tag *BasicLit) {
+func (p *parser) addField(styp *StructType, pos Pos, name *Name, typ Expr, tag *BasicLit, props *PropertyList) {
 	if tag != nil {
 		for i := len(styp.FieldList) - len(styp.TagList); i > 0; i-- {
 			styp.TagList = append(styp.TagList, nil)
@@ -1657,11 +1678,71 @@ func (p *parser) addField(styp *StructType, pos Pos, name *Name, typ Expr, tag *
 	f.pos = pos
 	f.Name = name
 	f.Type = typ
+	f.Props = props
 	styp.FieldList = append(styp.FieldList, f)
 
 	if debug && tag != nil && len(styp.FieldList) != len(styp.TagList) {
 		panic("inconsistent struct field list")
 	}
+}
+
+// finishStructField parses an optional property block and struct tag
+// after a field type, then adds the field. In Bolero files a property
+// block follows a single named field, and struct tags are rejected.
+func (p *parser) finishStructField(styp *StructType, pos Pos, names []*Name, typ Expr, embedded bool) {
+	var props *PropertyList
+	if p.mode&Bolero != 0 && p.tok == _Lbrace {
+		props = p.propertyList()
+	}
+	tag := p.oliteral()
+	if tag != nil && p.mode&Bolero != 0 {
+		p.syntaxErrorAt(tag.Pos(), "struct tags are not allowed in Bolero files")
+		tag = nil
+	}
+	if props != nil && (embedded || len(names) != 1) {
+		if embedded {
+			p.syntaxErrorAt(props.Pos(), "embedded fields cannot have properties")
+		} else {
+			p.syntaxErrorAt(props.Pos(), "property block must follow a single field")
+		}
+		props = nil
+	}
+	if embedded {
+		p.addField(styp, pos, nil, typ, tag, props)
+		return
+	}
+	for _, name := range names {
+		p.addField(styp, name.Pos(), name, typ, tag, props)
+	}
+}
+
+// PropertyList = "{" [ Property { "," Property } [ "," ] ] "}" .
+// Property     = identifier [ ":" Expression ] .
+func (p *parser) propertyList() *PropertyList {
+	if trace {
+		defer p.trace("propertyList")()
+	}
+	list := new(PropertyList)
+	list.pos = p.pos()
+	p.xnest++
+	p.want(_Lbrace)
+	list.Rbrace = p.list("property list", _Comma, _Rbrace, func() bool {
+		if p.tok != _Name {
+			p.syntaxError("expected property name")
+			p.advance(_Comma, _Rbrace)
+			return false
+		}
+		prop := new(Property)
+		prop.pos = p.pos()
+		prop.Name = p.name()
+		if p.got(_Colon) {
+			prop.Value = p.expr()
+		}
+		list.List = append(list.List, prop)
+		return false
+	})
+	p.xnest--
+	return list
 }
 
 // FieldDecl      = (IdentifierList Type | AnonymousField) [ Tag ] .
@@ -1676,11 +1757,10 @@ func (p *parser) fieldDecl(styp *StructType) {
 	switch p.tok {
 	case _Name:
 		name := p.name()
-		if p.tok == _Dot || p.tok == _Literal || p.tok == _Semi || p.tok == _Rbrace {
+		if p.tok == _Dot || p.tok == _Literal || p.tok == _Semi || p.tok == _Rbrace || p.mode&Bolero != 0 && p.tok == _Lbrace {
 			// embedded type
 			typ := p.qualifiedName(name)
-			tag := p.oliteral()
-			p.addField(styp, pos, nil, typ, tag)
+			p.finishStructField(styp, pos, nil, typ, true)
 			break
 		}
 
@@ -1695,8 +1775,7 @@ func (p *parser) fieldDecl(styp *StructType) {
 			if typ, ok := typ.(*IndexExpr); ok {
 				// embedded type T[P1, P2, ...]
 				typ.X = name // name == names[0]
-				tag := p.oliteral()
-				p.addField(styp, pos, nil, typ, tag)
+				p.finishStructField(styp, pos, nil, typ, true)
 				break
 			}
 		} else {
@@ -1704,11 +1783,7 @@ func (p *parser) fieldDecl(styp *StructType) {
 			typ = p.type_()
 		}
 
-		tag := p.oliteral()
-
-		for _, name := range names {
-			p.addField(styp, name.Pos(), name, typ, tag)
-		}
+		p.finishStructField(styp, pos, names, typ, false)
 
 	case _Star:
 		p.next()
@@ -1723,8 +1798,7 @@ func (p *parser) fieldDecl(styp *StructType) {
 			// *T
 			typ = p.qualifiedName(nil)
 		}
-		tag := p.oliteral()
-		p.addField(styp, pos, nil, newIndirect(pos, typ), tag)
+		p.finishStructField(styp, pos, nil, newIndirect(pos, typ), true)
 
 	case _Lparen:
 		p.syntaxError("cannot parenthesize embedded type")
@@ -1740,8 +1814,7 @@ func (p *parser) fieldDecl(styp *StructType) {
 			typ = p.qualifiedName(nil)
 		}
 		p.got(_Rparen) // no need to complain if missing
-		tag := p.oliteral()
-		p.addField(styp, pos, nil, typ, tag)
+		p.finishStructField(styp, pos, nil, typ, true)
 
 	default:
 		p.syntaxError("expected field name or embedded type")

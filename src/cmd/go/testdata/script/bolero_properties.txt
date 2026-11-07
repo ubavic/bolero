@@ -1,0 +1,85 @@
+# Static properties work across packages, and with bolero vet, bolero test and bolerofmt.
+
+bolero vet .
+bolero test .
+stdout '^ok'
+
+bolero run .
+stdout '^people$'
+stdout '^Ann Full name true$'
+stdout '^true$'
+stdout '^On$'
+
+exec bolerofmt -l .
+! stdout .
+
+# A Go file cannot use a type declared in a Bolero file, and a missing
+# property is an error where it is read.
+! bolero build ./bad
+stderr 'Person is declared in a Bolero file'
+stderr 'has no property Missing'
+
+-- go.mod --
+module example.com/m
+
+go 1.26
+-- model.bo --
+package main
+
+import (
+	"fmt"
+
+	"bolero/meta"
+)
+
+type Person struct {
+	Name string { MaxLength: 8, Label: "Full name" }
+} { Table: "people" }
+
+type Status enum {
+	Active { Label: "On" }
+	Archived { Hidden: true }
+}
+
+func main() {
+	fmt.Println(Person@Table)
+	p := Person{Name: "Ann"}
+	f := Person::Name
+	label, ok := f.Properties().Lookup("Label")
+	fmt.Println(f.Get(p), label, ok)
+	hidden, _ := meta.ValueProperties(Status::Archived).Lookup("Hidden")
+	fmt.Println(hidden)
+	fmt.Println(Status::Active)
+}
+-- model_test.bo --
+package main
+
+import (
+	"bolero/meta"
+	"testing"
+)
+
+func TestProps(t *testing.T) {
+	if got := Person::Name@MaxLength; got != 8 {
+		t.Fatalf("MaxLength = %d", got)
+	}
+	if Status::Active.String() != "On" {
+		t.Fatalf("String = %s", Status::Active)
+	}
+	p := Person{Name: "Ann"}
+	if Person::Name.Get(p) != "Ann" {
+		t.Fatal(p.Name)
+	}
+}
+-- bad/bad.bo --
+package bad
+
+type Person struct {
+	Name string { MaxLength: 8 }
+}
+
+const _ = Person::Name@Missing
+-- bad/use.go --
+package bad
+
+var _ = Person{}

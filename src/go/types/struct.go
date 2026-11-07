@@ -113,6 +113,9 @@ func (check *Checker) structType(styp *Struct, e *ast.StructType) {
 	for _, f := range list.List {
 		typ = check.varType(f.Type)
 		tag = check.tag(f.Tag)
+		if f.Props != nil {
+			check.fieldProperties(e, f)
+		}
 		if len(f.Names) > 0 {
 			// named fields
 			for _, name := range f.Names {

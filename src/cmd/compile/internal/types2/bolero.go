@@ -23,6 +23,12 @@ import (
 type boleroPackage struct {
 	decls map[Object]bool         // package-level objects and methods declared in Bolero source files
 	enums map[*TypeName]*enumInfo // enum types declared in the package
+	props map[propKey][]property  // static properties
+
+	// curObj and curDecl are the type declaration being checked, if it
+	// declares static properties. They are nil otherwise.
+	curObj  *TypeName
+	curDecl *syntax.TypeDecl
 }
 
 // boleroInfo returns the Bolero information about pkg, creating it if needed.

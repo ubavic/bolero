@@ -203,6 +203,7 @@ type Field struct {
 	Names   []*Ident      // field/method/(type) parameter names; or nil
 	Type    Expr          // field/method/parameter type; or nil
 	Tag     *BasicLit     // field tag; or nil
+	Props   *PropertyList // static properties; Bolero only, nil if none
 	Comment *CommentGroup // line comments; or nil
 }
 
@@ -217,6 +218,9 @@ func (f *Field) Pos() token.Pos {
 }
 
 func (f *Field) End() token.Pos {
+	if f.Props != nil {
+		return f.Props.End()
+	}
 	if f.Tag != nil {
 		return f.Tag.End()
 	}
@@ -354,6 +358,30 @@ type (
 	EnumAccessExpr struct {
 		X   Expr   // enum type (must be a type name)
 		Sel *Ident // enum value
+	}
+
+	// A PropertyExpr node represents a static property read X@Name.
+	// X denotes a type, a field (T::F) or an enum value (T::V).
+	// The result is a constant.
+	PropertyExpr struct {
+		At   token.Pos // position of "@"
+		X    Expr      // type, field or enum value
+		Name *Ident    // property name
+	}
+
+	// A Property node is one entry of a property block: Name or Name: Value.
+	// A nil Value is the flag form, equivalent to Name: true.
+	Property struct {
+		Name  *Ident    // property name
+		Colon token.Pos // position of ":", or token.NoPos for a flag
+		Value Expr      // property value; nil means true
+	}
+
+	// A PropertyList node is a static property block { Name, Name: Value, ... }.
+	PropertyList struct {
+		Lbrace token.Pos
+		List   []*Property
+		Rbrace token.Pos
 	}
 
 	// An IndexExpr node represents an expression followed by an index.
@@ -531,6 +559,14 @@ func (x *CompositeLit) Pos() token.Pos {
 func (x *ParenExpr) Pos() token.Pos      { return x.Lparen }
 func (x *SelectorExpr) Pos() token.Pos   { return x.X.Pos() }
 func (x *EnumAccessExpr) Pos() token.Pos { return x.X.Pos() }
+func (x *PropertyExpr) Pos() token.Pos   { return x.At }
+func (x *Property) Pos() token.Pos {
+	if x.Name != nil {
+		return x.Name.Pos()
+	}
+	return token.NoPos
+}
+func (x *PropertyList) Pos() token.Pos   { return x.Lbrace }
 func (x *IndexExpr) Pos() token.Pos      { return x.X.Pos() }
 func (x *IndexListExpr) Pos() token.Pos  { return x.X.Pos() }
 func (x *SliceExpr) Pos() token.Pos      { return x.X.Pos() }
@@ -575,6 +611,17 @@ func (x *CompositeLit) End() token.Pos   { return x.Rbrace + 1 }
 func (x *ParenExpr) End() token.Pos      { return x.Rparen + 1 }
 func (x *SelectorExpr) End() token.Pos   { return x.Sel.End() }
 func (x *EnumAccessExpr) End() token.Pos { return x.Sel.End() }
+func (x *PropertyExpr) End() token.Pos   { return x.Name.End() }
+func (x *Property) End() token.Pos {
+	if x.Value != nil {
+		return x.Value.End()
+	}
+	if x.Name != nil {
+		return x.Name.End()
+	}
+	return token.NoPos
+}
+func (x *PropertyList) End() token.Pos   { return x.Rbrace + 1 }
 func (x *IndexExpr) End() token.Pos      { return x.Rbrack + 1 }
 func (x *IndexListExpr) End() token.Pos  { return x.Rbrack + 1 }
 func (x *SliceExpr) End() token.Pos      { return x.Rbrack + 1 }
@@ -608,6 +655,7 @@ func (*CompositeLit) exprNode()   {}
 func (*ParenExpr) exprNode()      {}
 func (*SelectorExpr) exprNode()   {}
 func (*EnumAccessExpr) exprNode() {}
+func (*PropertyExpr) exprNode()   {}
 func (*IndexExpr) exprNode()      {}
 func (*IndexListExpr) exprNode()  {}
 func (*SliceExpr) exprNode()      {}
@@ -963,6 +1011,7 @@ type (
 		TypeParams *FieldList    // type parameters; or nil
 		Assign     token.Pos     // position of '=', if any
 		Type       Expr          // *Ident, *ParenExpr, *SelectorExpr, *StarExpr, or any of the *XxxTypes
+		Props      *PropertyList // static properties of a struct or enum type; Bolero only, nil if none
 		Comment    *CommentGroup // line comments; or nil
 	}
 )
@@ -994,7 +1043,15 @@ func (s *ValueSpec) End() token.Pos {
 	}
 	return s.Names[len(s.Names)-1].End()
 }
-func (s *TypeSpec) End() token.Pos { return s.Type.End() }
+func (s *TypeSpec) End() token.Pos {
+	if s.Props != nil {
+		return s.Props.End()
+	}
+	if s.Type != nil {
+		return s.Type.End()
+	}
+	return s.Name.End()
+}
 
 // specNode() ensures that only spec nodes can be
 // assigned to a Spec.

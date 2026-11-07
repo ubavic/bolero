@@ -77,6 +77,13 @@ type Selection struct {
 	indirect bool   // set if there was any pointer indirection on the path
 }
 
+// NewFieldSelection returns a field selection of obj on recv.
+// index is the field index path; indirect reports whether reaching
+// the field required a pointer indirection.
+func NewFieldSelection(recv Type, obj Object, index []int, indirect bool) *Selection {
+	return &Selection{kind: FieldVal, recv: recv, obj: obj, index: index, indirect: indirect}
+}
+
 // Kind returns the selection kind.
 func (s *Selection) Kind() SelectionKind { return s.kind }
 

@@ -88,6 +88,9 @@ func (w walker) node(n Node) {
 		w.node(n.Name)
 		w.fieldList(n.TParamList)
 		w.node(n.Type)
+		if n.Props != nil {
+			w.node(n.Props)
+		}
 
 	case *VarDecl:
 		w.nameList(n.NameList)
@@ -138,6 +141,21 @@ func (w walker) node(n Node) {
 	case *EnumAccessExpr:
 		w.node(n.X)
 		w.node(n.Sel)
+
+	case *PropertyExpr:
+		w.node(n.X)
+		w.node(n.Name)
+
+	case *Property:
+		w.node(n.Name)
+		if n.Value != nil {
+			w.node(n.Value)
+		}
+
+	case *PropertyList:
+		for _, prop := range n.List {
+			w.node(prop)
+		}
 
 	case *IndexExpr:
 		w.node(n.X)
@@ -200,12 +218,20 @@ func (w walker) node(n Node) {
 			w.node(n.Name)
 		}
 		w.node(n.Type)
+		if n.Props != nil {
+			w.node(n.Props)
+		}
 
 	case *InterfaceType:
 		w.fieldList(n.MethodList)
 
 	case *EnumType:
 		w.nameList(n.ValueList)
+		for _, props := range n.Props {
+			if props != nil {
+				w.node(props)
+			}
+		}
 
 	case *FuncType:
 		w.fieldList(n.ParamList)

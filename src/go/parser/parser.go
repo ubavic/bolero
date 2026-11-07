@@ -658,7 +658,7 @@ func (p *parser) parseFieldDecl() *ast.Field {
 	switch p.tok {
 	case token.IDENT:
 		name := p.parseIdent()
-		if p.tok == token.PERIOD || p.tok == token.STRING || p.tok == token.SEMICOLON || p.tok == token.RBRACE {
+		if p.tok == token.PERIOD || p.tok == token.STRING || p.tok == token.SEMICOLON || p.tok == token.RBRACE || p.mode&Bolero != 0 && p.tok == token.LBRACE {
 			// embedded type
 			typ = name
 			if p.tok == token.PERIOD {
@@ -725,16 +725,67 @@ func (p *parser) parseFieldDecl() *ast.Field {
 		typ = &ast.BadExpr{From: pos, To: p.pos}
 	}
 
+	var props *ast.PropertyList
+	if p.mode&Bolero != 0 && p.tok == token.LBRACE {
+		props = p.parsePropertyList()
+	}
+
 	var tag *ast.BasicLit
 	if p.tok == token.STRING {
 		tag = &ast.BasicLit{ValuePos: p.pos, ValueEnd: p.stringEnd, Kind: p.tok, Value: p.lit}
 		p.next()
+		if p.mode&Bolero != 0 {
+			p.error(tag.Pos(), "struct tags are not allowed in Bolero files")
+			tag = nil
+		}
+	}
+
+	if props != nil && (names == nil || len(names) != 1) {
+		if names == nil {
+			p.error(props.Pos(), "embedded fields cannot have properties")
+		} else {
+			p.error(props.Pos(), "property block must follow a single field")
+		}
+		props = nil
 	}
 
 	comment := p.expectSemi()
 
-	field := &ast.Field{Doc: doc, Names: names, Type: typ, Tag: tag, Comment: comment}
+	field := &ast.Field{Doc: doc, Names: names, Type: typ, Tag: tag, Props: props, Comment: comment}
 	return field
+}
+
+// parsePropertyList parses a static property block:
+//
+//	PropertyList = "{" [ Property { "," Property } [ "," ] ] "}" .
+//	Property     = identifier [ ":" Expression ] .
+func (p *parser) parsePropertyList() *ast.PropertyList {
+	if p.trace {
+		defer un(trace(p, "PropertyList"))
+	}
+
+	lbrace := p.expect(token.LBRACE)
+	var list []*ast.Property
+	for p.tok != token.RBRACE && p.tok != token.EOF {
+		if p.tok != token.IDENT {
+			p.errorExpected(p.pos, "property name")
+			break
+		}
+		name := p.parseIdent()
+		prop := &ast.Property{Name: name}
+		if p.tok == token.COLON {
+			prop.Colon = p.pos
+			p.next()
+			prop.Value = p.parseExpr()
+		}
+		list = append(list, prop)
+		if !p.atComma("property list", token.RBRACE) {
+			break
+		}
+		p.next()
+	}
+	rbrace := p.expect(token.RBRACE)
+	return &ast.PropertyList{Lbrace: lbrace, List: list, Rbrace: rbrace}
 }
 
 func (p *parser) parseStructType() *ast.StructType {
@@ -1318,9 +1369,14 @@ func (p *parser) parseEnumType() *ast.EnumType {
 	var list []*ast.Field
 	for p.tok == token.IDENT {
 		name := p.parseIdent()
+		var props *ast.PropertyList
+		if p.mode&Bolero != 0 && p.tok == token.LBRACE {
+			props = p.parsePropertyList()
+		}
 		comment := p.expectSemi()
 		list = append(list, &ast.Field{
 			Names:   []*ast.Ident{name},
+			Props:   props,
 			Comment: comment,
 		})
 	}
@@ -1790,6 +1846,21 @@ func (p *parser) parsePrimaryExpr(x ast.Expr) ast.Expr {
 				sel := p.parseIdent()
 				x = &ast.EnumAccessExpr{X: x, Sel: sel}
 			}
+		case token.AT:
+			at := p.pos
+			p.next()
+			var name *ast.Ident
+			if p.tok != token.IDENT {
+				pos := p.pos
+				p.errorExpected(pos, "property name after @")
+				if p.tok != token.RBRACE {
+					p.next()
+				}
+				name = &ast.Ident{NamePos: pos, Name: "_"}
+			} else {
+				name = p.parseIdent()
+			}
+			x = &ast.PropertyExpr{At: at, X: x, Name: name}
 		case token.PERIOD:
 			p.next()
 			switch p.tok {
@@ -2731,6 +2802,10 @@ func (p *parser) parseTypeSpec(doc *ast.CommentGroup, _ token.Token, _ int) ast.
 			p.next()
 		}
 		spec.Type = p.parseType()
+	}
+
+	if p.mode&Bolero != 0 && p.tok == token.LBRACE {
+		spec.Props = p.parsePropertyList()
 	}
 
 	spec.Comment = p.expectSemi()

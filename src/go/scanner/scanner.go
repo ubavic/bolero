@@ -968,6 +968,15 @@ scanAgain:
 			tok = s.switch3(token.OR, token.OR_ASSIGN, '|', token.LOR)
 		case '~':
 			tok = token.TILDE
+		case '@':
+			if s.mode&Bolero == 0 {
+				s.errorf(s.file.Offset(pos), "illegal character %#U", ch)
+				insertSemi = s.insertSemi
+				tok = token.ILLEGAL
+				lit = string(ch)
+				break
+			}
+			tok = token.AT
 		default:
 			// next reports unexpected BOMs - don't repeat
 			if ch != bom {

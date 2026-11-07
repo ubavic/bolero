@@ -297,9 +297,10 @@ func (check *Checker) updateExprType(x ast.Expr, typ Type, final bool) {
 		// The respective calls take care of calling updateExprType
 		// for the arguments if necessary.
 
-	case *ast.Ident, *ast.BasicLit, *ast.SelectorExpr:
+	case *ast.Ident, *ast.BasicLit, *ast.SelectorExpr, *ast.PropertyExpr, *ast.EnumAccessExpr:
 		// An identifier denoting a constant, a constant literal,
-		// or a qualified identifier (imported untyped constant).
+		// a qualified identifier (imported untyped constant),
+		// or a Bolero property or enum value.
 		// No operands to take care of.
 
 	case *ast.ParenExpr:
@@ -1104,6 +1105,12 @@ func (check *Checker) exprInternal(T *target, x *operand, e ast.Expr, hint Type)
 
 	case *ast.EnumAccessExpr:
 		check.enumAccess(x, e)
+		if x.mode == invalid {
+			goto Error
+		}
+
+	case *ast.PropertyExpr:
+		check.propertyExpr(x, e)
 		if x.mode == invalid {
 			goto Error
 		}

@@ -402,6 +402,18 @@ func (p *printer) printRawNode(n Node) {
 	case *EnumAccessExpr:
 		p.print(n.X, _EnumAccess, n.Sel)
 
+	case *PropertyExpr:
+		p.print(n.X, _At, n.Name)
+
+	case *Property:
+		p.print(n.Name)
+		if n.Value != nil {
+			p.print(_Colon, blank, n.Value)
+		}
+
+	case *PropertyList:
+		p.printProps(n)
+
 	case *IndexExpr:
 		p.print(n.X, _Lbrack, n.Index, _Rbrack)
 
@@ -519,6 +531,9 @@ func (p *printer) printRawNode(n Node) {
 						p.print(_Semi, newline)
 					}
 					p.printNode(v)
+					if i < len(n.Props) {
+						p.printProps(n.Props[i])
+					}
 				}
 				p.print(outdent, newline)
 			} else {
@@ -527,6 +542,9 @@ func (p *printer) printRawNode(n Node) {
 						p.print(_Semi, blank)
 					}
 					p.printNode(v)
+					if i < len(n.Props) {
+						p.printProps(n.Props[i])
+					}
 				}
 			}
 		}
@@ -698,6 +716,7 @@ func (p *printer) printRawNode(n Node) {
 			p.print(_Assign, blank)
 		}
 		p.print(n.Type)
+		p.printProps(n.Props)
 
 	case *VarDecl:
 		if n.Group == nil {
@@ -755,6 +774,20 @@ func (p *printer) printRawNode(n Node) {
 	}
 }
 
+func (p *printer) printProps(n *PropertyList) {
+	if n == nil {
+		return
+	}
+	p.print(blank, _Lbrace)
+	for i, prop := range n.List {
+		if i > 0 {
+			p.print(_Comma, blank)
+		}
+		p.printNode(prop)
+	}
+	p.print(_Rbrace)
+}
+
 func (p *printer) printFields(fields []*Field, tags []*BasicLit, i, j int) {
 	if i+1 == j && fields[i].Name == nil {
 		// anonymous field
@@ -769,6 +802,7 @@ func (p *printer) printFields(fields []*Field, tags []*BasicLit, i, j int) {
 		p.print(blank)
 		p.printNode(fields[i].Type)
 	}
+	p.printProps(fields[i].Props)
 	if i < len(tags) && tags[i] != nil {
 		p.print(blank)
 		p.printNode(tags[i])
@@ -779,7 +813,7 @@ func (p *printer) printFieldList(fields []*Field, tags []*BasicLit, sep token) {
 	i0 := 0
 	var typ Expr
 	for i, f := range fields {
-		if f.Name == nil || f.Type != typ {
+		if f.Name == nil || f.Type != typ || f.Props != nil || fields[i0].Props != nil {
 			if i0 < i {
 				p.printFields(fields, tags, i0, i)
 				p.print(sep, newline)

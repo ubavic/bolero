@@ -135,6 +135,7 @@ const (
 	// those spelled like identifiers are Bolero keywords
 	ENUM        // enum
 	ENUM_ACCESS // ::
+	AT          // @
 	bolero_end
 )
 
@@ -241,6 +242,7 @@ var tokens = [...]string{
 
 	ENUM:        "enum",
 	ENUM_ACCESS: "::",
+	AT:          "@",
 }
 
 // String returns the string corresponding to the token tok.

@@ -120,6 +120,9 @@ func (check *Checker) structType(styp *Struct, e *syntax.StructType) {
 		if i < len(e.TagList) {
 			tag = check.tag(e.TagList[i])
 		}
+		if f.Props != nil {
+			check.fieldProperties(e, f)
+		}
 		if f.Name != nil {
 			// named field
 			add(f.Name, false)

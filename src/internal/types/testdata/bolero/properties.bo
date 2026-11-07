@@ -1,0 +1,101 @@
+// Copyright 2026 The Bolero Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package props
+
+import "bolero/meta"
+
+type Person struct {
+	Name  string { Required, MaxLength: 50, Label: "Full name" }
+	Email string {
+		MaxLength: 100,
+		Label:     "E-mail",
+	}
+	Age uint
+} { Table: "people" }
+
+type Status enum {
+	Active   { Label: "Active" }
+	Archived { Label: "Archived", Hidden: true }
+} { Label: "Status" }
+
+type Kind enum {
+	Text
+	Area
+}
+
+type Widget struct {
+	K Kind { Kind: Kind::Text }
+}
+
+type Employee struct {
+	Person
+}
+
+const (
+	_ = Person@Table
+	_ = Person::Name@MaxLength
+	_ = Status::Archived@Hidden
+	_ = Status@Label
+	_ = Widget::K@Kind
+	_ = Employee::Name@MaxLength
+)
+
+// Untyped property values keep their untyped type.
+var _ int = Person::Name@MaxLength
+var _ uint = Person::Name@MaxLength
+var _ string = Person@Table
+var _ bool = Status::Archived@Hidden
+var _ Kind = Widget::K@Kind
+
+var f meta.Field[Person, string] = Person::Name
+var g meta.Field[Employee, string] = Employee::Name
+
+func use(p Person, e Employee) {
+	_ = f.Name()
+	_ = f.Get(p)
+	f.Set(&p, "Ann")
+	_, _ = f.Properties().Lookup("Label")
+	_ = f == Person::Name
+	_ = g.Get(e)
+	_ = meta.TypeProperties[Person]()
+	var st Status
+	_ = meta.ValueProperties(st)
+	_, _ = meta.NewProperties("Table", "people").Lookup("Table")
+}
+
+func _() {
+	_ = Person::Name@NoSuch /* ERROR "has no property NoSuch" */
+	_ = Person@NoSuch /* ERROR "has no property NoSuch" */
+}
+
+var dynamic = 1
+
+type BadConst struct {
+	A int { X: dynamic /* ERROR "not constant" */ }
+}
+
+type Dup struct {
+	A int { X: 1, X /* ERROR "duplicate property X" */: 2 }
+}
+
+type Money int { /* ERROR "only allowed on struct and enum" */ Unit: "usd" }
+
+type Pair[T any] struct {
+	A T { /* ERROR "generic types cannot have properties" */ X: 1 }
+} { /* ERROR "generic types cannot have properties" */ T: "pair" }
+
+func local() {
+	type T struct {
+		A int { /* ERROR "package-level" */ X: 1 }
+	} { /* ERROR "package-level" */ Y: 1 }
+}
+
+var anon struct {
+	A int { /* ERROR "struct type of a type declaration" */ X: 1 }
+}
+
+type Status2 enum {
+	A { Label /* ERROR "Label property must be a string" */ : 1 }
+}
