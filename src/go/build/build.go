@@ -12,6 +12,7 @@ import (
 	"go/build/constraint"
 	"go/doc"
 	"go/token"
+	"internal/bolero"
 	"internal/buildcfg"
 	"internal/godebug"
 	"internal/goroot"
@@ -898,14 +899,14 @@ Found:
 		ext := nameExt(name)
 
 		info, err := ctxt.matchFile(p.Dir, name, allTags, &p.BinaryOnly, fset)
-		if err != nil && strings.HasSuffix(name, ".go") {
+		if err != nil && bolero.IsGoOrBoleroFile(name) {
 			badGoFile(name, err)
 			continue
 		}
 		if info == nil {
 			if strings.HasPrefix(name, "_") || strings.HasPrefix(name, ".") {
 				// not due to build constraints - don't report
-			} else if ext == ".go" {
+			} else if bolero.IsGoOrBoleroExt(ext) {
 				p.IgnoredGoFiles = append(p.IgnoredGoFiles, name)
 			} else if fileListForExt(p, ext) != nil {
 				p.IgnoredOtherFiles = append(p.IgnoredOtherFiles, name)
@@ -915,7 +916,7 @@ Found:
 
 		// Going to save the file. For non-Go files, can stop here.
 		switch ext {
-		case ".go":
+		case ".go", bolero.FileExt:
 			// keep going
 		case ".S", ".sx":
 			// special case for cgo, handled at end
@@ -945,7 +946,7 @@ Found:
 			}
 		}
 
-		isTest := strings.HasSuffix(name, "_test.go")
+		isTest := bolero.IsTestFile(name)
 		isXTest := false
 		if isTest && strings.HasSuffix(pkg, "_test") && p.Name != pkg {
 			isXTest = true
@@ -989,6 +990,10 @@ Found:
 		isCgo := false
 		for _, imp := range info.imports {
 			if imp.path == "C" {
+				if bolero.IsSourceFile(name) {
+					badGoFile(name, fmt.Errorf("use of cgo in Bolero file %s not supported", filename))
+					continue
+				}
 				if isTest {
 					badGoFile(name, fmt.Errorf("use of cgo in test %s not supported", filename))
 					continue
@@ -1286,7 +1291,7 @@ func (ctxt *Context) importGo(p *Package, path, srcDir string, mode ImportMode) 
 func hasGoFiles(ctxt *Context, dir string) bool {
 	ents, _ := ctxt.readDir(dir)
 	for _, ent := range ents {
-		if !ent.IsDir() && strings.HasSuffix(ent.Name(), ".go") {
+		if !ent.IsDir() && bolero.IsGoOrBoleroFile(ent.Name()) {
 			return true
 		}
 	}
@@ -1459,7 +1464,7 @@ func (ctxt *Context) matchFile(dir, name string, allTags map[string]bool, binary
 	}
 	ext := name[i:]
 
-	if ext != ".go" && fileListForExt(&dummyPkg, ext) == nil {
+	if !bolero.IsGoOrBoleroExt(ext) && fileListForExt(&dummyPkg, ext) == nil {
 		// skip
 		return nil, nil
 	}
@@ -1479,9 +1484,9 @@ func (ctxt *Context) matchFile(dir, name string, allTags map[string]bool, binary
 		return nil, err
 	}
 
-	if strings.HasSuffix(name, ".go") {
+	if bolero.IsGoOrBoleroFile(name) {
 		err = readGoInfo(f, info)
-		if strings.HasSuffix(name, "_test.go") {
+		if bolero.IsTestFile(name) {
 			binaryOnly = nil // ignore //go:binary-only-package comments in _test.go files
 		}
 	} else {

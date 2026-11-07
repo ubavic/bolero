@@ -77,9 +77,10 @@ type parser struct {
 }
 
 func (p *parser) init(file *token.File, src []byte, mode Mode) {
+	mode = fileMode(file, mode)
 	p.file = file
 	eh := func(pos token.Position, msg string) { p.errors.Add(pos, msg) }
-	p.scanner.Init(p.file, src, eh, scanner.ScanComments)
+	p.scanner.Init(p.file, src, eh, scannerMode(mode))
 
 	p.top = true
 	p.mode = mode

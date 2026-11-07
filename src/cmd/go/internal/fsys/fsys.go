@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"internal/bolero"
 	"internal/godebug"
 	"io"
 	"io/fs"
@@ -599,7 +600,7 @@ func IsGoDir(name string) (bool, error) {
 
 	var firstErr error
 	for _, d := range fis {
-		if d.IsDir() || !strings.HasSuffix(d.Name(), ".go") {
+		if d.IsDir() || !bolero.IsGoOrBoleroFile(d.Name()) {
 			continue
 		}
 		if d.Type().IsRegular() {

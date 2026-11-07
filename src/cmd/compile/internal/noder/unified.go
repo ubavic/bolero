@@ -351,6 +351,7 @@ func writePkgStub(m posMap, noders []*noder) string {
 		w.pkgInit(noders)
 		w.Flush()
 	}
+	pw.writeBoleroRoot()
 
 	var sb strings.Builder
 	pw.DumpTo(&sb)
@@ -567,5 +568,6 @@ func writeUnifiedExport(out io.Writer) {
 		w.Flush()
 	}
 
+	l.writeBoleroRoot()
 	base.Ctxt.Fingerprint = l.pw.DumpTo(out)
 }

@@ -1,0 +1,144 @@
+# Bolero source files (*.bo) are built, run, tested, vetted, covered,
+# formatted and listed like Go source files.
+
+go list -f '{{.GoFiles}} {{.TestGoFiles}} {{.XTestGoFiles}}' ./colors
+stdout '^\[colors.bo hex.go\] \[colors_test.bo\] \[go_test.go\]$'
+
+go build . ./colors ./relay
+go run .
+stdout '^F00 3$'
+go run main.bo
+stdout '^F00 3$'
+
+go test ./colors
+stdout '^ok'
+go test -cover ./colors
+stdout 'coverage: [0-9.]+% of statements'
+
+go vet . ./colors ./relay
+go fmt ./colors
+! stdout .
+
+# go mod tidy finds the imports of Bolero source files.
+! grep 'rsc.io/quote' go.mod
+go mod tidy -e
+grep 'rsc.io/quote' go.mod
+
+# cgo is not supported in Bolero source files.
+! go build ./cgo
+stderr 'use of cgo in Bolero file .*c.bo not supported'
+
+# Go source files cannot use declarations from Bolero source files:
+# not in the same package,
+! go build ./mixed
+stderr 'BoFunc is declared in a Bolero file and cannot be used in Go files'
+
+# not from another package, including methods declared in Bolero source
+# files on types declared in Go source files,
+! go build ./gouser
+stderr 'Red is declared in a Bolero file and cannot be used in Go files'
+stderr 'Size is declared in a Bolero file and cannot be used in Go files'
+! stderr 'HexOf'
+
+# and not through a package that only re-exports Go declarations.
+! go build ./gorelay
+stderr 'Size is declared in a Bolero file and cannot be used in Go files'
+
+# go vet (go/types) enforces the same rule from export data.
+! go vet ./gouser
+stderr 'Red is declared in a Bolero file and cannot be used in Go files'
+
+-- go.mod --
+module example.com/m
+
+go 1.26
+-- main.bo --
+package main
+
+import (
+	"fmt"
+
+	"example.com/m/colors"
+)
+
+func main() {
+	fmt.Println(colors.Red().Hex(), colors.Palette{}.Size())
+}
+-- colors/colors.bo --
+package colors
+
+type Color int
+
+func Red() Color { return 0 }
+
+func (c Color) Hex() string { return HexOf(int(c)) }
+
+func (Palette) Size() int { return len(palette) }
+-- colors/hex.go --
+package colors
+
+type Palette struct{}
+
+var palette = []string{"F00", "0F0", "00F"}
+
+func HexOf(i int) string { return palette[i] }
+-- colors/colors_test.bo --
+package colors
+
+import "testing"
+
+func TestHex(t *testing.T) {
+	if got := Red().Hex(); got != "F00" {
+		t.Errorf("Red().Hex() = %q, want F00", got)
+	}
+}
+-- colors/go_test.go --
+package colors_test
+
+import (
+	"testing"
+
+	"example.com/m/colors"
+)
+
+func TestHexOf(t *testing.T) {
+	if got := colors.HexOf(1); got != "0F0" {
+		t.Errorf("HexOf(1) = %q, want 0F0", got)
+	}
+}
+-- relay/relay.go --
+package relay
+
+import "example.com/m/colors"
+
+func Palette() colors.Palette { return colors.Palette{} }
+-- quoteuser/q.bo --
+package quoteuser
+
+import _ "rsc.io/quote"
+-- cgo/c.bo --
+package cgo
+
+import "C"
+-- mixed/a.bo --
+package mixed
+
+func BoFunc() {}
+-- mixed/b.go --
+package mixed
+
+var _ = BoFunc
+-- gouser/gouser.go --
+package gouser
+
+import "example.com/m/colors"
+
+var _ = colors.HexOf(0)
+var _ = colors.Red()
+var _ = colors.Palette{}.Size()
+-- gorelay/gorelay.go --
+package gorelay
+
+import "example.com/m/relay"
+
+var _ = relay.Palette().Size()

@@ -38,7 +38,7 @@ func (p *parser) init(file *PosBase, r io.Reader, errh ErrorHandler, pragh Pragm
 	p.top = true
 	p.file = file
 	p.errh = errh
-	p.mode = mode
+	p.mode = fileMode(file, mode)
 	p.pragh = pragh
 	p.scanner.init(
 		r,
@@ -85,7 +85,7 @@ func (p *parser) init(file *PosBase, r io.Reader, errh ErrorHandler, pragh Pragm
 				}
 			}
 		},
-		directives,
+		scannerMode(p.mode),
 	)
 
 	p.base = file
@@ -301,7 +301,7 @@ func tokstring(tok token) string {
 		return "semicolon or newline"
 	}
 	s := tok.String()
-	if _Break <= tok && tok <= _Var {
+	if isKeywordToken(tok) {
 		return "keyword " + s
 	}
 	return s

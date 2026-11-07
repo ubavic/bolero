@@ -129,6 +129,11 @@ const (
 	// additional tokens, handled in an ad-hoc manner
 	TILDE
 	additional_end
+
+	bolero_beg
+	// Bolero tokens, recognized only in Bolero mode;
+	// those spelled like identifiers are Bolero keywords
+	bolero_end
 )
 
 var tokens = [...]string{

@@ -42,6 +42,7 @@ var depsRules = `
 	< cmp,
 	  container/list,
 	  container/ring,
+	  internal/bolero,
 	  internal/byteorder,
 	  internal/cfg,
 	  internal/coverage,
@@ -353,7 +354,7 @@ var depsRules = `
 	FMT, sort
 	< go/doc/comment;
 
-	go/internal/typeparams, go/build/constraint
+	go/internal/typeparams, go/build/constraint, internal/bolero
 	< go/parser;
 
 	go/doc/comment, go/parser, text/tabwriter

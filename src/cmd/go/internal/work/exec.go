@@ -16,6 +16,7 @@ import (
 	"errors"
 	"fmt"
 	"go/token"
+	"internal/bolero"
 	"internal/lazyregexp"
 	"io"
 	"io/fs"
@@ -103,7 +104,7 @@ func (b *Builder) Do(ctx context.Context, root *Action) {
 	// Write action graph, without timing information, in case we fail and exit early.
 	writeActionGraph := func() {
 		if file := cfg.DebugActiongraph; file != "" {
-			if strings.HasSuffix(file, ".go") {
+			if bolero.IsGoOrBoleroFile(file) {
 				// Do not overwrite Go source code in:
 				//	go build -debug-actiongraph x.go
 				base.Fatalf("go: refusing to write action graph to %v\n", file)
@@ -679,7 +680,8 @@ func (b *Builder) runCover(a, buildAction *Action, objdir string, gofiles, cgofi
 			sourceFile = filepath.Join(p.Dir, file)
 			coverFile = objdir + file
 		}
-		coverFile = strings.TrimSuffix(coverFile, ".go") + ".cover.go"
+		stem, ext := bolero.TrimExt(coverFile)
+		coverFile = stem + ".cover" + ext
 		infiles = append(infiles, sourceFile)
 		outfiles = append(outfiles, coverFile)
 		if i < len(gofiles) {
@@ -1155,7 +1157,7 @@ func (b *Builder) loadCachedCompiledGoFiles(a *Action) error {
 	for name := range strings.SplitSeq(string(list), "\n") {
 		if name == "" { // end of list
 			continue
-		} else if !strings.HasSuffix(name, ".go") {
+		} else if !bolero.IsGoOrBoleroFile(name) {
 			continue
 		}
 		if strings.HasPrefix(name, "./") {
@@ -1202,7 +1204,7 @@ func buildVetConfig(a *Action, srcfiles []string, vetDeps []*Action) {
 	// srcfiles does not include raw cgo files.
 	var gofiles, nongofiles []string
 	for _, name := range srcfiles {
-		if strings.HasSuffix(name, ".go") {
+		if bolero.IsGoOrBoleroFile(name) {
 			gofiles = append(gofiles, name)
 		} else {
 			nongofiles = append(nongofiles, name)

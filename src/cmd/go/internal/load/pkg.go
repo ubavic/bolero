@@ -14,6 +14,7 @@ import (
 	"go/build"
 	"go/scanner"
 	"go/token"
+	"internal/bolero"
 	"internal/godebug"
 	"internal/platform"
 	"io/fs"
@@ -2908,7 +2909,7 @@ func PackagesAndErrors(loaderstate *modload.State, ctx context.Context, opts Pac
 		// Listing is only supported with all patterns referring to either:
 		// - Files that are part of the same directory.
 		// - Explicit package paths or patterns.
-		if strings.HasSuffix(p, ".go") {
+		if bolero.IsGoOrBoleroFile(p) {
 			// We need to test whether the path is an actual Go file and not a
 			// package path or pattern ending in '.go' (see golang.org/issue/34653).
 			if fi, err := fsys.Stat(p); err == nil && !fi.IsDir() {
@@ -3248,7 +3249,7 @@ func GoFilesPackage(loaderstate *modload.State, ctx context.Context, opts Packag
 	modload.Init(loaderstate)
 
 	for _, f := range gofiles {
-		if !strings.HasSuffix(f, ".go") {
+		if !bolero.IsGoOrBoleroFile(f) {
 			pkg := new(Package)
 			pkg.Internal.Local = true
 			pkg.Internal.CmdlineFiles = true

@@ -44,6 +44,9 @@ func (check *Checker) ident(x *operand, e *syntax.Name, wantType bool) {
 	}
 
 	check.recordUse(e, obj)
+	if !check.checkBoleroUse(e, obj) {
+		return
+	}
 
 	// If we want a type but don't have one, stop right here and avoid potential problems
 	// with missing underlying types. This also gives better error messages in some cases

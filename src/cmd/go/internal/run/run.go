@@ -8,6 +8,7 @@ package run
 import (
 	"context"
 	"go/build"
+	"internal/bolero"
 	"path/filepath"
 	"strings"
 
@@ -94,7 +95,7 @@ func runRun(ctx context.Context, cmd *base.Command, args []string) {
 	}()
 
 	i := 0
-	for i < len(args) && strings.HasSuffix(args[i], ".go") {
+	for i < len(args) && bolero.IsGoOrBoleroFile(args[i]) {
 		i++
 	}
 	pkgOpts := load.PackageOpts{MainOnly: true}
@@ -102,7 +103,7 @@ func runRun(ctx context.Context, cmd *base.Command, args []string) {
 	if i > 0 {
 		files := args[:i]
 		for _, file := range files {
-			if strings.HasSuffix(file, "_test.go") {
+			if bolero.IsTestFile(file) {
 				// GoFilesPackage is going to assign this to TestGoFiles.
 				// Reject since it won't be part of the build.
 				base.Fatalf("go: cannot run *_test.go files (%s)", file)
@@ -188,7 +189,7 @@ func shouldUseOutsideModuleMode(args []string) bool {
 	// NOTE: "@" not allowed in import paths, but it is allowed in non-canonical
 	// versions.
 	return len(args) > 0 &&
-		!strings.HasSuffix(args[0], ".go") &&
+		!bolero.IsGoOrBoleroFile(args[0]) &&
 		!strings.HasPrefix(args[0], "-") &&
 		strings.Contains(args[0], "@") &&
 		!build.IsLocalImport(args[0]) &&

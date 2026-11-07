@@ -14,6 +14,7 @@ import (
 	"go/build"
 	"go/build/constraint"
 	"hash/fnv"
+	"internal/bolero"
 	"internal/testenv"
 	"io"
 	"io/fs"
@@ -67,7 +68,7 @@ var (
 
 	// dirs are the directories to look for *.go files in.
 	// TODO(bradfitz): just use all directories?
-	dirs = []string{".", "ken", "chan", "interface", "internal/runtime/sys", "syntax", "dwarf", "fixedbugs", "codegen", "abi", "typeparam", "typeparam/mdempsky", "arenas", "simd"}
+	dirs = []string{".", "ken", "chan", "interface", "internal/runtime/sys", "syntax", "dwarf", "fixedbugs", "codegen", "abi", "typeparam", "typeparam/mdempsky", "arenas", "simd", "bolero"}
 )
 
 // Test is the main entrypoint that runs tests in the GOROOT/test directory.
@@ -171,7 +172,7 @@ func goFiles(t *testing.T, dir string) []string {
 	names := []string{}
 	for _, file := range files {
 		name := file.Name()
-		if !strings.HasPrefix(name, ".") && strings.HasSuffix(name, ".go") && shardMatch(name) {
+		if !strings.HasPrefix(name, ".") && bolero.IsGoOrBoleroFile(name) && shardMatch(name) {
 			names = append(names, name)
 		}
 	}
@@ -239,8 +240,8 @@ func linkFile(runcmd runCmd, outfile, infile string, importcfg string, ldflags [
 	if importcfg == "" {
 		importcfg = stdlibImportcfgFile()
 	}
-	if strings.HasSuffix(infile, ".go") {
-		infile = infile[:len(infile)-3] + ".o"
+	if stem, ext := bolero.TrimExt(infile); ext != "" {
+		infile = stem + ".o"
 	}
 	cmd := []string{goTool, "tool", "link", "-s", "-w", "-buildid=test", "-o", outfile, "-importcfg=" + importcfg}
 	if *linkshared {

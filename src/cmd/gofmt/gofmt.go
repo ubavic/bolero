@@ -14,6 +14,7 @@ import (
 	"go/printer"
 	"go/scanner"
 	"go/token"
+	"internal/bolero"
 	"internal/diff"
 	"io"
 	"io/fs"
@@ -91,7 +92,7 @@ func initParserMode() {
 }
 
 func isGoFilename(name string) bool {
-	return !strings.HasPrefix(name, ".") && strings.HasSuffix(name, ".go")
+	return !strings.HasPrefix(name, ".") && (strings.HasSuffix(name, ".go") || bolero.IsSourceFile(name))
 }
 
 // A sequencer performs concurrent tasks that may write output, but emits that

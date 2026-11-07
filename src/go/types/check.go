@@ -523,6 +523,7 @@ func (check *Checker) checkFiles(files []*ast.File) {
 
 	print("== collectObjects ==")
 	check.collectObjects()
+	check.markBoleroDecls()
 
 	print("== sortObjects ==")
 	check.sortObjects()

@@ -739,6 +739,9 @@ func (check *Checker) selector(x *operand, e *ast.SelectorExpr, wantType bool) {
 				}
 			}
 			check.recordUse(e.Sel, exp)
+			if !check.checkBoleroUse(e.Sel, exp) {
+				goto Error
+			}
 
 			// Simplified version of the code for *ast.Idents:
 			// - imported objects are always fully initialized
@@ -836,6 +839,10 @@ func (check *Checker) selector(x *operand, e *ast.SelectorExpr, wantType bool) {
 			why = check.lookupError(x.typ, sel, alt, false)
 		}
 		check.errorf(e.Sel, MissingFieldOrMethod, "%s.%s undefined (%s)", x.expr, sel, why)
+		goto Error
+	}
+
+	if !check.checkBoleroUse(e.Sel, obj) {
 		goto Error
 	}
 

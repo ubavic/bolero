@@ -82,6 +82,7 @@ func readUnifiedPackage(fset *token.FileSet, ctxt *types.Context, imports map[st
 
 	r.Sync(pkgbits.SyncEOF)
 
+	pr.markBolero()
 	for _, fn := range pr.laterFns {
 		fn()
 	}

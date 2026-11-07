@@ -54,6 +54,7 @@ const (
 	DeclarationErrors                                 // report declaration errors
 	SpuriousErrors                                    // same as AllErrors, for backward-compatibility
 	SkipObjectResolution                              // skip deprecated identifier resolution; see ParseFile
+	Bolero                                            // accept Bolero syntax; implied for Bolero source files (*.bo)
 	AllErrors            = SpuriousErrors             // report all errors (not just the first 10 on different lines)
 )
 

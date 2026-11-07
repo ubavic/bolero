@@ -1,0 +1,26 @@
+// Copyright 2026 The Bolero Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Bolero source files may use declarations from Go source files.
+
+package oneway
+
+type BoType struct{}
+
+func BoFunc() {}
+
+var BoVar int
+
+const BoConst = 1
+
+func (GoType) BoMethod() {}
+
+func _() {
+	GoFunc()
+	GoType{}.GoMethod()
+	var _ GoType = GoType{}
+	_ = GoVar
+	BoFunc()
+	GoType{}.BoMethod()
+}

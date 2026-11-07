@@ -25,6 +25,7 @@ import (
 const (
 	comments   uint = 1 << iota // call handler for all comments
 	directives                  // call handler for directives only
+	boleroTok                   // recognize Bolero tokens
 )
 
 type scanner struct {
@@ -381,7 +382,7 @@ func (s *scanner) ident() {
 	// possibly a keyword
 	lit := s.segment()
 	if len(lit) >= 2 {
-		if tok := keywordMap[hash(lit)]; tok != 0 && tokStrFast(tok) == string(lit) {
+		if tok := keywordMap[hash(lit)]; tok != 0 && tokStrFast(tok) == string(lit) && s.isKeyword(tok) {
 			s.nlsemi = contains(1<<_Break|1<<_Continue|1<<_Fallthrough|1<<_Return, tok)
 			s.tok = tok
 			return
@@ -425,7 +426,10 @@ var keywordMap [1 << 6]token // size must be power of two
 
 func init() {
 	// populate keywordMap
-	for tok := _Break; tok <= _Var; tok++ {
+	for tok := _Break; tok < tokenCount; tok++ {
+		if !isKeywordToken(tok) {
+			continue
+		}
 		h := hash([]byte(tok.String()))
 		if keywordMap[h] != 0 {
 			panic("imperfect hash")

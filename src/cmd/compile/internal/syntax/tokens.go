@@ -68,6 +68,9 @@ const (
 	_Type        // type
 	_Var         // var
 
+	// Bolero tokens, recognized only in Bolero mode;
+	// those spelled like identifiers are Bolero keywords
+
 	// empty line comment to exclude it from .String
 	tokenCount //
 )

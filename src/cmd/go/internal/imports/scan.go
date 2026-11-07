@@ -6,6 +6,7 @@ package imports
 
 import (
 	"fmt"
+	"internal/bolero"
 	"io/fs"
 	"path/filepath"
 	"sort"
@@ -34,7 +35,7 @@ func ScanDir(path string, tags map[string]bool) ([]string, []string, error) {
 			dir = fs.FileInfoToDirEntry(info)
 		}
 
-		if dir.Type().IsRegular() && !strings.HasPrefix(name, "_") && !strings.HasPrefix(name, ".") && strings.HasSuffix(name, ".go") && MatchFile(name, tags) {
+		if dir.Type().IsRegular() && !strings.HasPrefix(name, "_") && !strings.HasPrefix(name, ".") && bolero.IsGoOrBoleroFile(name) && MatchFile(name, tags) {
 			files = append(files, filepath.Join(path, name))
 		}
 	}
@@ -79,7 +80,7 @@ Files:
 		}
 		numFiles++
 		m := imports
-		if strings.HasSuffix(name, "_test.go") {
+		if bolero.IsTestFile(name) {
 			m = testImports
 		}
 		for _, p := range list {

@@ -1,0 +1,19 @@
+// run
+
+// Copyright 2026 The Bolero Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Bolero source files accept all of Go.
+
+package main
+
+import "fmt"
+
+type point struct{ x, y int }
+
+func (p point) String() string { return fmt.Sprintf("(%d, %d)", p.x, p.y) }
+
+func main() {
+	fmt.Println(point{1, 2})
+}

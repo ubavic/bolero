@@ -58,6 +58,7 @@ func ReadPackage(ctxt *types2.Context, imports map[string]*types2.Package, input
 
 	r.Sync(pkgbits.SyncEOF)
 
+	pr.markBolero()
 	pkg.MarkComplete()
 	return pkg
 }

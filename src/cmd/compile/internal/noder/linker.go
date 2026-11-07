@@ -42,6 +42,7 @@ type linker struct {
 	pkgs   map[string]index
 	decls  map[*types.Sym]index
 	bodies map[*types.Sym]index
+	bolero boleroLinker
 }
 
 // relocAll ensures that all elements specified by pr and relocs are
@@ -167,6 +168,7 @@ func (l *linker) relocObj(pr *pkgReader, idx index) index {
 	assert(wext.Idx == w.Idx)
 	assert(wname.Idx == w.Idx)
 	assert(wdict.Idx == w.Idx)
+	l.relocBolero(pr, idx, w.Idx)
 
 	l.relocCommon(pr, w, pkgbits.SectionObj, idx)
 	l.relocCommon(pr, wname, pkgbits.SectionName, idx)

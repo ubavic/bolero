@@ -498,6 +498,7 @@ func (check *Checker) checkFiles(files []*syntax.File) {
 
 	print("== collectObjects ==")
 	check.collectObjects()
+	check.markBoleroDecls()
 
 	print("== sortObjects ==")
 	check.sortObjects()

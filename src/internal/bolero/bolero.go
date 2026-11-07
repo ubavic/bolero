@@ -1,0 +1,54 @@
+// Copyright 2026 The Bolero Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package bolero holds definitions shared by the parts of the toolchain
+// that treat Bolero source files differently from Go source files.
+//
+// Bolero syntax is accepted only in Bolero source files.
+// Go source files are processed exactly as by the upstream Go toolchain.
+package bolero
+
+// FileExt is the file name extension of Bolero source files.
+const FileExt = ".bo"
+
+// IsSourceFile reports whether name is the name of a Bolero source file.
+func IsSourceFile(name string) bool {
+	return hasSuffix(name, FileExt)
+}
+
+// IsGoOrBoleroFile reports whether name is the name of a Go or a Bolero source file.
+func IsGoOrBoleroFile(name string) bool {
+	return hasSuffix(name, ".go") || hasSuffix(name, FileExt)
+}
+
+// IsGoOrBoleroExt reports whether ext is the file name extension of
+// Go or Bolero source files.
+func IsGoOrBoleroExt(ext string) bool {
+	return ext == ".go" || ext == FileExt
+}
+
+// IsTestFile reports whether name is the name of a Go or a Bolero test file.
+func IsTestFile(name string) bool {
+	return hasSuffix(name, "_test.go") || hasSuffix(name, "_test"+FileExt)
+}
+
+// TrimExt returns name without its Go or Bolero file name extension,
+// and the extension.
+func TrimExt(name string) (stem, ext string) {
+	for _, ext := range [...]string{".go", FileExt} {
+		if hasSuffix(name, ext) {
+			return name[:len(name)-len(ext)], ext
+		}
+	}
+	return name, ""
+}
+
+// MarkGoTypesObject, if set, marks a go/types object as declared in a
+// Bolero source file. It is set by go/types and called by importers,
+// which can construct go/types objects only through its exported API.
+var MarkGoTypesObject func(obj any)
+
+func hasSuffix(s, suffix string) bool {
+	return len(s) >= len(suffix) && s[len(s)-len(suffix):] == suffix
+}

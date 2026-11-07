@@ -175,6 +175,7 @@ func Check(t *testing.T) {
 	for _, file := range nextFiles {
 		required = append(required, fileFeatures(file, true)...)
 	}
+	required = append(required, boleroFeatures(t)...)
 	exception := fileFeatures(filepath.Join(testenv.GOROOT(t), "api/except.txt"), false)
 
 	if exitCode == 1 {

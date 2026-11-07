@@ -15,6 +15,7 @@ import (
 	"go/doc"
 	"go/scanner"
 	"go/token"
+	"internal/bolero"
 	"io/fs"
 	"path/filepath"
 	"strings"
@@ -241,7 +242,7 @@ func importRaw(modroot, reldir string) *rawPackage {
 
 		// Going to save the file. For non-Go files, can stop here.
 		p.sourceFiles = append(p.sourceFiles, rf)
-		if ext != ".go" {
+		if !bolero.IsGoOrBoleroExt(ext) {
 			continue
 		}
 

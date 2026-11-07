@@ -1,0 +1,15 @@
+// Copyright 2026 The Bolero Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Bolero source files accept all of Go.
+
+package gosyntax
+
+type T struct{ x int }
+
+func (t T) M() int { return t.x }
+
+var _ = T{}.M()
+
+var _ int = "" /* ERROR "cannot use" */

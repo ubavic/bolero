@@ -6,6 +6,7 @@ package base
 
 import (
 	"errors"
+	"internal/bolero"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -75,7 +76,7 @@ func RelPaths(paths []string) []string {
 // be excluded from coverage analysis.
 func IsTestFile(file string) bool {
 	// We don't cover tests, only the code they test.
-	return strings.HasSuffix(file, "_test.go")
+	return bolero.IsTestFile(file)
 }
 
 // IsNull reports whether the path is a common name for the null device.

@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"internal/bolero"
 	"internal/godebugs"
 	"internal/lazyregexp"
 	"io"
@@ -1237,7 +1238,7 @@ func CreateModFile(loaderstate *State, ctx context.Context, modPath string) {
 		if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "_") {
 			continue
 		}
-		if strings.HasSuffix(name, ".go") || f.IsDir() {
+		if bolero.IsGoOrBoleroFile(name) || f.IsDir() {
 			empty = false
 			break
 		}

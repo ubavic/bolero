@@ -1,0 +1,5 @@
+pkg go/parser, const Bolero = 128
+pkg go/parser, const Bolero Mode
+pkg go/scanner, const Bolero = 4
+pkg go/scanner, const Bolero Mode
+pkg go/token, func LookupBolero(string) Token

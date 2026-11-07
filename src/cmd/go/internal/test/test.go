@@ -1217,7 +1217,7 @@ func builderTest(loaderstate *modload.State, b *work.Builder, ctx context.Contex
 	if !cfg.BuildN {
 		// writeTestmain writes _testmain.go,
 		// using the test description gathered in t.
-		if err := os.WriteFile(testDir+"_testmain.go", *pmain.Internal.TestmainGo, 0666); err != nil {
+		if err := os.WriteFile(testDir+pmain.GoFiles[0], *pmain.Internal.TestmainGo, 0666); err != nil {
 			return nil, nil, nil, nil, err
 		}
 	}

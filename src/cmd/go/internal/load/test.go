@@ -274,7 +274,7 @@ func TestPackagesAndErrors(loaderstate *modload.State, ctx context.Context, done
 		PackagePublic: PackagePublic{
 			Name:       "main",
 			Dir:        p.Dir,
-			GoFiles:    []string{"_testmain.go"},
+			GoFiles:    []string{testmainFile(p)},
 			ImportPath: p.ImportPath + ".test",
 			Root:       p.Root,
 			Imports:    str.StringList(TestMainDeps),
