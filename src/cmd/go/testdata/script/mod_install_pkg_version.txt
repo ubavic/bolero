@@ -65,7 +65,7 @@ stderr '^bolero: go\.mod file not found in current directory or any parent direc
 stderr '^bolero: go\.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 mkdir tmp
 cd tmp
-bolero mod init tmp
+bolero mod init -modfile=go.mod tmp
 bolero mod edit -require=rsc.io/fortune@v1.0.0
 ! bolero install -mod=readonly $BOLERO_PATH/pkg/mod/rsc.io/fortune@v1.0.0
 stderr '^missing go\.sum entry for module providing package rsc\.io/fortune; to add:\n\tbolero mod download rsc\.io/fortune$'
@@ -125,7 +125,7 @@ stderr '^package example.com/cmd/err is not a main package$'
 # with an error, so we'll know if that gets built.
 mkdir tmp
 cd tmp
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero get example.com/cmd@v1.0.0
 ! bolero build example.com/cmd/...
 stderr 'err[/\\]err.go:3:9: undefined: DoesNotCompile( .*)?$'

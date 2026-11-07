@@ -1,14 +1,14 @@
 # Don't allow the creation of modules with special "go" or "toolchain" paths.
-! bolero mod init go
+! bolero mod init -modfile=go.mod go
 ! stderr 'panic'
 stderr 'invalid module path'
 
-! bolero mod init toolchain
+! bolero mod init -modfile=go.mod toolchain
 ! stderr 'panic'
 stderr 'invalid module path'
 
 # A module that contains the path element "go" is okay.
-bolero mod init example.com/go
+bolero mod init -modfile=go.mod example.com/go
 stderr 'creating new go.mod'
 
 # bolero mod edit won't allow a reserved module path either

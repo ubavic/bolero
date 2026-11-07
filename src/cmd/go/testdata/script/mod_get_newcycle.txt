@@ -6,7 +6,7 @@ bolero mod download example.com/newcycle/a@v1.0.0
 bolero mod download example.com/newcycle/a@v1.0.1
 bolero mod download example.com/newcycle/b@v1.0.0
 
-bolero mod init m
+bolero mod init -modfile=go.mod m
 ! bolero get example.com/newcycle/a@v1.0.0
 cmp stderr stderr-expected
 

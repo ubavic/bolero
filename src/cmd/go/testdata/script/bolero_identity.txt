@@ -69,10 +69,11 @@ exists -exec $BOLERO_ROOT/bin/bolerofmt$GOEXE
 stderr '^bolero asdf: unknown command'
 ! stderr '\bgo\b'
 
-# The go.mod, go.sum and go.work files keep their names.
+# The go.sum and go.work files keep their names; a project is rooted at app.json.
 cd m
 bolero mod init example.com/m
-exists go.mod
+exists app.json
+! exists go.mod
 bolero run .
 stdout 'hello'
 

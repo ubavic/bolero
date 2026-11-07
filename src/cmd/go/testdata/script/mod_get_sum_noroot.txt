@@ -1,7 +1,7 @@
 # When 'bolero get' is invoked on a module without a package in the root directory,
 # it should add sums for the module's go.mod file and its content to go.sum.
 # Verifies golang.org/issue/41103.
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero get rsc.io/QUOTE
 grep '^rsc.io/QUOTE v1.5.2/go.mod ' go.sum
 grep '^rsc.io/QUOTE v1.5.2 ' go.sum

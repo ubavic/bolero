@@ -4,7 +4,7 @@ bolero install -n rsc.io\fortune@v1.0.0
 
 mkdir m
 cd m
-bolero mod init example.com/m
+bolero mod init -modfile=go.mod example.com/m
 bolero get rsc.io\fortune
 ! stderr 'malformed'
 

@@ -2,7 +2,7 @@
 
 env BOLERO_MODULE=on
 
-bolero mod init golang.org/issue/27584
+bolero mod init -modfile=go.mod golang.org/issue/27584
 
 bolero build .
 

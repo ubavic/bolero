@@ -6,7 +6,7 @@ env BOLERO_FLAGS='-n -buildvcs'
 # Create a root module in a root Git repository.
 mkdir root
 cd root
-bolero mod init example.com/root
+bolero mod init -modfile=go.mod example.com/root
 exec git init
 
 
@@ -25,7 +25,7 @@ stderr '^error obtaining VCS status: main module is in repository ".*root" but c
 stderr '^\tUse -buildvcs=false to disable VCS stamping.$'
 bolero build -buildvcs=false
 env GODEBUG=
-bolero mod init example.com/root/hgsub
+bolero mod init -modfile=go.mod example.com/root/hgsub
 ! bolero build
 stderr '^error obtaining VCS status: multiple VCS detected: hg in ".*hgsub", and git in ".*root"$'
 stderr '^\tUse -buildvcs=false to disable VCS stamping.$'
@@ -47,7 +47,7 @@ cp ../../main.go main.go
 ! bolero build
 stderr '^error obtaining VCS status: main module is in repository ".*root" but current directory is in repository ".*gitsub"$'
 bolero build -buildvcs=false
-bolero mod init example.com/root/gitsub
+bolero mod init -modfile=go.mod example.com/root/gitsub
 exec git commit --allow-empty -m empty # status commands fail without this
 bolero build
 rm go.mod

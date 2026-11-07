@@ -3,7 +3,7 @@
 # +incompatible versions when looking for retractions.
 # Verifies #42601.
 
-bolero mod init m
+bolero mod init -modfile=go.mod m
 
 # Request a +incompatible version retracted in v1.0.0.
 bolero get example.com/retract/incompatible@v2.0.0+incompatible

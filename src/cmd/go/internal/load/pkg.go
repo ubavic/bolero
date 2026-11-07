@@ -1270,12 +1270,27 @@ var (
 	goModPathCache par.Cache[string, string]
 )
 
-// goModPath returns the module path in the go.mod in dir, if any.
+// appModulePath returns the module path in the app.json in dir, if any.
+func appModulePath(dir string) string {
+	data, err := os.ReadFile(filepath.Join(dir, bolero.AppJSON))
+	if err != nil {
+		return ""
+	}
+	var probe struct {
+		Module string `json:"module"`
+	}
+	if err := json.Unmarshal(data, &probe); err != nil {
+		return ""
+	}
+	return probe.Module
+}
+
+// goModPath returns the module path in the go.mod or app.json in dir, if any.
 func goModPath(dir string) (path string) {
 	return goModPathCache.Do(dir, func() string {
 		data, err := os.ReadFile(filepath.Join(dir, "go.mod"))
 		if err != nil {
-			return ""
+			return appModulePath(dir)
 		}
 		var i int
 		if bytes.HasPrefix(data, modulePrefix[1:]) {
@@ -2178,7 +2193,7 @@ func resolveEmbed(pkgdir string, patterns []string) (files []string, pmap map[st
 			// Check that directories along path do not begin a new module
 			// (do not contain a go.mod).
 			for dir := file; len(dir) > len(pkgdir)+1 && !dirOK[dir]; dir = filepath.Dir(dir) {
-				if _, err := fsys.Stat(filepath.Join(dir, "go.mod")); err == nil {
+				if fsys.HasModuleFile(dir) {
 					return nil, nil, fmt.Errorf("cannot embed %s %s: in different module", what, rel)
 				}
 				if dir != file {
@@ -2252,7 +2267,7 @@ func resolveEmbed(pkgdir string, patterns []string) (files []string, pmap map[st
 						return nil
 					}
 					if d.IsDir() {
-						if _, err := fsys.Stat(filepath.Join(path, "go.mod")); err == nil {
+						if fsys.HasModuleFile(path) {
 							return filepath.SkipDir
 						}
 						return nil

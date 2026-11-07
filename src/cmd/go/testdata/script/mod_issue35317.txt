@@ -4,5 +4,5 @@
 env BOLERO_MODULE=on
 [short] skip
 
-bolero mod init example.com
+bolero mod init -modfile=go.mod example.com
 bolero get golang.org/x/text@v0.3.0 golang.org/x/internal@v0.1.0 golang.org/x/exp@none

@@ -10,8 +10,10 @@ import (
 	"cmd/go/internal/fsys"
 	"cmd/go/internal/str"
 	"cmd/internal/pkgpattern"
+	"encoding/json"
 	"fmt"
 	"go/build"
+	"internal/bolero"
 	"io/fs"
 	"os"
 	"path"
@@ -387,7 +389,7 @@ func (m *Match) MatchDirs(modRoots []string) {
 
 		if !top && cfg.ModulesEnabled {
 			// Ignore other modules found in subdirectories.
-			if info, err := fsys.Stat(filepath.Join(path, "go.mod")); err == nil && !info.IsDir() {
+			if fsys.HasModuleFile(path) {
 				return filepath.SkipDir
 			}
 		}
@@ -598,7 +600,17 @@ func parseIgnorePatterns(modRoot string) *IgnorePatterns {
 	}
 	data, err := os.ReadFile(filepath.Join(modRoot, "go.mod"))
 	if err != nil {
-		return nil
+		data, err = os.ReadFile(filepath.Join(modRoot, bolero.AppJSON))
+		if err != nil {
+			return nil
+		}
+		var probe struct {
+			Ignore []string `json:"ignore"`
+		}
+		if err := json.Unmarshal(data, &probe); err != nil || len(probe.Ignore) == 0 {
+			return nil
+		}
+		return NewIgnorePatterns(probe.Ignore)
 	}
 	modFile, err := modfile.Parse("go.mod", data, nil)
 	if err != nil {

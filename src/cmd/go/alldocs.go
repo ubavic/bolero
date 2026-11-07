@@ -1193,11 +1193,12 @@
 //
 //	bolero mod edit [editing flags] [-fmt|-print|-json] [go.mod]
 //
-// Edit provides a command-line interface for editing go.mod,
-// for use primarily by tools or scripts. It reads only go.mod;
+// Edit provides a command-line interface for editing the main module's
+// manifest, for use primarily by tools or scripts. It reads only that file;
 // it does not look up information about the modules involved.
-// By default, edit reads and writes the go.mod file of the main module,
-// but a different target file can be specified after the editing flags.
+// By default, edit reads and writes the app.json or go.mod file of the main
+// module, but a different target file can be specified after the editing flags.
+// An app.json file has no toolchain field.
 //
 // The editing flags specify a sequence of editing operations.
 //
@@ -1357,9 +1358,21 @@
 //
 //	bolero mod init [module-path]
 //
-// Init initializes and writes a new go.mod file in the current directory, in
-// effect creating a new module rooted at the current directory. The go.mod file
-// must not already exist.
+// Init initializes and writes a new app.json file in the current directory, in
+// effect creating a new module rooted at the current directory. An app.json or
+// go.mod file must not already exist there.
+//
+// app.json is the manifest of a Bolero project. It holds the module path, the
+// Go version, module requirements, and the project's name, version, license
+// and authors. go.sum keeps its usual name and format. A Bolero project has
+// no go.mod file.
+//
+// Init writes the module path, the Go version of this toolchain, version 0.1.0,
+// the MIT license, and a placeholder author.
+//
+// With -modfile set to a file whose name is not app.json, init writes that file
+// in go.mod syntax instead. That is how a workspace module, which still uses
+// go.mod, is created.
 //
 // Init accepts one optional argument, the module path for the new module. If the
 // module path argument is omitted, init will attempt to infer the module path
@@ -2687,16 +2700,21 @@
 //
 // # The go.mod file
 //
-// A module version is defined by a tree of source files, with a go.mod
-// file in its root. When the bolero command is run, it looks in the current
-// directory and then successive parent directories to find the go.mod
+// A module version is defined by a tree of source files, with an app.json
+// or a go.mod file in its root. When the bolero command is run, it looks in the
+// current directory and then successive parent directories to find the manifest
 // marking the root of the main (current) module.
+//
+// A Bolero project uses app.json and has no go.mod. app.json holds the module
+// path, the Go version, requirements, and the project's authors, license and
+// version. go.sum keeps its usual name and format. Downloaded modules still
+// use go.mod. A directory that contains both files is an error.
 //
 // The go.mod file format is described in detail at
 // https://golang.org/ref/mod#go-mod-file.
 //
-// To create a new go.mod file, use 'bolero mod init'. For details see
-// 'bolero help mod init' or https://golang.org/ref/mod#go-mod-init.
+// To create a new module, use 'bolero mod init', which writes app.json. For details
+// see 'bolero help mod init' or https://golang.org/ref/mod#go-mod-init.
 //
 // To add missing module requirements or remove unneeded requirements,
 // use 'bolero mod tidy'. For details, see 'bolero help mod tidy' or

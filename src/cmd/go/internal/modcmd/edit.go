@@ -10,7 +10,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -29,11 +28,12 @@ var cmdEdit = &base.Command{
 	UsageLine: "bolero mod edit [editing flags] [-fmt|-print|-json] [go.mod]",
 	Short:     "edit go.mod from tools or scripts",
 	Long: `
-Edit provides a command-line interface for editing go.mod,
-for use primarily by tools or scripts. It reads only go.mod;
+Edit provides a command-line interface for editing the main module's
+manifest, for use primarily by tools or scripts. It reads only that file;
 it does not look up information about the modules involved.
-By default, edit reads and writes the go.mod file of the main module,
-but a different target file can be specified after the editing flags.
+By default, edit reads and writes the app.json or go.mod file of the main
+module, but a different target file can be specified after the editing flags.
+An app.json file has no toolchain field.
 
 The editing flags specify a sequence of editing operations.
 
@@ -262,9 +262,21 @@ func runEdit(ctx context.Context, cmd *base.Command, args []string) {
 		base.Fatal(err)
 	}
 
-	modFile, err := modfile.Parse(gomod, data, nil)
-	if err != nil {
-		base.Fatalf("bolero: errors parsing %s:\n%s", base.ShortPath(gomod), err)
+	if modload.IsAppJSON(gomod) && *editToolchain != "" {
+		base.Fatalf("bolero: app.json has no toolchain field")
+	}
+
+	var modFile *modfile.File
+	if modload.IsAppJSON(gomod) {
+		modFile, err = modload.ParseAppJSON(gomod, data)
+		if err != nil {
+			base.Fatal(err)
+		}
+	} else {
+		modFile, err = modfile.Parse(gomod, data, nil)
+		if err != nil {
+			base.Fatalf("bolero: errors parsing %s:\n%s", base.ShortPath(gomod), err)
+		}
 	}
 
 	if *editModule != "" {
@@ -299,7 +311,12 @@ func runEdit(ctx context.Context, cmd *base.Command, args []string) {
 		return
 	}
 
-	out, err := modFile.Format()
+	var out []byte
+	if modload.IsAppJSON(gomod) {
+		out, err = modload.FormatAppJSON(gomod, modFile)
+	} else {
+		out, err = modFile.Format()
+	}
 	if err != nil {
 		base.Fatal(err)
 	}
@@ -317,7 +334,11 @@ func runEdit(ctx context.Context, cmd *base.Command, args []string) {
 
 	err = lockedfile.Transform(gomod, func(lockedData []byte) ([]byte, error) {
 		if !bytes.Equal(lockedData, data) {
-			return nil, errors.New("go.mod changed during editing; not overwriting")
+			name := "go.mod"
+			if modload.IsAppJSON(gomod) {
+				name = "app.json"
+			}
+			return nil, fmt.Errorf("%s changed during editing; not overwriting", name)
 		}
 		return out, nil
 	})

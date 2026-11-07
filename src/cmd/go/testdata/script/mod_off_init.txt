@@ -1,5 +1,5 @@
 # 'bolero mod init' should refuse to initialize a module if it will be
 # ignored anyway due to BOLERO_MODULE=off.
 env BOLERO_MODULE=off
-! bolero mod init
+! bolero mod init -modfile=go.mod
 stderr 'bolero: modules disabled by BOLERO_MODULE=off; see ''bolero help modules'''

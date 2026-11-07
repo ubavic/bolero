@@ -9,7 +9,7 @@ stderr '\s*cd \.\. && bolero mod init'
 
 # The command we suggested should succeed.
 cd ..
-bolero mod init
+bolero mod init -modfile=go.mod
 bolero list -m all
 stdout '^m$'
 

@@ -3,38 +3,38 @@ env BOLERO_MODULE=on
 # Derive module path from import comment.
 cd $WORK/x
 exists x.go
-bolero mod init
+bolero mod init -modfile=go.mod
 stderr 'module x'
 
 # Import comment works even with CRLF line endings.
 rm go.mod
 replace '\n' '\r\n' x.go
-bolero mod init
+bolero mod init -modfile=go.mod
 stderr 'module x'
 
 # Derive module path from location inside BOLERO_PATH.
 # 'bolero mod init' should succeed if modules are not explicitly disabled.
 cd $BOLERO_PATH/src/example.com/x/y
-bolero mod init
+bolero mod init -modfile=go.mod
 stderr 'module example.com/x/y$'
 rm go.mod
 
 # bolero mod init rejects a zero-length go.mod file
 cp $devnull go.mod # can't use touch to create it because Windows
-! bolero mod init
+! bolero mod init -modfile=go.mod
 stderr 'go.mod already exists'
 
 # Empty directory outside BOLERO_PATH fails.
 mkdir $WORK/empty
 cd $WORK/empty
-! bolero mod init
+! bolero mod init -modfile=go.mod
 stderr 'cannot determine module path for source directory'
 rm go.mod
 
 # Empty directory inside BOLERO_PATH/src uses location inside BOLERO_PATH.
 mkdir $BOLERO_PATH/src/empty
 cd $BOLERO_PATH/src/empty
-bolero mod init
+bolero mod init -modfile=go.mod
 stderr 'empty'
 rm go.mod
 
@@ -50,30 +50,30 @@ stderr '^bolero: go.mod file not found in current directory or any parent direct
 # gplink1/src/empty where gopathlink -> BOLERO_PATH
 symlink $WORK/gopathlink -> gopath
 cd $WORK/gopathlink/src/empty
-bolero mod init
+bolero mod init -modfile=go.mod
 rm go.mod
 
 # BOLERO_PATH/src/link where link -> out of BOLERO_PATH
 symlink $BOLERO_PATH/src/link -> $WORK/empty
 cd $WORK/empty
-! bolero mod init
+! bolero mod init -modfile=go.mod
 cd $BOLERO_PATH/src/link
-bolero mod init
+bolero mod init -modfile=go.mod
 stderr link
 rm go.mod
 
 # BOLERO_PATH/src/empty where BOLERO_PATH itself is a symlink
 env BOLERO_PATH=$WORK/gopathlink
 cd $BOLERO_PATH/src/empty
-bolero mod init
+bolero mod init -modfile=go.mod
 rm go.mod
 cd $WORK/gopath/src/empty
-bolero mod init
+bolero mod init -modfile=go.mod
 rm go.mod
 
 # BOLERO_PATH/src/link where BOLERO_PATH and link are both symlinks
 cd $BOLERO_PATH/src/link
-bolero mod init
+bolero mod init -modfile=go.mod
 stderr link
 rm go.mod
 

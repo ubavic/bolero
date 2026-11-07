@@ -1,7 +1,7 @@
 bolero tool cover -func=cover.out
 stdout total.*statements.*0.0%
 
-bolero mod init golang.org/issue/33855
+bolero mod init -modfile=go.mod golang.org/issue/33855
 
 bolero tool cover -func=cover.out
 stdout total.*statements.*0.0%

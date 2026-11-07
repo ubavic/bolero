@@ -6,6 +6,7 @@ package doc
 
 import (
 	"bytes"
+	"cmd/go/internal/fsys"
 	"fmt"
 	"log"
 	"os"
@@ -142,7 +143,7 @@ func (d *Dirs) bfsWalkRoot(root Dir) {
 					if name == "vendor" {
 						continue
 					}
-					if fi, err := os.Stat(filepath.Join(dir, name, "go.mod")); err == nil && !fi.IsDir() {
+					if fsys.HasModuleFile(filepath.Join(dir, name)) {
 						continue
 					}
 				}

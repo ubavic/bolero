@@ -6,7 +6,7 @@ env BOLERO_MODULE=on
 
 # A module should be allowed in a directory named testdata.
 cd $WORK/testdata
-bolero mod init testdata.tld/foo
+bolero mod init -modfile=go.mod testdata.tld/foo
 
 # Getting a package within that module should resolve its dependencies.
 bolero get
@@ -24,7 +24,7 @@ exists vendor/rsc.io/quote
 
 # The same should work in directories with names starting with underscores.
 cd $WORK/_ignored
-bolero mod init testdata.tld/foo
+bolero mod init -modfile=go.mod testdata.tld/foo
 
 bolero get
 grep 'rsc.io/quote' go.mod

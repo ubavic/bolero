@@ -23,7 +23,7 @@ stderr 'running go1.50.0 from PATH'
 
 # BOLERO_TOOLCHAIN=path with toolchain line
 env BOLERO_TOOLCHAIN=local
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -toolchain=go1.50.0
 grep go1.50.0 go.mod
 env BOLERO_TOOLCHAIN=path

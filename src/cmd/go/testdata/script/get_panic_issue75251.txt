@@ -1,7 +1,7 @@
 # Issue #75251: Don't panic if the package path or the package version
 # contains invalid UTF-8 characters.
 
-bolero mod init m
+bolero mod init -modfile=go.mod m
 
 ! bolero get golang.org/x/net/http/httpgutsÿv0.43.0 # contains 0xff byte
 ! stderr panic

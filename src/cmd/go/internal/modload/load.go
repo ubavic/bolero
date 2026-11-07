@@ -460,7 +460,11 @@ func LoadPackages(loaderstate *State, ctx context.Context, opts PackageOpts, pat
 			if err != nil {
 				base.Fatal(err)
 			}
-			goModDiff := diff.Diff("current/go.mod", currentGoMod, "tidy/go.mod", updatedGoMod)
+			modName := "go.mod"
+			if len(loaderstate.modRoots) == 1 && IsAppJSON(modFilePath(loaderstate.modRoots[0])) {
+				modName = "app.json"
+			}
+			goModDiff := diff.Diff("current/"+modName, currentGoMod, "tidy/"+modName, updatedGoMod)
 
 			loaderstate.Fetcher().TrimGoSum(keep)
 			// Dropping compatibility for 1.16 may result in a strictly smaller go.sum.

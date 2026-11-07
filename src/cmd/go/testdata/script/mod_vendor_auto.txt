@@ -124,7 +124,7 @@ stderr 'bolero: can''t compute ''all'' using the vendor directory\n\t\(Use -mod=
 rm go.mod
 rm vendor/modules.txt
 
-bolero mod init example.com/auto
+bolero mod init -modfile=go.mod example.com/auto
 bolero mod edit -go=1.22
 bolero list -f {{.Dir}} -tags tools -e all
 stdout '^'$WORK'[/\\]auto$'

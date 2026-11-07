@@ -3,7 +3,7 @@
 # Note that toolchain lines in modules should be completely ignored.
 env TESTGO_VERSION=go1.50
 mkdir m1_22_0
-bolero mod init -C m1_22_0
+bolero mod init -C m1_22_0 -modfile=go.mod
 bolero mod edit -C m1_22_0 -go=1.22.0 -toolchain=go1.99.0
 
 # work init writes the current Go version to the go line

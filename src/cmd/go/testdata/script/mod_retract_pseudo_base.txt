@@ -6,7 +6,7 @@
 [!git] skip
 env BOLERO_PROXY=direct
 env BOLERO_SUMDB=off
-bolero mod init m
+bolero mod init -modfile=go.mod m
 
 # Control: check that v1.0.0 is the only version and is retracted.
 bolero list -m -versions vcs-test.golang.org/git/retract-pseudo.git
@@ -47,7 +47,7 @@ git init
 # Create the module.
 # Retract v1.0.0 and tag v1.0.0 at the same commit.
 # The module has no unretracted release versions.
-bolero mod init vcs-test.golang.org/git/retract-pseudo.git
+bolero mod init -modfile=go.mod vcs-test.golang.org/git/retract-pseudo.git
 bolero mod edit -retract v1.0.0
 echo 'package p' >p.go
 git add -A

@@ -27,6 +27,7 @@ import (
 	"cmd/go/internal/trace"
 	"cmd/internal/par"
 	"cmd/internal/pkgpattern"
+	"internal/bolero"
 
 	"golang.org/x/mod/module"
 )
@@ -132,6 +133,9 @@ func matchPackages(loaderstate *State, ctx context.Context, m *search.Match, tag
 			// Stop at module boundaries.
 			if (prune&pruneGoMod != 0) && pkgDir != root {
 				if info, err := os.Stat(filepath.Join(pkgDir, "go.mod")); err == nil && !info.IsDir() {
+					return filepath.SkipDir
+				}
+				if info, err := os.Stat(filepath.Join(pkgDir, bolero.AppJSON)); err == nil && !info.IsDir() {
 					return filepath.SkipDir
 				}
 			}

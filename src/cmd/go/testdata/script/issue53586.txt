@@ -1,9 +1,9 @@
 [short] skip  # sleeps to make mtime cacheable
 
-bolero mod init example
+bolero mod init -modfile=go.mod example
 
 cd subdir
-bolero mod init example/subdir
+bolero mod init -modfile=go.mod example/subdir
 sleep 2s  # allow go.mod mtime to be cached
 
 bolero list -f '{{.Dir}}: {{.ImportPath}}' ./pkg

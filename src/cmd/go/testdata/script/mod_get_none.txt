@@ -1,6 +1,6 @@
 env BOLERO_MODULE=on
 
-bolero mod init example.com/foo
+bolero mod init -modfile=go.mod example.com/foo
 
 # 'bolero get bar@none' should be a no-op if module bar is not active.
 bolero get example.com/bar@none

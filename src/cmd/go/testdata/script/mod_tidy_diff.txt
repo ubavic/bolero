@@ -22,7 +22,7 @@ exists go.sum
 stderr 'go.mod file not found'
 
 # Existing go.mod and missing go.sum should display diff.
-bolero mod init example.com
+bolero mod init -modfile=go.mod example.com
 bolero mod tidy
 rm go.sum
 exists go.mod

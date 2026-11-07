@@ -1,13 +1,13 @@
 env BOLERO_MODULE=on
 
-! bolero mod init .
+! bolero mod init -modfile=go.mod .
 stderr '^bolero: malformed module path ".": is a local import path$'
 
 cd x
-bolero mod init example.com/x
+bolero mod init -modfile=go.mod example.com/x
 
 cd ../y
-bolero mod init m
+bolero mod init -modfile=go.mod m
 
 -- x/main.go --
 package main

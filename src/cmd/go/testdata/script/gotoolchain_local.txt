@@ -51,7 +51,7 @@ stdout go1.400
 
 # BOLERO_TOOLCHAIN=auto uses go line if newer than local toolchain.
 env BOLERO_TOOLCHAIN=auto
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.700 -toolchain=none
 bolero version
 stdout 1.700

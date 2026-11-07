@@ -545,7 +545,11 @@ func Init(loaderstate *State) {
 			// will find it and get modules when they're not expecting them.
 			// It's a bit of a peculiar thing to disallow but quite mysterious
 			// when it happens. See golang.org/issue/26708.
-			fmt.Fprintf(os.Stderr, "bolero: warning: ignoring go.mod in system temp root %v\n", os.TempDir())
+			name := "go.mod"
+			if IsAppJSON(moduleFile(modRoot)) {
+				name = bolero.AppJSON
+			}
+			fmt.Fprintf(os.Stderr, "bolero: warning: ignoring %s in system temp root %v\n", name, os.TempDir())
 			if loaderstate.RootMode == NeedRoot {
 				base.Fatal(NewNoMainModulesError(loaderstate))
 			}
@@ -556,7 +560,7 @@ func Init(loaderstate *State) {
 			loaderstate.modRoots = []string{modRoot}
 		}
 	}
-	if cfg.ModFile != "" && !strings.HasSuffix(cfg.ModFile, ".mod") {
+	if cfg.ModFile != "" && !IsAppJSON(cfg.ModFile) && !strings.HasSuffix(cfg.ModFile, ".mod") {
 		base.Fatalf("bolero: -modfile=%s: file does not have .mod extension", cfg.ModFile)
 	}
 
@@ -568,6 +572,15 @@ func Init(loaderstate *State) {
 		gopath = list[0]
 		if _, err := fsys.Stat(filepath.Join(gopath, "go.mod")); err == nil {
 			fmt.Fprintf(os.Stderr, "bolero: warning: ignoring go.mod in $BOLERO_PATH %v\n", gopath)
+			if loaderstate.RootMode == NeedRoot {
+				base.Fatal(NewNoMainModulesError(loaderstate))
+			}
+			if !mustUseModules {
+				return
+			}
+		}
+		if _, err := fsys.Stat(filepath.Join(gopath, bolero.AppJSON)); err == nil {
+			fmt.Fprintf(os.Stderr, "bolero: warning: ignoring app.json in $BOLERO_PATH %v\n", gopath)
 			if loaderstate.RootMode == NeedRoot {
 				base.Fatal(NewNoMainModulesError(loaderstate))
 			}
@@ -632,7 +645,7 @@ func FindGoMod(wd string) string {
 		// when it happens. See golang.org/issue/26708.
 		return ""
 	}
-	return filepath.Join(modRoot, "go.mod")
+	return moduleFile(modRoot)
 }
 
 // Enabled reports whether modules are (or must be) enabled.
@@ -720,7 +733,10 @@ func modFilePath(modRoot string) string {
 	if cfg.ModFile != "" {
 		return cfg.ModFile
 	}
-	return filepath.Join(modRoot, "go.mod")
+	if cfg.CmdName == "mod init" {
+		return filepath.Join(modRoot, bolero.AppJSON)
+	}
+	return moduleFile(modRoot)
 }
 
 func die(loaderstate *State) {
@@ -771,13 +787,25 @@ func NewNoMainModulesError(s *State) noMainModulesError {
 type goModDirtyError struct{}
 
 func (goModDirtyError) Error() string {
+	name := manifestBaseName()
 	if cfg.BuildModExplicit {
-		return fmt.Sprintf("updates to go.mod needed, disabled by -mod=%v; to update it:\n\tbolero mod tidy", cfg.BuildMod)
+		return fmt.Sprintf("updates to %s needed, disabled by -mod=%v; to update it:\n\tbolero mod tidy", name, cfg.BuildMod)
 	}
 	if cfg.BuildModReason != "" {
-		return fmt.Sprintf("updates to go.mod needed, disabled by -mod=%s\n\t(%s)\n\tto update it:\n\tbolero mod tidy", cfg.BuildMod, cfg.BuildModReason)
+		return fmt.Sprintf("updates to %s needed, disabled by -mod=%s\n\t(%s)\n\tto update it:\n\tbolero mod tidy", name, cfg.BuildMod, cfg.BuildModReason)
 	}
-	return "updates to go.mod needed; to update it:\n\tbolero mod tidy"
+	return fmt.Sprintf("updates to %s needed; to update it:\n\tbolero mod tidy", name)
+}
+
+func manifestBaseName() string {
+	if cfg.ModFile != "" {
+		return filepath.Base(cfg.ModFile)
+	}
+	root := findModuleRoot(base.Cwd())
+	if root != "" && IsAppJSON(moduleFile(root)) {
+		return bolero.AppJSON
+	}
+	return "go.mod"
 }
 
 var errGoModDirty error = goModDirtyError{}
@@ -939,7 +967,7 @@ func loadModFile(loaderstate *State, ctx context.Context, opts *PackageOpts) (*R
 			return nil, err
 		}
 		for _, modRoot := range loaderstate.modRoots {
-			sumFile := strings.TrimSuffix(modFilePath(modRoot), ".mod") + ".sum"
+			sumFile := goSumFor(modFilePath(modRoot))
 			loaderstate.Fetcher().AddWorkspaceGoSumFile(sumFile)
 		}
 		loaderstate.Fetcher().SetGoSumFile(loaderstate.workFilePath + ".sum")
@@ -962,7 +990,7 @@ func loadModFile(loaderstate *State, ctx context.Context, opts *PackageOpts) (*R
 		//
 		// See golang.org/issue/32027.
 	} else {
-		loaderstate.Fetcher().SetGoSumFile(strings.TrimSuffix(modFilePath(loaderstate.modRoots[0]), ".mod") + ".sum")
+		loaderstate.Fetcher().SetGoSumFile(goSumFor(modFilePath(loaderstate.modRoots[0])))
 	}
 	if len(loaderstate.modRoots) == 0 {
 		// TODO(#49228): Instead of creating a fake module with an empty modroot,
@@ -1180,6 +1208,12 @@ func CreateModFile(loaderstate *State, ctx context.Context, modPath string) {
 	if _, err := fsys.Stat(modFilePath); err == nil {
 		base.Fatalf("bolero: %s already exists", modFilePath)
 	}
+	if IsAppJSON(modFilePath) {
+		goMod := filepath.Join(modRoot, "go.mod")
+		if _, err := fsys.Stat(goMod); err == nil {
+			base.Fatalf("bolero: %s already exists", goMod)
+		}
+	}
 
 	if modPath == "" {
 		var err error
@@ -1208,7 +1242,12 @@ func CreateModFile(loaderstate *State, ctx context.Context, modPath string) {
 		base.Fatalf(`bolero: invalid module path "%v": %v`, modPath, invalidMajorVersionMsg)
 	}
 
-	fmt.Fprintf(os.Stderr, "bolero: creating new go.mod: module %s\n", modPath)
+	created := "go.mod"
+	if IsAppJSON(modFilePath) {
+		created = bolero.AppJSON
+		rememberAppIdentity(modFilePath, defaultAppIdentity())
+	}
+	fmt.Fprintf(os.Stderr, "bolero: creating new %s: module %s\n", created, modPath)
 	modFile := new(modfile.File)
 	modFile.AddModuleStmt(modPath)
 	loaderstate.MainModules = makeMainModules(loaderstate, []module.Version{modFile.Module.Mod}, []string{modRoot}, []*modfile.File{modFile}, []*modFileIndex{nil}, nil)
@@ -1693,9 +1732,18 @@ func findModuleRoot(dir string) (roots string) {
 	}
 	dir = filepath.Clean(dir)
 
-	// Look for enclosing go.mod.
+	// Look for an enclosing app.json or go.mod.
 	for {
-		if fi, err := fsys.Stat(filepath.Join(dir, "go.mod")); err == nil && !fi.IsDir() {
+		app := filepath.Join(dir, bolero.AppJSON)
+		gomod := filepath.Join(dir, "go.mod")
+		appFI, appErr := fsys.Stat(app)
+		modFI, modErr := fsys.Stat(gomod)
+		appOK := appErr == nil && !appFI.IsDir()
+		modOK := modErr == nil && !modFI.IsDir()
+		if appOK && modOK {
+			base.Fatalf("app.json and go.mod both exist; a Bolero project uses app.json")
+		}
+		if appOK || modOK {
 			return dir
 		}
 		d := filepath.Dir(dir)
@@ -1877,7 +1925,8 @@ func UpdateGoModFromReqs(loaderstate *State, ctx context.Context, opts WriteOpts
 		// command-line-arguments has no .mod file to write.
 		return nil, nil, nil, errNoChange
 	}
-	before, err = modFile.Format()
+	manifest := modFilePath(loaderstate.MainModules.ModRoot(mainModule))
+	before, err = formatManifest(manifest, modFile)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -1907,8 +1956,8 @@ func UpdateGoModFromReqs(loaderstate *State, ctx context.Context, opts WriteOpts
 		base.Fatalf("bolero: internal error: missing go root module in WriteGoMod")
 	}
 	if gover.Compare(goVersion, gover.Local()) > 0 {
-		// We cannot assume that we know how to update a go.mod to a newer version.
-		return nil, nil, nil, &gover.TooNewError{What: "updating go.mod", GoVersion: goVersion}
+		// We cannot assume that we know how to update a manifest to a newer version.
+		return nil, nil, nil, &gover.TooNewError{What: "updating " + filepath.Base(manifest), GoVersion: goVersion}
 	}
 	wroteGo := opts.TidyWroteGo
 	if !wroteGo && modFile.Go == nil || modFile.Go.Version != goVersion {
@@ -1927,7 +1976,7 @@ func UpdateGoModFromReqs(loaderstate *State, ctx context.Context, opts WriteOpts
 	}
 
 	toolVers := gover.FromToolchain(toolchain)
-	if opts.DropToolchain || toolchain == "go"+goVersion || (gover.Compare(toolVers, gover.GoStrictVersion) < 0 && !opts.ExplicitToolchain) {
+	if IsAppJSON(manifest) || opts.DropToolchain || toolchain == "go"+goVersion || (gover.Compare(toolVers, gover.GoStrictVersion) < 0 && !opts.ExplicitToolchain) {
 		// bolero get toolchain@none or toolchain matches go line or isn't valid; drop it.
 		// TODO(#57001): 'bolero get' should reject explicit toolchains below GoStrictVersion.
 		modFile.DropToolchainStmt()
@@ -1950,7 +1999,7 @@ func UpdateGoModFromReqs(loaderstate *State, ctx context.Context, opts WriteOpts
 		modFile.SetRequireSeparateIndirect(list)
 	}
 	modFile.Cleanup()
-	after, err = modFile.Format()
+	after, err = formatManifest(manifest, modFile)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -2005,7 +2054,8 @@ func commitRequirements(loaderstate *State, ctx context.Context, opts WriteOpts)
 	modFilePath := modFilePath(loaderstate.MainModules.ModRoot(mainModule))
 	if fsys.Replaced(modFilePath) {
 		if dirty {
-			return errors.New("updates to go.mod needed, but go.mod is part of the overlay specified with -overlay")
+			name := filepath.Base(modFilePath)
+			return fmt.Errorf("updates to %s needed, but %s is part of the overlay specified with -overlay", name, name)
 		}
 		return nil
 	}
@@ -2049,7 +2099,7 @@ func commitRequirements(loaderstate *State, ctx context.Context, opts WriteOpts)
 	})
 
 	if err != nil && err != errNoChange {
-		return fmt.Errorf("updating go.mod: %w", err)
+		return fmt.Errorf("updating %s: %w", filepath.Base(modFilePath), err)
 	}
 	return nil
 }

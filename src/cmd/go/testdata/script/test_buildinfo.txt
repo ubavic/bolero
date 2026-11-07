@@ -3,7 +3,7 @@
 
 [short] skip 'invokes bolero test'
 
-bolero mod init foo
+bolero mod init -modfile=go.mod foo
 bolero test -v
 stdout '(devel)'
 

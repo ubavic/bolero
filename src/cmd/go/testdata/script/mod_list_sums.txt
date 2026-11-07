@@ -1,7 +1,7 @@
 # https://golang.org/issue/41297: 'bolero list -m' should not require go.sum with
 # -versions or when all args are version queries.
 
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -require=rsc.io/quote@v1.5.1
 
 bolero list -m -mod=readonly rsc.io/quote@latest

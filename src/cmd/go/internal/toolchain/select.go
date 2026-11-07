@@ -543,6 +543,13 @@ func modGoToolchain(loaderstate *modload.State) (file, goVers, toolchain string)
 	if err != nil {
 		base.Fatalf("%v", err)
 	}
+	if modload.IsAppJSON(file) {
+		goVers, err := modload.AppGoVersion(data)
+		if err != nil {
+			base.Fatalf("%v", err)
+		}
+		return file, goVers, ""
+	}
 	return file, gover.GoModLookup(data, "go"), gover.GoModLookup(data, "toolchain")
 }
 

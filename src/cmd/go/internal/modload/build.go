@@ -434,7 +434,7 @@ func moduleInfo(loaderstate *State, ctx context.Context, rs *Requirements, m mod
 		} else {
 			info.Replace.Dir = filepath.Join(replaceRelativeTo(loaderstate), r.Path)
 		}
-		info.Replace.GoMod = filepath.Join(info.Replace.Dir, "go.mod")
+		info.Replace.GoMod = moduleFile(info.Replace.Dir)
 	}
 	if cfg.BuildMod != "vendor" {
 		completeFromModCache(info.Replace)

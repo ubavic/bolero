@@ -4,15 +4,15 @@ env BOLERO_MODULE=on
 # Also test that they can use a dummy name that isn't resolvable. golang.org/issue/24100
 
 # bolero mod init
-! bolero mod init
+! bolero mod init -modfile=go.mod
 stderr 'cannot determine module path'
 ! exists go.mod
 
-bolero mod init x.x/y/z
+bolero mod init -modfile=go.mod x.x/y/z
 stderr 'creating new go.mod: module x.x/y/z'
 cmpenv go.mod $WORK/go.mod.init
 
-! bolero mod init
+! bolero mod init -modfile=go.mod
 cmpenv go.mod $WORK/go.mod.init
 
 # bolero mod edits
@@ -77,13 +77,13 @@ cmpenv go.mod $WORK/go.mod.goodfmt
 
 # bolero mod edit -module
 cd $WORK/m
-bolero mod init a.a/b/c
+bolero mod init -modfile=go.mod a.a/b/c
 bolero mod edit -module x.x/y/z
 cmpenv go.mod go.mod.edit
 
 # golang.org/issue/30513: don't require go-gettable module paths.
 cd $WORK/local
-bolero mod init foo
+bolero mod init -modfile=go.mod foo
 bolero mod edit -module local-only -require=other-local@v1.0.0 -replace other-local@v1.0.0=./other
 cmpenv go.mod go.mod.edit
 

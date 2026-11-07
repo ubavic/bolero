@@ -12,6 +12,10 @@ package bolero
 // FileExt is the file name extension of Bolero source files.
 const FileExt = ".bo"
 
+// AppJSON is the name of a Bolero project's manifest.
+// The main module of a Bolero project uses this file instead of go.mod.
+const AppJSON = "app.json"
+
 // IsSourceFile reports whether name is the name of a Bolero source file.
 func IsSourceFile(name string) bool {
 	return hasSuffix(name, FileExt)

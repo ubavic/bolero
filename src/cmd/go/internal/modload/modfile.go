@@ -41,6 +41,19 @@ func ReadModFile(gomod string, fix modfile.VersionFixer) (data []byte, f *modfil
 	if err != nil {
 		return nil, nil, err
 	}
+	if IsAppJSON(gomod) {
+		f, err = parseAppJSON(gomod, data, fix)
+		if err != nil {
+			return nil, nil, err
+		}
+		if f.Go != nil && gover.Compare(f.Go.Version, gover.Local()) > 0 {
+			return nil, nil, &gover.TooNewError{What: base.ShortPath(gomod), GoVersion: f.Go.Version}
+		}
+		if err := CheckReservedModulePath(f.Module.Mod.Path); err != nil {
+			return nil, nil, fmt.Errorf("error reading %s: invalid module path: %q", base.ShortPath(gomod), f.Module.Mod.Path)
+		}
+		return data, f, nil
+	}
 
 	f, err = modfile.Parse(gomod, data, fix)
 	if err != nil {
@@ -792,7 +805,13 @@ func rawGoModData(loaderstate *State, m module.Version) (name string, data []byt
 				dir = filepath.Join(replaceRelativeTo(loaderstate), dir)
 			}
 		}
-		name = filepath.Join(dir, "go.mod")
+		name = moduleFile(dir)
+		if IsAppJSON(name) {
+			gomod := filepath.Join(dir, "go.mod")
+			if fi, err := fsys.Stat(gomod); err == nil && !fi.IsDir() {
+				return "", nil, module.VersionError(m, errors.New("app.json and go.mod both exist; a Bolero project uses app.json"))
+			}
+		}
 		if fsys.Replaced(name) {
 			// Don't lock go.mod if it's part of the overlay.
 			// On Plan 9, locking requires chmod, and we don't want to modify any file
@@ -811,6 +830,18 @@ func rawGoModData(loaderstate *State, m module.Version) (name string, data []byt
 		}
 		name = "go.mod"
 		data, err = loaderstate.Fetcher().GoMod(context.TODO(), m.Path, m.Version)
+	}
+	if err == nil && IsAppJSON(name) {
+		// Callers parse these bytes as a go.mod file.
+		parsed, perr := parseAppJSON(name, data, nil)
+		if perr != nil {
+			return "", nil, module.VersionError(m, perr)
+		}
+		data, err = parsed.Format()
+		if err != nil {
+			return "", nil, module.VersionError(m, err)
+		}
+		name = "go.mod"
 	}
 	return name, data, err
 }

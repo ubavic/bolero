@@ -56,7 +56,7 @@ bolero list -modfile=alternate.mod -overlay overlay.json .
 stdout 'found.the/module'
 # Even with -modfile, overlaid files can't be opened for write.
 ! bolero get -modfile=alternate.mod -overlay overlay.json rsc.io/quote
-stderr '^bolero: updates to go.mod needed, but go.mod is part of the overlay specified with -overlay$'
+stderr '^bolero: updates to alternate.mod needed, but alternate.mod is part of the overlay specified with -overlay$'
 
 # Carving out a module by adding an overlaid go.mod file
 cd $WORK/gopath/src/carve

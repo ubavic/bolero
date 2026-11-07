@@ -3,7 +3,7 @@ env BOLERO_MODULE=on
 
 # A 'bolero get' that worked at a previous version should continue to work at that version,
 # even if the package was subsequently moved into a submodule.
-bolero mod init example.com/foo
+bolero mod init -modfile=go.mod example.com/foo
 bolero get example.com/split/subpkg@v1.0.0
 bolero list -m all
 stdout 'example.com/split v1.0.0'
@@ -13,7 +13,7 @@ bolero get example.com/split/subpkg@v1.1.0
 
 # A 'bolero get' without an upgrade should find the package.
 rm go.mod
-bolero mod init example.com/foo
+bolero mod init -modfile=go.mod example.com/foo
 bolero get example.com/split/subpkg
 bolero list -m all
 stdout 'example.com/split/subpkg v1.1.0'
@@ -22,7 +22,7 @@ stdout 'example.com/split/subpkg v1.1.0'
 # A 'bolero get' that worked at a previous version should continue to work at that version,
 # even if the package was subsequently moved into a parent module.
 rm go.mod
-bolero mod init example.com/foo
+bolero mod init -modfile=go.mod example.com/foo
 bolero get example.com/join/subpkg@v1.0.0
 bolero list -m all
 stdout 'example.com/join/subpkg v1.0.0'
@@ -34,7 +34,7 @@ bolero get example.com/join/subpkg/...@v1.1.0
 
 # A 'bolero get' without an upgrade should find the package.
 rm go.mod
-bolero mod init example.com/foo
+bolero mod init -modfile=go.mod example.com/foo
 bolero get example.com/join/subpkg@v1.1.0
 bolero list -m all
 stdout 'example.com/join v1.1.0'

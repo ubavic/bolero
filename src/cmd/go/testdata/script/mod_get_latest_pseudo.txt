@@ -4,7 +4,7 @@
 
 env BOLERO_MODULE=on
 
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero get example.com/notags
 bolero list -m all
 stdout '^example.com/notags v0.0.0-20190507143103-cc8cbe209b64$'

@@ -1,0 +1,112 @@
+# A Bolero project is rooted at app.json. bolero mod init creates it,
+# go.sum keeps its name, and a sibling go.mod is an error.
+
+cd new
+bolero mod init example.com/shop
+stderr '^bolero: creating new app.json: module example.com/shop$'
+! exists go.mod
+! exists go.sum
+grep '"module": "example.com/shop"' app.json
+grep '"version": "0.1.0"' app.json
+grep '"license": "MIT"' app.json
+grep '"name": "Your Name"' app.json
+grep '"email": "you@example.com"' app.json
+! grep '"toolchain"' app.json
+bolero env BOLERO_MOD
+stdout 'app\.json$'
+
+# Editing the manifest and loading a module writes go.sum, not go.mod.
+bolero mod edit -require=rsc.io/quote@v1.5.2
+bolero list -m -mod=mod all
+stdout '^example.com/shop$'
+stdout '^rsc.io/quote v1.5.2$'
+exists go.sum
+! exists go.mod
+grep 'rsc.io/quote' app.json
+grep 'Your Name' app.json
+
+cd ../app
+bolero mod init example.com/app
+bolero mod edit -replace=example.com/dep=../dep -replace=example.com/dep2=../dep2
+bolero mod tidy
+! exists go.mod
+grep 'example.com/dep' app.json
+grep 'example.com/dep2' app.json
+grep '"indirect"' app.json
+grep 'Your Name' app.json
+bolero run .
+stdout '^hi$'
+
+# An unrecognized field is an error.
+cd ../bad
+! bolero list
+stderr 'unknown field "licence"'
+
+# app.json and go.mod together are an error.
+cd ../both
+! bolero list
+stderr 'app.json and go.mod both exist; a Bolero project uses app.json'
+
+# init will not overwrite a go.mod file.
+cd ../hasmod
+! bolero mod init example.com/m
+stderr 'go.mod already exists'
+
+-- new/main.go --
+package main
+
+func main() {}
+-- app/main.go --
+package main
+
+import (
+	"fmt"
+
+	"example.com/dep"
+)
+
+func main() {
+	fmt.Println(dep.Hello())
+}
+-- dep/go.mod --
+module example.com/dep
+
+go 1.26
+
+require example.com/dep2 v1.0.0
+-- dep/p.go --
+package dep
+
+import "example.com/dep2"
+
+func Hello() string {
+	dep2.F()
+	return "hi"
+}
+-- dep2/go.mod --
+module example.com/dep2
+
+go 1.26
+-- dep2/p.go --
+package dep2
+
+func F() {}
+-- bad/app.json --
+{
+	"module": "example.com/bad",
+	"go": "1.26",
+	"licence": "MIT"
+}
+-- both/app.json --
+{
+	"module": "example.com/both",
+	"go": "1.26"
+}
+-- both/go.mod --
+module example.com/both
+
+go 1.26
+-- hasmod/go.mod --
+module example.com/m
+
+go 1.26

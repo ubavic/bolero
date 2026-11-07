@@ -1,5 +1,5 @@
 env BOLERO_MODULE=on
-bolero mod init foo
+bolero mod init -modfile=go.mod foo
 bolero test
 stdout ^ok\s+foo
 env BOLERO_MODULE=off

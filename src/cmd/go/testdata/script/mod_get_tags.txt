@@ -3,7 +3,7 @@ env BOLERO_MODULE=on
 # get should add modules needed to build packages, even if those
 # dependencies are in sources excluded by build tags.
 # All build tags are considered true except "ignore".
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero get .
 bolero list -m all
 stdout 'example.com/version v1.1.0'

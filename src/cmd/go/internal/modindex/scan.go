@@ -30,7 +30,7 @@ func moduleWalkErr(root string, path string, d fs.DirEntry, err error) error {
 	}
 	// stop at module boundaries
 	if d.IsDir() && path != root {
-		if info, err := fsys.Stat(filepath.Join(path, "go.mod")); err == nil && !info.IsDir() {
+		if fsys.HasModuleFile(path) {
 			return filepath.SkipDir
 		}
 	}

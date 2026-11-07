@@ -6,19 +6,19 @@ env TESTGO_VERSION=go1.14
 [!GOOS:plan9] env PATH=
 
 # check for invalid toolchain in go.mod
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.14 -toolchain=go1.22
 ! bolero version
 stderr 'bolero: invalid toolchain: go1.22 is a language version but not a toolchain version \(go1.22.x\)'
 
 rm go.mod
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.14 -toolchain=go1.21
 ! bolero version
 stderr 'bolero: invalid toolchain: go1.21 is a language version but not a toolchain version \(go1.21.x\)'
 
 rm go.mod
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.14 -toolchain=go1.20
 ! bolero version
 stderr 'bolero: downloading go1.20 '
@@ -85,25 +85,25 @@ stderr 'bolero: cannot find "go1.22" in PATH'
 # When a toolchain download takes place, download 1.X.0
 env BOLERO_TOOLCHAIN=auto
 rm go.mod
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.300 -toolchain=none
 ! bolero version
 stderr 'bolero: downloading go1.300.0 '
 
 rm go.mod
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.21 -toolchain=none
 ! bolero version
 stderr 'bolero: downloading go1.21.0 '
 
 rm go.mod
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.22 -toolchain=none
 ! bolero version
 stderr 'bolero: downloading go1.22.0 '
 
 rm go.mod
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.15 -toolchain=none
 ! bolero version
 stderr 'bolero: downloading go1.15 '

@@ -38,16 +38,21 @@ var HelpGoMod = &base.Command{
 	UsageLine: "go.mod",
 	Short:     "the go.mod file",
 	Long: `
-A module version is defined by a tree of source files, with a go.mod
-file in its root. When the bolero command is run, it looks in the current
-directory and then successive parent directories to find the go.mod
+A module version is defined by a tree of source files, with an app.json
+or a go.mod file in its root. When the bolero command is run, it looks in the
+current directory and then successive parent directories to find the manifest
 marking the root of the main (current) module.
+
+A Bolero project uses app.json and has no go.mod. app.json holds the module
+path, the Go version, requirements, and the project's authors, license and
+version. go.sum keeps its usual name and format. Downloaded modules still
+use go.mod. A directory that contains both files is an error.
 
 The go.mod file format is described in detail at
 https://golang.org/ref/mod#go-mod-file.
 
-To create a new go.mod file, use 'bolero mod init'. For details see
-'bolero help mod init' or https://golang.org/ref/mod#go-mod-init.
+To create a new module, use 'bolero mod init', which writes app.json. For details
+see 'bolero help mod init' or https://golang.org/ref/mod#go-mod-init.
 
 To add missing module requirements or remove unneeded requirements,
 use 'bolero mod tidy'. For details, see 'bolero help mod tidy' or

@@ -26,7 +26,7 @@ stdout '^bolero version'
 
 
 # Module commands that don't load packages should work.
-bolero mod init m
+bolero mod init -modfile=go.mod m
 exists go.mod
 
 bolero mod edit -require rsc.io/quote@v1.5.2

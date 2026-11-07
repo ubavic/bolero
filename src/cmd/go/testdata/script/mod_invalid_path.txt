@@ -11,7 +11,7 @@ stderr '^bolero: error reading go.mod: missing module declaration. To specify th
 # The single quote and backtick are the only characters which are not allowed
 # but are a valid Windows file name.
 cd $WORK/'gopath/src/m''d'
-! bolero mod init
+! bolero mod init -modfile=go.mod
 stderr 'cannot determine module path'
 
 # Test that a go.mod file is rejected when its module declaration has a path that can't

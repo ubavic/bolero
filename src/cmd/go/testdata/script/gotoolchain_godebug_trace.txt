@@ -6,7 +6,7 @@ env TESTGO_VERSION_SWITCH=switch
 env BOLERO_TOOLCHAIN=auto
 
 # Go line is newer than local bolero version.
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.21.1
 bolero version
 stderr -count=1 'bolero: upgrading toolchain to go1.21.1 \(required by go line in go.mod; upgrade allowed by BOLERO_TOOLCHAIN=auto\)'
@@ -15,7 +15,7 @@ stdout 'bolero version go1.21.1'
 rm go.mod
 
 # Toolchain line is newer than go line.
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.21.1 -toolchain=go1.21.2
 bolero version
 stderr -count=1 'bolero: upgrading toolchain to go1.21.2 \(required by toolchain line in go.mod; upgrade allowed by BOLERO_TOOLCHAIN=auto\)'
@@ -24,7 +24,7 @@ stdout 'bolero version go1.21.2'
 rm go.mod
 
 # Go line is newer than local bolero version and toolchain line.
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.22 -toolchain=go1.21.2
 bolero version
 stderr -count=1 'bolero: upgrading toolchain to go1.21.2 \(required by toolchain line in go.mod; upgrade allowed by BOLERO_TOOLCHAIN=auto\)'
@@ -34,7 +34,7 @@ stdout 'bolero version go1.22.0'
 rm go.mod
 
 # No switch.
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.21.0 -toolchain=go1.21.0
 bolero version
 stderr -count=1 'bolero: using local toolchain go1.21.0'
@@ -43,7 +43,7 @@ stdout 'bolero version go1.21.0'
 rm go.mod
 
 # BOLERO_TOOLCHAIN+auto is older than go line and toolchain line.
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.22 -toolchain=go1.21.2
 env BOLERO_TOOLCHAIN=go1.21.0+auto
 bolero version
@@ -55,7 +55,7 @@ stdout 'bolero version go1.22.0'
 rm go.mod
 
 # BOLERO_TOOLCHAIN is older than go line and toolchain line.
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.22 -toolchain=go1.21.2
 env BOLERO_TOOLCHAIN=go1.21.1
 bolero version
@@ -67,7 +67,7 @@ rm go.mod
 env BOLERO_TOOLCHAIN=auto
 
 # BOLERO_TOOLCHAIN+auto is newer than go line and toolchain line.
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.21.1 -toolchain=go1.21.2
 env BOLERO_TOOLCHAIN=go1.22.0+auto
 bolero version
@@ -78,7 +78,7 @@ rm go.mod
 
 # BOLERO_TOOLCHAIN=local
 env BOLERO_TOOLCHAIN=local
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.21.1 -toolchain=go1.21.2
 bolero version
 stderr -count=1 'bolero: default toolchain set to go1.21.0 from BOLERO_TOOLCHAIN=local'
@@ -94,7 +94,7 @@ mkdir $WORK/bin
 bolero build -o $WORK/bin/go1.22.0$GOEXE ./fake/fakego.go  # adds .exe extension implicitly on Windows
 [!GOOS:plan9] env PATH=$WORK/bin
 [GOOS:plan9] env path=$WORK/bin
-bolero mod init m
+bolero mod init -modfile=go.mod m
 bolero mod edit -go=1.22.0
 ! bolero version
 stderr -count=1 'bolero: upgrading toolchain to go1.22.0 \(required by go line in go.mod; upgrade allowed by BOLERO_TOOLCHAIN=auto\)'

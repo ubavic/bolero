@@ -742,8 +742,7 @@ func dirInModule(path, mpath, mdir string, isLocal bool) (dir string, haveGoFile
 	if isLocal {
 		for d := dir; d != mdir && len(d) > len(mdir); {
 			haveGoMod := haveGoModCache.Do(d, func() bool {
-				fi, err := fsys.Stat(filepath.Join(d, "go.mod"))
-				return err == nil && !fi.IsDir()
+				return fsys.HasModuleFile(d)
 			})
 
 			if haveGoMod {
