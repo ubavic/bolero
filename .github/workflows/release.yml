@@ -1,0 +1,161 @@
+# Release the Bolero compiler.
+#
+# A push to main runs the toolchain tests on Linux. When they pass, each
+# target is built on a runner of the same operating system, and the archives
+# are published as a GitHub release.
+#
+# Linux ARM and Mac ARM are the 64-bit ARM machines GitHub hosts
+# (linux/arm64 and darwin/arm64).
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up bootstrap Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Test
+        run: |
+          cd src
+          GOROOT_BOOTSTRAP="$(go env GOROOT)" ./all.bash
+        env:
+          GO_TEST_TIMEOUT_SCALE: "2"
+
+  build:
+    name: Build ${{ matrix.name }}
+    needs: test
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux AMD64
+            runner: ubuntu-latest
+            goos: linux
+            goarch: amd64
+            ext: tar.gz
+          - name: Linux ARM
+            runner: ubuntu-24.04-arm
+            goos: linux
+            goarch: arm64
+            ext: tar.gz
+          - name: Windows AMD64
+            runner: windows-latest
+            goos: windows
+            goarch: amd64
+            ext: zip
+          - name: Mac ARM
+            runner: macos-latest
+            goos: darwin
+            goarch: arm64
+            ext: tar.gz
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up bootstrap Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Build
+        if: runner.os != 'Windows'
+        run: |
+          cd src
+          GOROOT_BOOTSTRAP="$(go env GOROOT)" ./make.bash -distpack
+
+      - name: Build
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          cd src
+          for /f "delims=" %%i in ('go env GOROOT') do set "GOROOT_BOOTSTRAP=%%i"
+          call make.bat -distpack
+
+      - name: Upload distribution
+        uses: actions/upload-artifact@v7
+        with:
+          name: bolero-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: pkg/distpack/go*.${{ matrix.goos }}-${{ matrix.goarch }}.${{ matrix.ext }}
+          if-no-files-found: error
+
+      - name: Upload source distribution
+        if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
+        uses: actions/upload-artifact@v7
+        with:
+          name: bolero-src
+          path: pkg/distpack/go*.src.tar.gz
+          if-no-files-found: error
+
+  release:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Download distributions
+        uses: actions/download-artifact@v8
+        with:
+          pattern: bolero-*
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum -- * | LC_ALL=C sort -k2 > SHA256SUMS
+
+      - name: Version
+        id: version
+        run: |
+          version=$(head -n 1 VERSION)
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "short=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+          echo "tag=${version}-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Bolero ${{ steps.version.outputs.version }} (${{ steps.version.outputs.short }})
+          target_commitish: ${{ github.sha }}
+          make_latest: "true"
+          fail_on_unmatched_files: true
+          body: |
+            Bolero compiler ${{ steps.version.outputs.version }}, built from `${{ github.sha }}`.
+
+            Binary archives:
+
+            - Linux AMD64 (`linux-amd64`)
+            - Linux ARM (`linux-arm64`)
+            - Mac ARM (`darwin-arm64`)
+            - Windows AMD64 (`windows-amd64`)
+
+            `SHA256SUMS` lists the checksum of every archive, including the source archive.
+          files: dist/*
