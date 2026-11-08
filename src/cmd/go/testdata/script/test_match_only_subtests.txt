@@ -1,5 +1,5 @@
 # Matches only subtests
-go test -run Test/Sub standalone_sub_test.go
+bolero test -run Test/Sub standalone_sub_test.go
 ! stdout '^ok.*\[no tests to run\]'
 ! stderr '^ok.*\[no tests to run\]'
 stdout '^ok'

@@ -1,5 +1,5 @@
 # Matches no tests
-go test -run ThisWillNotMatch standalone_test.go
+bolero test -run ThisWillNotMatch standalone_test.go
 stdout '^ok.*\[no tests to run\]'
 
 -- standalone_test.go --

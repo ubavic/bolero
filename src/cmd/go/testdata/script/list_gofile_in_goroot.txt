@@ -1,64 +1,64 @@
-# Return an error if the user tries to list a go source file directly in $GOROOT/src.
+# Return an error if the user tries to list a go source file directly in $BOLERO_ROOT/src.
 # Tests golang.org/issue/36587
 
-env GOROOT=$WORK/goroot
-env GOPATH=$WORK/gopath
+env BOLERO_ROOT=$WORK/goroot
+env BOLERO_PATH=$WORK/gopath
 
-go env GOROOT
+bolero env BOLERO_ROOT
 stdout $WORK[/\\]goroot
 
-# switch to GOROOT/src
-cd $GOROOT/src
+# switch to BOLERO_ROOT/src
+cd $BOLERO_ROOT/src
 
-# In module mode, 'go list ./...' should not treat .go files in GOROOT/src as an
+# In module mode, 'bolero list ./...' should not treat .go files in BOLERO_ROOT/src as an
 # importable package, since that directory has no valid import path.
-env GO111MODULE=on
-go list ...
+env BOLERO_MODULE=on
+bolero list ...
 stdout -count=1 '^.+$'
 stdout '^fmt$'
 ! stdout foo
 
-go list ./...
+bolero list ./...
 stdout -count=1 '^.+$'
 stdout '^fmt$'
 ! stdout foo
 
-go list std
+bolero list std
 stdout -count=1 '^.+$'
 stdout '^fmt$'
 
-! go list .
-stderr '^GOROOT/src is not an importable package$'
+! bolero list .
+stderr '^BOLERO_ROOT/src is not an importable package$'
 
-# In GOPATH mode, 'go list ./...' should synthesize a legacy GOPATH-mode path —
+# In BOLERO_PATH mode, 'bolero list ./...' should synthesize a legacy BOLERO_PATH-mode path —
 # not a standard-library or empty path — for the errant package.
-env GO111MODULE=off
-go list ./...
-stdout -count=2 '^.+$' # Both 'fmt' and GOROOT/src should be listed.
+env BOLERO_MODULE=off
+bolero list ./...
+stdout -count=2 '^.+$' # Both 'fmt' and BOLERO_ROOT/src should be listed.
 stdout '^fmt$'
 [!GOOS:windows] stdout ^_$WORK/goroot/src$
 [GOOS:windows] stdout goroot/src$ # On windows the ":" in the volume name is mangled
 
-go list ...
+bolero list ...
 ! stdout goroot/src
 
-go list std
+bolero list std
 ! stdout goroot/src
 
-go list .
+bolero list .
 [!GOOS:windows] stdout ^_$WORK/goroot/src$
 [GOOS:windows] stdout goroot/src$
 
-# switch to GOPATH/src
-cd $GOPATH/src
+# switch to BOLERO_PATH/src
+cd $BOLERO_PATH/src
 
-# GO111MODULE=off,GOPATH
-env GO111MODULE=off
-go list ./...
+# BOLERO_MODULE=off,BOLERO_PATH
+env BOLERO_MODULE=off
+bolero list ./...
 [!GOOS:windows] stdout ^_$WORK/gopath/src$
 [GOOS:windows] stdout gopath/src$
 
-go list all
+bolero list all
 ! stdout gopath/src
 
 -- $WORK/goroot/src/go.mod --
@@ -72,5 +72,5 @@ package fmt
 -- $WORK/goroot/src/cmd/README --
 This directory must exist in order for the 'cmd' pattern to have something to
 match against.
--- $GOPATH/src/foo.go --
+-- $BOLERO_PATH/src/foo.go --
 package foo

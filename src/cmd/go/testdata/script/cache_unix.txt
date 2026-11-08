@@ -1,4 +1,4 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
 # Integration test for cache directory calculation (cmd/go/internal/cache).
 
@@ -11,27 +11,27 @@ mkdir $WORK/gocache
 mkdir $WORK/xdg
 mkdir $WORK/home
 
-# Set GOCACHE, XDG_CACHE_HOME, and HOME.
-env GOCACHE=$WORK/gocache
+# Set BOLERO_CACHE, XDG_CACHE_HOME, and HOME.
+env BOLERO_CACHE=$WORK/gocache
 env XDG_CACHE_HOME=$WORK/xdg
 env HOME=$WORK/home
 
-# With all three set, we should prefer GOCACHE.
-go env GOCACHE
+# With all three set, we should prefer BOLERO_CACHE.
+bolero env BOLERO_CACHE
 stdout $WORK'/gocache$'
 
-# Without GOCACHE, we should prefer XDG_CACHE_HOME over HOME.
-env GOCACHE=
-go env GOCACHE
-stdout $WORK'/xdg/go-build$$'
+# Without BOLERO_CACHE, we should prefer XDG_CACHE_HOME over HOME.
+env BOLERO_CACHE=
+bolero env BOLERO_CACHE
+stdout $WORK'/xdg/bolero-build$$'
 
 # With only HOME set, we should use $HOME/.cache.
 env XDG_CACHE_HOME=
-go env GOCACHE
-stdout $WORK'/home/.cache/go-build$'
+bolero env BOLERO_CACHE
+stdout $WORK'/home/.cache/bolero-build$'
 
 # With no guidance from the environment, we must disable the cache, but that
 # should not cause commands that do not write to the cache to fail.
 env HOME=
-go env GOCACHE
+bolero env BOLERO_CACHE
 stdout 'off'

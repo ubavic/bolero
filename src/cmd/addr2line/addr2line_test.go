@@ -53,7 +53,7 @@ func runAddr2Line(t *testing.T, dbgExePath, addr string) (funcname, path, lineno
 	cmd.Stdin = strings.NewReader(addr)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Fatalf("go tool addr2line %v: %v\n%s", os.Args[0], err, string(out))
+		t.Fatalf("bolero tool addr2line %v: %v\n%s", os.Args[0], err, string(out))
 	}
 	f := strings.Split(string(out), "\n")
 	if len(f) < 3 && f[2] == "" {
@@ -109,7 +109,7 @@ func TestAddr2Line(t *testing.T) {
 	exepath := filepath.Join(tmpDir, "testaddr2line_test.exe")
 	out, err := testenv.Command(t, testenv.GoToolPath(t), "test", "-c", "-o", exepath, "cmd/addr2line").CombinedOutput()
 	if err != nil {
-		t.Fatalf("go test -c -o %v cmd/addr2line: %v\n%s", exepath, err, string(out))
+		t.Fatalf("bolero test -c -o %v cmd/addr2line: %v\n%s", exepath, err, string(out))
 	}
 
 	syms := loadSyms(t, exepath)

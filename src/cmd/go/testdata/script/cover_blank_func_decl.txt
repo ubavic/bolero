@@ -1,5 +1,5 @@
 [short] skip
-go test -cover coverblank
+bolero test -cover coverblank
 stdout 'coverage: 100.0% of statements'
 
 

@@ -1,9 +1,9 @@
 cd thirteen
-! go list -deps
+! bolero list -deps
 stderr 	'(Go version in go.mod is 1.13, so vendor directory was not used.)'
 
 cd ../unspecified
-! go list -deps
+! bolero list -deps
 stderr 	'(Go version in go.mod is unspecified, so vendor directory was not used.)'
 
 -- thirteen/foo.go --

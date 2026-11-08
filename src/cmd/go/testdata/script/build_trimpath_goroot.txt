@@ -1,64 +1,64 @@
 # Regression test for https://go.dev/issue/51461 and https://go.dev/issue/51483.
 #
 # When built with -trimpath, runtime.GOROOT() returned the bogus string "go"
-# if GOROOT was not set explicitly in the environment.
+# if BOLERO_ROOT was not set explicitly in the environment.
 # It should instead return the empty string, since we know that we don't
 # have a valid path to return.
 
-[trimpath] env GOROOT=
-[trimpath] ! go env GOROOT
-[trimpath] stderr '^go: cannot find GOROOT directory: ''go'' binary is trimmed and GOROOT is not set$'
-[trimpath] env GOROOT=$TESTGO_GOROOT
+[trimpath] env BOLERO_ROOT=
+[trimpath] ! bolero env BOLERO_ROOT
+[trimpath] stderr '^bolero: cannot find BOLERO_ROOT directory: ''go'' binary is trimmed and BOLERO_ROOT is not set$'
+[trimpath] env BOLERO_ROOT=$TESTGO_GOROOT
 
 [short] stop
 
-# With GOROOT still set, 'go build' and 'go test -c'
-# should cause runtime.GOROOT() to report either the correct GOROOT
-# (without -trimpath) or no GOROOT at all (with -trimpath).
+# With BOLERO_ROOT still set, 'bolero build' and 'bolero test -c'
+# should cause runtime.GOROOT() to report either the correct BOLERO_ROOT
+# (without -trimpath) or no BOLERO_ROOT at all (with -trimpath).
 
-go build -o example.exe .
-go build -trimpath -o example-trimpath.exe .
-go test -c -o example.test.exe .
-go test -trimpath -c -o example.test-trimpath.exe .
+bolero build -o example.exe .
+bolero build -trimpath -o example-trimpath.exe .
+bolero test -c -o example.test.exe .
+bolero test -trimpath -c -o example.test-trimpath.exe .
 
-env GOROOT=
+env BOLERO_ROOT=
 
 exec ./example.exe
-stdout '^GOROOT '$TESTGO_GOROOT'$'
+stdout '^BOLERO_ROOT '$TESTGO_GOROOT'$'
 stdout '^runtime '$TESTGO_GOROOT${/}src${/}runtime'$'
 
 ! exec ./example-trimpath.exe
-stdout '^GOROOT $'
-stderr 'cannot find package "runtime" in any of:\n\t\(\$GOROOT not set\)\n\t'$WORK${/}gopath${/}src${/}runtime' \(from \$GOPATH\)\n\z'
+stdout '^BOLERO_ROOT $'
+stderr 'cannot find package "runtime" in any of:\n\t\(\$BOLERO_ROOT not set\)\n\t'$WORK${/}gopath${/}src${/}runtime' \(from \$BOLERO_PATH\)\n\z'
 
 exec ./example.test.exe -test.v
-stdout '^GOROOT '$TESTGO_GOROOT'$'
+stdout '^BOLERO_ROOT '$TESTGO_GOROOT'$'
 stdout '^runtime '$TESTGO_GOROOT${/}src${/}runtime'$'
 
 ! exec ./example.test-trimpath.exe -test.v
-stdout '^GOROOT $'
-stderr 'cannot find package "runtime" in any of:\n\t\(\$GOROOT not set\)\n\t'$WORK${/}gopath${/}src${/}runtime' \(from \$GOPATH\)$'
+stdout '^BOLERO_ROOT $'
+stderr 'cannot find package "runtime" in any of:\n\t\(\$BOLERO_ROOT not set\)\n\t'$WORK${/}gopath${/}src${/}runtime' \(from \$BOLERO_PATH\)$'
 
-# If a correct GOROOT is baked in to the 'go' command itself, 'go run' and
-# 'go test' should not implicitly set GOROOT in the process environment
-# (because that could mask an unexpected production dependency on the GOROOT
-# environment variable), but 'go generate' should (because the generator may
-# reasonably expect to be able to locate the GOROOT for which it is generating
+# If a correct BOLERO_ROOT is baked in to the 'go' command itself, 'bolero run' and
+# 'bolero test' should not implicitly set BOLERO_ROOT in the process environment
+# (because that could mask an unexpected production dependency on the BOLERO_ROOT
+# environment variable), but 'bolero generate' should (because the generator may
+# reasonably expect to be able to locate the BOLERO_ROOT for which it is generating
 # code).
 
 [trimpath] stop
 
-! go run -trimpath .
-stdout '^GOROOT $'
-stderr 'cannot find package "runtime" in any of:\n\t\(\$GOROOT not set\)\n\t'$WORK${/}gopath${/}src${/}runtime' \(from \$GOPATH\)\nexit status 1\n\z'
+! bolero run -trimpath .
+stdout '^BOLERO_ROOT $'
+stderr 'cannot find package "runtime" in any of:\n\t\(\$BOLERO_ROOT not set\)\n\t'$WORK${/}gopath${/}src${/}runtime' \(from \$BOLERO_PATH\)\nexit status 1\n\z'
 
-! go test -trimpath -v .
-stdout '^GOROOT $'
-stdout 'cannot find package "runtime" in any of:\n\t\(\$GOROOT not set\)\n\t'$WORK${/}gopath${/}src${/}runtime' \(from \$GOPATH\)$'
+! bolero test -trimpath -v .
+stdout '^BOLERO_ROOT $'
+stdout 'cannot find package "runtime" in any of:\n\t\(\$BOLERO_ROOT not set\)\n\t'$WORK${/}gopath${/}src${/}runtime' \(from \$BOLERO_PATH\)$'
 
-env GOFLAGS=-trimpath
-go generate .
-stdout '^GOROOT '$TESTGO_GOROOT'$'
+env BOLERO_FLAGS=-trimpath
+bolero generate .
+stdout '^BOLERO_ROOT '$TESTGO_GOROOT'$'
 stdout '^runtime '$TESTGO_GOROOT${/}src${/}runtime'$'
 
 -- go.mod --
@@ -68,7 +68,7 @@ go 1.19
 -- main.go --
 package main
 
-//go:generate go run .
+//go:generate bolero run .
 
 import (
 	"fmt"
@@ -78,7 +78,7 @@ import (
 )
 
 func main() {
-	fmt.Println("GOROOT", runtime.GOROOT())
+	fmt.Println("BOLERO_ROOT", runtime.GOROOT())
 
 	p, err := build.Default.Import("runtime", "", build.FindOnly)
 	if err != nil {

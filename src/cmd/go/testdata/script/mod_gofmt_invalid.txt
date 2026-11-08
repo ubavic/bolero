@@ -1,8 +1,8 @@
-# Test for a crash in go fmt on invalid input when using modules.
+# Test for a crash in bolero fmt on invalid input when using modules.
 # Issue 26792.
 
-env GO111MODULE=on
-! go fmt x.go
+env BOLERO_MODULE=on
+! bolero fmt x.go
 ! stderr panic
 
 -- go.mod --

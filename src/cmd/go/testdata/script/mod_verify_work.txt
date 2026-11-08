@@ -5,7 +5,7 @@
 # it could not get chopped off when we removed the MainModules.Len() modules
 # at the beginning of the build list and we would remove the go module instead.
 
-go mod verify
+bolero mod verify
 
 -- go.work --
 go 1.21

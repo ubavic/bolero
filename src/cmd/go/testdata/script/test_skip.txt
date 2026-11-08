@@ -1,30 +1,30 @@
 [short] skip 'runs test'
 
-go test -v -run Test -skip T skip_test.go
+bolero test -v -run Test -skip T skip_test.go
 ! stdout RUN
 stdout '^ok.*\[no tests to run\]'
 
-go test -v -skip T skip_test.go
+bolero test -v -skip T skip_test.go
 ! stdout RUN
 
-go test -v -skip 1 skip_test.go
+bolero test -v -skip 1 skip_test.go
 ! stdout Test1
 stdout RUN.*Test2
 stdout RUN.*Test2/3
 
-go test -v -skip 2/3 skip_test.go
+bolero test -v -skip 2/3 skip_test.go
 stdout RUN.*Test1
 stdout RUN.*Test2
 stdout RUN.*ExampleTest1
 ! stdout Test2/3
 
-go test -v -skip 2/4 skip_test.go
+bolero test -v -skip 2/4 skip_test.go
 stdout RUN.*Test1
 stdout RUN.*Test2
 stdout RUN.*Test2/3
 stdout RUN.*ExampleTest1
 
-go test -v -skip Example skip_test.go
+bolero test -v -skip Example skip_test.go
 stdout RUN.*Test1
 stdout RUN.*Test2
 stdout RUN.*Test2/3

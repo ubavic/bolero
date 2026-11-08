@@ -1,6 +1,6 @@
-# Test go build -pgo=auto flag with multiple main packages.
+# Test bolero build -pgo=auto flag with multiple main packages.
 
-go install -a -n -pgo=auto ./a ./b ./nopgo
+bolero install -a -n -pgo=auto ./a ./b ./nopgo
 
 # a/default.pgo and b/default.pgo are both preprocessed
 stderr 'preprofile.*-i.*a(/|\\\\)default\.pgo'
@@ -34,8 +34,8 @@ stderr 'path\\ttest/a\\n.*build\\t-pgo=.*a(/|\\\\)default\.pgo'
 stderr 'path\\ttest/b\\n.*build\\t-pgo=.*b(/|\\\\)default\.pgo'
 ! stderr 'path\\ttest/nopgo\\n.*build\\t-pgo='
 
-# go test works the same way
-go test -a -n -pgo=auto ./a ./b ./nopgo
+# bolero test works the same way
+bolero test -a -n -pgo=auto ./a ./b ./nopgo
 stderr -count=1 'compile.*-pgoprofile=.*a(/|\\\\)a_test\.go'
 stderr -count=1 'compile.*-pgoprofile=.*b(/|\\\\)b_test\.go'
 stderr -count=2 'compile.*-pgoprofile=.*dep(/|\\\\)dep\.go'
@@ -45,8 +45,8 @@ stderr -count=2 'compile.*-pgoprofile=.*dep(/|\\\\)dep\.go'
 stderr -count=2 'compile.*-pgoprofile=.*testdep(/|\\\\)testdep\.go'
 stderr -count=2 'compile.*-pgoprofile=.*testdep2(/|\\\\)testdep2\.go'
 
-# go list -deps prints packages built multiple times.
-go list -pgo=auto -deps ./a ./b ./nopgo
+# bolero list -deps prints packages built multiple times.
+bolero list -pgo=auto -deps ./a ./b ./nopgo
 stdout 'test/dep \[test/a\]'
 stdout 'test/dep \[test/b\]'
 stdout 'test/dep$'

@@ -25,7 +25,7 @@ func main() {
 
 func test(sep string) {
 	// Successful run
-	cmd := exec.Command("go", "run", "-ldflags=-X main.tbd"+sep+"hello -X main.overwrite"+sep+"trumped -X main.nosuchsymbol"+sep+"neverseen", "linkx.go")
+	cmd := exec.Command("bolero", "run", "-ldflags=-X main.tbd"+sep+"hello -X main.overwrite"+sep+"trumped -X main.nosuchsymbol"+sep+"neverseen", "linkx.go")
 	var out, errbuf bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &errbuf
@@ -45,7 +45,7 @@ func test(sep string) {
 	}
 
 	// Issue 8810
-	cmd = exec.Command("go", "run", "-ldflags=-X main.tbd", "linkx.go")
+	cmd = exec.Command("bolero", "run", "-ldflags=-X main.tbd", "linkx.go")
 	_, err = cmd.CombinedOutput()
 	if err == nil {
 		fmt.Println("-X linker flag should not accept keys without values")
@@ -53,7 +53,7 @@ func test(sep string) {
 	}
 
 	// Issue 9621
-	cmd = exec.Command("go", "run", "-ldflags=-X main.b=false -X main.x=42", "linkx.go")
+	cmd = exec.Command("bolero", "run", "-ldflags=-X main.b=false -X main.x=42", "linkx.go")
 	outx, err := cmd.CombinedOutput()
 	if err == nil {
 		fmt.Println("-X linker flag should not overwrite non-strings")

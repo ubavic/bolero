@@ -1457,7 +1457,7 @@ func (c *common) makeTempDir() (string, error) {
 		const allowed = "!#$%&()+,-.=@^_{}~ "
 		pattern = removeSymbolsExcept(pattern, allowed)
 
-		c.tempDir, c.tempDirErr = os.MkdirTemp(os.Getenv("GOTMPDIR"), pattern)
+		c.tempDir, c.tempDirErr = os.MkdirTemp(os.Getenv("BOLERO_TMPDIR"), pattern)
 		if c.tempDirErr == nil {
 			c.Cleanup(func() {
 				if err := removeAll(c.tempDir); err != nil {

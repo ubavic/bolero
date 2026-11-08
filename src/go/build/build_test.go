@@ -134,7 +134,7 @@ func TestMultiplePackageImport(t *testing.T) {
 
 func TestLocalDirectory(t *testing.T) {
 	if runtime.GOOS == "ios" {
-		t.Skipf("skipping on %s/%s, no valid GOROOT", runtime.GOOS, runtime.GOARCH)
+		t.Skipf("skipping on %s/%s, no valid BOLERO_ROOT", runtime.GOOS, runtime.GOARCH)
 	}
 
 	cwd, err := os.Getwd()
@@ -426,7 +426,7 @@ func TestMatchFile(t *testing.T) {
 
 func TestImportCmd(t *testing.T) {
 	if runtime.GOOS == "ios" {
-		t.Skipf("skipping on %s/%s, no valid GOROOT", runtime.GOOS, runtime.GOARCH)
+		t.Skipf("skipping on %s/%s, no valid BOLERO_ROOT", runtime.GOOS, runtime.GOARCH)
 	}
 
 	p, err := Import("cmd/internal/objfile", "", 0)
@@ -515,11 +515,11 @@ func TestImportDirNotExist(t *testing.T) {
 		{"Import(local, FindOnly)", "./doesnotexist", filepath.Join(ctxt.GOROOT, "src/go/build"), FindOnly},
 	}
 
-	defer os.Setenv("GO111MODULE", os.Getenv("GO111MODULE"))
+	defer os.Setenv("BOLERO_MODULE", os.Getenv("BOLERO_MODULE"))
 
 	for _, GO111MODULE := range []string{"off", "on"} {
-		t.Run("GO111MODULE="+GO111MODULE, func(t *testing.T) {
-			os.Setenv("GO111MODULE", GO111MODULE)
+		t.Run("BOLERO_MODULE="+GO111MODULE, func(t *testing.T) {
+			os.Setenv("BOLERO_MODULE", GO111MODULE)
 
 			for _, test := range tests {
 				p, err := ctxt.Import(test.path, test.srcDir, test.mode)
@@ -552,7 +552,7 @@ func TestImportDirNotExist(t *testing.T) {
 func TestImportVendor(t *testing.T) {
 	testenv.MustHaveSource(t)
 
-	t.Setenv("GO111MODULE", "off")
+	t.Setenv("BOLERO_MODULE", "off")
 
 	ctxt := Default
 	wd, err := os.Getwd()
@@ -573,7 +573,7 @@ func TestImportVendor(t *testing.T) {
 func BenchmarkImportVendor(b *testing.B) {
 	testenv.MustHaveSource(b)
 
-	b.Setenv("GO111MODULE", "off")
+	b.Setenv("BOLERO_MODULE", "off")
 
 	ctxt := Default
 	wd, err := os.Getwd()
@@ -594,7 +594,7 @@ func BenchmarkImportVendor(b *testing.B) {
 func TestImportVendorFailure(t *testing.T) {
 	testenv.MustHaveSource(t)
 
-	t.Setenv("GO111MODULE", "off")
+	t.Setenv("BOLERO_MODULE", "off")
 
 	ctxt := Default
 	wd, err := os.Getwd()
@@ -609,14 +609,14 @@ func TestImportVendorFailure(t *testing.T) {
 
 	e := err.Error()
 	if !strings.Contains(e, " (vendor tree)") {
-		t.Fatalf("error on failed import does not mention GOROOT/src/vendor directory:\n%s", e)
+		t.Fatalf("error on failed import does not mention BOLERO_ROOT/src/vendor directory:\n%s", e)
 	}
 }
 
 func TestImportVendorParentFailure(t *testing.T) {
 	testenv.MustHaveSource(t)
 
-	t.Setenv("GO111MODULE", "off")
+	t.Setenv("BOLERO_MODULE", "off")
 
 	ctxt := Default
 	wd, err := os.Getwd()
@@ -634,11 +634,11 @@ func TestImportVendorParentFailure(t *testing.T) {
 	}
 	e := err.Error()
 	if !strings.Contains(e, " (vendor tree)") {
-		t.Fatalf("error on failed import does not mention GOROOT/src/vendor directory:\n%s", e)
+		t.Fatalf("error on failed import does not mention BOLERO_ROOT/src/vendor directory:\n%s", e)
 	}
 }
 
-// Check that a package is loaded in module mode if GO111MODULE=on, even when
+// Check that a package is loaded in module mode if BOLERO_MODULE=on, even when
 // no go.mod file is present. It should fail to resolve packages outside std.
 // Verifies golang.org/issue/34669.
 func TestImportPackageOutsideModule(t *testing.T) {
@@ -646,10 +646,10 @@ func TestImportPackageOutsideModule(t *testing.T) {
 
 	// Disable module fetching for this test so that 'go list' fails quickly
 	// without trying to find the latest version of a module.
-	t.Setenv("GOPROXY", "off")
+	t.Setenv("BOLERO_PROXY", "off")
 
-	// Create a GOPATH in a temporary directory. We don't use testdata
-	// because it's in GOROOT, which interferes with the module heuristic.
+	// Create a BOLERO_PATH in a temporary directory. We don't use testdata
+	// because it's in BOLERO_ROOT, which interferes with the module heuristic.
 	gopath := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(gopath, "src/example.com/p"), 0777); err != nil {
 		t.Fatal(err)
@@ -658,8 +658,8 @@ func TestImportPackageOutsideModule(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Setenv("GO111MODULE", "on")
-	t.Setenv("GOPATH", gopath)
+	t.Setenv("BOLERO_MODULE", "on")
+	t.Setenv("BOLERO_PATH", gopath)
 	ctxt := Default
 	ctxt.GOPATH = gopath
 	ctxt.Dir = filepath.Join(gopath, "src/example.com/p")
@@ -715,9 +715,9 @@ func TestMissingImportErrorRepetition(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(tmp, "go.mod"), []byte("module m"), 0666); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("GO111MODULE", "on")
-	t.Setenv("GOPROXY", "off")
-	t.Setenv("GONOPROXY", "none")
+	t.Setenv("BOLERO_MODULE", "on")
+	t.Setenv("BOLERO_PROXY", "off")
+	t.Setenv("BOLERO_NOPROXY", "none")
 
 	ctxt := Default
 	ctxt.Dir = tmp

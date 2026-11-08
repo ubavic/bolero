@@ -1,10 +1,10 @@
 [short] skip 'builds go programs'
 
-go build -o cacheprog$GOEXE cacheprog.go
-env GOCACHEPROG=$GOPATH/src/cacheprog$GOEXE
+bolero build -o cacheprog$GOEXE cacheprog.go
+env BOLERO_CACHEPROG=$BOLERO_PATH/src/cacheprog$GOEXE
 
 # This should not deadlock
-go build simple.go
+bolero build simple.go
 ! stderr 'cacheprog closed'
 
 -- simple.go --
@@ -12,7 +12,7 @@ package main
 
 func main() {}
 -- cacheprog.go --
-// This is a minimal GOCACHEPROG program that doesn't respond to close.
+// This is a minimal BOLERO_CACHEPROG program that doesn't respond to close.
 package main
 
 import (

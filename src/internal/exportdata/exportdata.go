@@ -326,9 +326,9 @@ func lookupGorootExport(pkgDir string) (string, error) {
 		)
 		f, _ = exportMap.LoadOrStore(pkgDir, func() (string, error) {
 			listOnce.Do(func() {
-				cmd := exec.Command(filepath.Join(build.Default.GOROOT, "bin", "go"), "list", "-export", "-f", "{{.Export}}", pkgDir)
+				cmd := exec.Command(filepath.Join(build.Default.GOROOT, "bin", "bolero"), "list", "-export", "-f", "{{.Export}}", pkgDir)
 				cmd.Dir = build.Default.GOROOT
-				cmd.Env = append(os.Environ(), "PWD="+cmd.Dir, "GOROOT="+build.Default.GOROOT)
+				cmd.Env = append(os.Environ(), "PWD="+cmd.Dir, "BOLERO_ROOT="+build.Default.GOROOT)
 				var output []byte
 				output, err = cmd.Output()
 				if err != nil {
@@ -340,7 +340,7 @@ func lookupGorootExport(pkgDir string) (string, error) {
 
 				exports := strings.Split(string(bytes.TrimSpace(output)), "\n")
 				if len(exports) != 1 {
-					err = fmt.Errorf("go list reported %d exports; expected 1", len(exports))
+					err = fmt.Errorf("bolero list reported %d exports; expected 1", len(exports))
 					return
 				}
 

@@ -6,6 +6,6 @@
 
 ! stale runtime 'must be non-stale to compare staleness under -toolexec'
 
-go list -f '{{.Stale}}' runtime
-go list -toolexec /usr/bin/time -f '{{.Stale}}' runtime
+bolero list -f '{{.Stale}}' runtime
+bolero list -toolexec /usr/bin/time -f '{{.Stale}}' runtime
 stdout 'false' # runtime should not be reported as stale

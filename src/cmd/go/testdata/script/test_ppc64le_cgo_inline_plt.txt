@@ -14,7 +14,7 @@
 
 env CGO_CFLAGS='-fno-plt -O2 -g'
 
-go build -ldflags='-linkmode=internal'
+bolero build -ldflags='-linkmode=internal'
 exec ./noplttest
 stdout helloworld
 

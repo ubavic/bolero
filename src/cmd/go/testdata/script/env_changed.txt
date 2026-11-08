@@ -3,35 +3,35 @@
 # Go+BoringCrypto conflicts with GOFIPS140.
 [GOEXPERIMENT:boringcrypto] skip
 
-env GOROOT=./a
-env GOTOOLCHAIN=local
-env GOSUMDB=nodefault
-env GOPROXY=nodefault
-env GO111MODULE=auto
+env BOLERO_ROOT=./a
+env BOLERO_TOOLCHAIN=local
+env BOLERO_SUMDB=nodefault
+env BOLERO_PROXY=nodefault
+env BOLERO_MODULE=auto
 env CGO_CFLAGS=nodefault
 env CGO_CPPFLAGS=nodefault
 env GOFIPS140=latest
 [cgo] env CGO_ENABLED=0
 env GCCGO=nodefault
 
-go env -changed
-# linux output like GOTOOLCHAIN='local'
-# windows output like GOTOOLCHAIN=local
-stdout 'GOTOOLCHAIN=''?local''?'
-stdout 'GOSUMDB=''?nodefault''?'
-stdout 'GOPROXY=''?nodefault''?'
-stdout 'GO111MODULE=''?auto''?'
+bolero env -changed
+# linux output like BOLERO_TOOLCHAIN='local'
+# windows output like BOLERO_TOOLCHAIN=local
+stdout 'BOLERO_TOOLCHAIN=''?local''?'
+stdout 'BOLERO_SUMDB=''?nodefault''?'
+stdout 'BOLERO_PROXY=''?nodefault''?'
+stdout 'BOLERO_MODULE=''?auto''?'
 stdout 'CGO_CFLAGS=''?nodefault''?'
 stdout 'CGO_CPPFLAGS=''?nodefault''?'
 stdout 'GOFIPS140=''?latest''?'
 [cgo] stdout 'CGO_ENABLED=''?0''?'
 stdout 'GCCGO=''?nodefault''?'
 
-go env -changed -json
-stdout '"GOTOOLCHAIN": "local"'
-stdout '"GOSUMDB": "nodefault"'
-stdout '"GOPROXY": "nodefault"'
-stdout '"GO111MODULE": "auto"'
+bolero env -changed -json
+stdout '"BOLERO_TOOLCHAIN": "local"'
+stdout '"BOLERO_SUMDB": "nodefault"'
+stdout '"BOLERO_PROXY": "nodefault"'
+stdout '"BOLERO_MODULE": "auto"'
 stdout '"CGO_CFLAGS": "nodefault"'
 stdout '"CGO_CPPFLAGS": "nodefault"'
 stdout '"GOFIPS140": "latest"'
@@ -43,45 +43,45 @@ stdout '"GCCGO": "nodefault"'
 [GOARCH:amd64] env GOARCH=arm64
 [!GOARCH:amd64] env GOARCH=amd64
 
-go env -changed GOOS
+bolero env -changed GOOS
 [GOOS:windows] stdout 'set GOOS=linux'
 [!GOOS:windows] stdout 'GOOS=''windows'''
-go env -changed GOARCH
+bolero env -changed GOARCH
 [GOARCH:amd64] stdout 'set GOARCH=arm64|GOARCH=''arm64'''
 [!GOARCH:amd64] stdout 'set GOARCH=amd64|GOARCH=''amd64'''
 
-go env -changed -json GOOS
+bolero env -changed -json GOOS
 [GOOS:windows] stdout '"GOOS": "linux"'
 [!GOOS:windows] stdout '"GOOS": "windows"'
-go env -changed -json GOARCH
+bolero env -changed -json GOARCH
 [GOARCH:amd64] stdout '"GOARCH": "arm64"'
 [!GOARCH:amd64] stdout '"GOARCH": "amd64"'
 
 env GOARCH=amd64
 env GOAMD64=v3
-go env -changed
+bolero env -changed
 stdout 'GOAMD64=''?v3''?'
 
-env GOPROXY=s
-go env -changed GOPROXY
-! stdout 'GOPROXY'
-env GOPROXY=s2
-go env -changed GOPROXY
-stdout 'GOPROXY=''?s2''?'
+env BOLERO_PROXY=s
+bolero env -changed BOLERO_PROXY
+! stdout 'BOLERO_PROXY'
+env BOLERO_PROXY=s2
+bolero env -changed BOLERO_PROXY
+stdout 'BOLERO_PROXY=''?s2''?'
 
-env GOROOT=./b
-go env -changed
-! stdout 'GOTOOLCHAIN=''?local''?'
+env BOLERO_ROOT=./b
+bolero env -changed
+! stdout 'BOLERO_TOOLCHAIN=''?local''?'
 
 [GOOS:windows] env LocalAppData=C:\
-[GOOS:windows] env GOCACHE=C:\go-build
-[GOOS:windows] go env -changed
-[GOOS:windows] ! stdout 'GOCACHE'
+[GOOS:windows] env BOLERO_CACHE=C:\go-build
+[GOOS:windows] bolero env -changed
+[GOOS:windows] ! stdout 'BOLERO_CACHE'
 
---  a/go.env --
-GOPROXY=s
+-- a/bolero.env --
+BOLERO_PROXY=s
 GOAMD64=v1
 GOFIPS140=off
 
---  b/go.env --
-GOTOOLCHAIN=local
+-- b/bolero.env --
+BOLERO_TOOLCHAIN=local

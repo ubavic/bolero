@@ -1,15 +1,15 @@
-# https://go.dev/issue/68005: 'go run' should run the program with its own GOROOT/bin
+# https://go.dev/issue/68005: 'bolero run' should run the program with its own BOLERO_ROOT/bin
 # at the beginning of $PATH.
 
 [short] skip
 
 [!GOOS:plan9] env PATH=
 [GOOS:plan9] env path=
-go run .
+bolero run .
 
 [!GOOS:plan9] env PATH=$WORK${/}bin
 [GOOS:plan9] env path=$WORK${/}bin
-go run .
+bolero run .
 
 -- go.mod --
 module example
@@ -26,15 +26,15 @@ import (
 )
 
 func main() {
-	got, err := exec.LookPath("go")
+	got, err := exec.LookPath("bolero")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	want := filepath.Join(os.Getenv("GOROOT"), "bin", "go" + os.Getenv("GOEXE"))
+	want := filepath.Join(os.Getenv("BOLERO_ROOT"), "bin", "bolero" + os.Getenv("GOEXE"))
 	if got != want {
-		fmt.Printf(`exec.LookPath("go") = %q; want %q\n`, got, want)
+		fmt.Printf(`exec.LookPath("bolero") = %q; want %q\n`, got, want)
 		os.Exit(1)
 	}
 }

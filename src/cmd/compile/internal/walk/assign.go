@@ -86,7 +86,7 @@ func walkAssign(init *ir.Nodes, n ir.Node) ir.Node {
 		// x = append(...)
 		call := as.Y.(*ir.CallExpr)
 		if call.Type().Elem().NotInHeap() {
-			base.Errorf("%v can't be allocated in Go; it is incomplete (or unallocatable)", call.Type().Elem())
+			base.Errorf("%v can't be allocated; it is incomplete (or unallocatable)", call.Type().Elem())
 		}
 		var r ir.Node
 		switch {

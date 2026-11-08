@@ -2,22 +2,22 @@
 
 [!race] skip
 
-env GOBIN=$WORK/bin
-go install m/mtime m/sametime
+env BOLERO_BIN=$WORK/bin
+bolero install m/mtime m/sametime
 
-go tool -n cgo
+bolero tool -n cgo
 cp stdout cgopath.txt
-exec $GOBIN/mtime cgopath.txt # get the mtime of the file whose name is in cgopath.txt
+exec $BOLERO_BIN/mtime cgopath.txt # get the mtime of the file whose name is in cgopath.txt
 cp stdout cgotime_before.txt
 
- # For this test, we don't actually care whether 'go test -race -i' succeeds.
- # It may fail if GOROOT is read-only (perhaps it was installed as root).
+ # For this test, we don't actually care whether 'bolero test -race -i' succeeds.
+ # It may fail if BOLERO_ROOT is read-only (perhaps it was installed as root).
  # We only care that it does not overwrite cmd/cgo regardless.
-? go test -race -i runtime/race
+? bolero test -race -i runtime/race
 
-exec $GOBIN/mtime cgopath.txt # get the mtime of the file whose name is in cgopath.txt
+exec $BOLERO_BIN/mtime cgopath.txt # get the mtime of the file whose name is in cgopath.txt
 cp stdout cgotime_after.txt
-exec $GOBIN/sametime cgotime_before.txt cgotime_after.txt
+exec $BOLERO_BIN/sametime cgotime_before.txt cgotime_after.txt
 
 -- go.mod --
 module m

@@ -72,7 +72,7 @@ func usage(msg string) {
 	if len(msg) > 0 {
 		fmt.Fprintf(os.Stderr, "error: %s\n", msg)
 	}
-	fmt.Fprintf(os.Stderr, "usage: go tool covdata [command]\n")
+	fmt.Fprintf(os.Stderr, "usage: bolero tool covdata [command]\n")
 	fmt.Fprintf(os.Stderr, `
 Commands are:
 

@@ -23,7 +23,7 @@
 //
 // The Go path is a list of directory trees containing Go source code.
 // It is consulted to resolve imports that cannot be found in the standard
-// Go tree. The default path is the value of the GOPATH environment
+// Go tree. The default path is the value of the BOLERO_PATH environment
 // variable, interpreted as a path list appropriate to the operating system
 // (on Unix, the variable is a colon-separated string;
 // on Windows, a semicolon-separated string;
@@ -54,7 +54,7 @@
 //
 // Here's an example directory layout:
 //
-//	GOPATH=/home/user/gocode
+//	BOLERO_PATH=/home/user/gocode
 //
 //	/home/user/gocode/
 //	    src/

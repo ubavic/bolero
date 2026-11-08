@@ -4,36 +4,36 @@
 
 [!git] skip
 [short] skip
-env GOBIN=$WORK/gopath/bin
+env BOLERO_BIN=$WORK/gopath/bin
 env oldpath=$PATH
 cd repo/a
 
 # If there's no local repository, there's no VCS info.
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 ! stdout vcs.revision
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # If there's an orphan .git file left by a git submodule, it's not a git
 # repository, and there's no VCS info.
 cd ../gitsubmodule
-go install
-go version -m $GOBIN/gitsubmodule$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/gitsubmodule$GOEXE
 ! stdout vcs.revision
-rm $GOBIN/gitsubmodule$GOEXE
+rm $BOLERO_BIN/gitsubmodule$GOEXE
 
 # If there is a repository, but it can't be used for some reason,
 # there should be an error. It should hint about -buildvcs=false.
-# Also ensure that multiple errors are collected by "go list -e".
+# Also ensure that multiple errors are collected by "bolero list -e".
 cd ..
 mkdir .git
 env PATH=$WORK${/}fakebin${:}$oldpath
 chmod 0755 $WORK/fakebin/git
 ! exec git help
 cd a
-! go install
+! bolero install
 stderr '^error obtaining VCS status: exit status 1\n\tUse -buildvcs=false to disable VCS stamping.$'
-go list -e -f '{{.ImportPath}}: {{.Error}}' ./...
+bolero list -e -f '{{.ImportPath}}: {{.Error}}' ./...
 stdout -count=1 '^example\.com/a: error obtaining VCS status'
 stdout -count=1 '^example\.com/a/library: <nil>'
 stdout -count=1 '^example\.com/a/othermain: error obtaining VCS status'
@@ -46,77 +46,77 @@ exec git init
 exec git config user.email gopher@golang.org
 exec git config user.name 'J.R. Gopher'
 cd a
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs=git$'
 stdout '^\tbuild\tvcs.modified=true$'
 ! stdout vcs.revision
 ! stdout vcs.time
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # Revision and commit time are tagged for repositories with commits.
 exec git add -A
 exec git commit -m 'initial commit'
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs.revision='
 stdout '^\tbuild\tvcs.time='
 stdout '^\tbuild\tvcs.modified=false$'
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # Building with -buildvcs=false suppresses the info.
-go install -buildvcs=false
-go version -m $GOBIN/a$GOEXE
+bolero install -buildvcs=false
+bolero version -m $BOLERO_BIN/a$GOEXE
 ! stdout vcs.revision
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # An untracked file is shown as uncommitted, even if it isn't part of the build.
 cp ../../outside/empty.txt .
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs.modified=true$'
 rm empty.txt
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # An edited file is shown as uncommitted, even if it isn't part of the build.
 cp ../../outside/empty.txt ../README
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs.modified=true$'
 exec git checkout ../README
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # If the build doesn't include any packages from the repository,
 # there should be no VCS info.
-go install example.com/cmd/a@v1.0.0
-go version -m $GOBIN/a$GOEXE
+bolero install example.com/cmd/a@v1.0.0
+bolero version -m $BOLERO_BIN/a$GOEXE
 ! stdout vcs.revision
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
-go mod edit -require=example.com/c@v0.0.0
-go mod edit -replace=example.com/c@v0.0.0=../../outside/c
-go install example.com/c
-go version -m $GOBIN/c$GOEXE
+bolero mod edit -require=example.com/c@v0.0.0
+bolero mod edit -replace=example.com/c@v0.0.0=../../outside/c
+bolero install example.com/c
+bolero version -m $BOLERO_BIN/c$GOEXE
 ! stdout vcs.revision
-rm $GOBIN/c$GOEXE
+rm $BOLERO_BIN/c$GOEXE
 exec git checkout go.mod
 
 # If the build depends on a package in the repository, but it's not in the
 # main module, there should be no VCS info.
-go mod edit -require=example.com/b@v0.0.0
-go mod edit -replace=example.com/b@v0.0.0=../b
-go mod edit -require=example.com/d@v0.0.0
-go mod edit -replace=example.com/d@v0.0.0=../../outside/d
-go install example.com/d
-go version -m $GOBIN/d$GOEXE
+bolero mod edit -require=example.com/b@v0.0.0
+bolero mod edit -replace=example.com/b@v0.0.0=../b
+bolero mod edit -require=example.com/d@v0.0.0
+bolero mod edit -replace=example.com/d@v0.0.0=../../outside/d
+bolero install example.com/d
+bolero version -m $BOLERO_BIN/d$GOEXE
 ! stdout vcs.revision
 exec git checkout go.mod
-rm $GOBIN/d$GOEXE
+rm $BOLERO_BIN/d$GOEXE
 
 # If we're loading multiple main packages,
 # but they share the same VCS repository,
 # we only need to execute VCS status commands once.
-go list -x ./...
+bolero list -x ./...
 stdout -count=3 '^example.com'
 stderr -count=1 '^git status'
 stderr -count=1 '^git -c log.showsignature=false log'

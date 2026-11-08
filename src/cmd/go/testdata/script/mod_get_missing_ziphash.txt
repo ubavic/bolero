@@ -1,30 +1,30 @@
 # Test that if the module cache contains an extracted source directory but not
-# a ziphash, 'go build' complains about a missing sum, and 'go get' adds
+# a ziphash, 'bolero build' complains about a missing sum, and 'bolero get' adds
 # the sum. Verifies #44749.
 
-# With a tidy go.sum, go build succeeds. This also populates the module cache.
+# With a tidy go.sum, bolero build succeeds. This also populates the module cache.
 cp go.sum.tidy go.sum
-go build -n use
-env GOPROXY=off
-env GOSUMDB=off
+bolero build -n use
+env BOLERO_PROXY=off
+env BOLERO_SUMDB=off
 
 # Control case: if we delete the hash for rsc.io/quote v1.5.2,
-# 'go build' reports an error. 'go get' adds the sum.
+# 'bolero build' reports an error. 'bolero get' adds the sum.
 cp go.sum.bug go.sum
-! go build -n use
-stderr '^use.go:3:8: missing go.sum entry for module providing package rsc.io/quote \(imported by use\); to add:\n\tgo get use$'
-go get use
+! bolero build -n use
+stderr '^use.go:3:8: missing go.sum entry for module providing package rsc.io/quote \(imported by use\); to add:\n\tbolero get use$'
+bolero get use
 cmp go.sum go.sum.tidy
-go build -n use
+bolero build -n use
 
 # If we delete the hash *and* the ziphash file, we should see the same behavior.
 cp go.sum.bug go.sum
 rm $WORK/gopath/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.ziphash
-! go build -n use
-stderr '^use.go:3:8: missing go.sum entry for module providing package rsc.io/quote \(imported by use\); to add:\n\tgo get use$'
-go get use
+! bolero build -n use
+stderr '^use.go:3:8: missing go.sum entry for module providing package rsc.io/quote \(imported by use\); to add:\n\tbolero get use$'
+bolero get use
 cmp go.sum go.sum.tidy
-go build -n use
+bolero build -n use
 
 -- go.mod --
 module use

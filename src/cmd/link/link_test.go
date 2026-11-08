@@ -261,7 +261,7 @@ TEXT ·x(SB),0,$0
 	cmd := goCmd(t, "build")
 	cmd.Dir = tmpdir
 	cmd.Env = append(cmd.Env,
-		"GOARCH=amd64", "GOOS=linux", "GOPATH="+filepath.Join(tmpdir, "_gopath"))
+		"GOARCH=amd64", "GOOS=linux", "BOLERO_PATH="+filepath.Join(tmpdir, "_gopath"))
 	out, err := cmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("expected build to fail, but it succeeded")
@@ -1547,7 +1547,7 @@ func TestResponseFile(t *testing.T) {
 	}
 	sb.WriteString(`"'`)
 	cmd = testenv.CleanCmdEnv(cmd)
-	cmd.Env = append(cmd.Env, "GOFLAGS="+sb.String())
+	cmd.Env = append(cmd.Env, "BOLERO_FLAGS="+sb.String())
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
@@ -1630,7 +1630,7 @@ func TestFlagS(t *testing.T) {
 				// Error exit is fine as it may have no symbols.
 				// On darwin we need to emit dynamic symbol references so it
 				// actually has some symbols, and nm succeeds.
-				t.Errorf("(mode=%s) go tool nm failed: %v\n%s", mode, err, out)
+				t.Errorf("(mode=%s) bolero tool nm failed: %v\n%s", mode, err, out)
 			}
 		}
 		for _, s := range syms {
@@ -1672,7 +1672,7 @@ func TestRandLayout(t *testing.T) {
 		cmd = testenv.Command(t, testenv.GoToolPath(t), "tool", "nm", exe)
 		out, err = cmd.CombinedOutput()
 		if err != nil {
-			t.Fatalf("seed=%v: fail to run \"go tool nm\": %v\n%s", seed, err, out)
+			t.Fatalf("seed=%v: fail to run \"bolero tool nm\": %v\n%s", seed, err, out)
 		}
 		syms[i] = string(out)
 	}

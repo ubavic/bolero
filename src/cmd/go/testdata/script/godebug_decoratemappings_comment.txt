@@ -1,11 +1,11 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 [!GOOS:linux] skip
 [short] skip
 
 # Programs with //go:debug decoratemappings=0 should never see annotations.
 # This ensures that the runtime has not overridden the default.
-go run .
+bolero run .
 
 -- go.mod --
 go 1.25

@@ -1,54 +1,54 @@
-env GO111MODULE=on
-env sumdb=$GOSUMDB
-env proxy=$GOPROXY
-env GOPRIVATE GOPROXY GONOPROXY GOSUMDB GONOSUMDB
+env BOLERO_MODULE=on
+env sumdb=$BOLERO_SUMDB
+env proxy=$BOLERO_PROXY
+env BOLERO_PRIVATE BOLERO_PROXY BOLERO_NOPROXY BOLERO_SUMDB BOLERO_NOSUMDB
 env dbname=localhost.localdev/sumdb
 
 # disagree with sumdb fails
 cp go.mod.orig go.mod
-env GOSUMDB=$sumdb' '$proxy/sumdb-wrong
-! go get rsc.io/quote
+env BOLERO_SUMDB=$sumdb' '$proxy/sumdb-wrong
+! bolero get rsc.io/quote
 stderr 'SECURITY ERROR'
 
-# GONOSUMDB bypasses sumdb, for rsc.io/quote, rsc.io/sampler, golang.org/x/text
-env GONOSUMDB='*/quote,*/*mple*,golang.org/x'
-go get rsc.io/quote
+# BOLERO_NOSUMDB bypasses sumdb, for rsc.io/quote, rsc.io/sampler, golang.org/x/text
+env BOLERO_NOSUMDB='*/quote,*/*mple*,golang.org/x'
+bolero get rsc.io/quote
 rm go.sum
-env GOPRIVATE='*/quote,*/*mple*,golang.org/x'
-env GONOPROXY=none # that is, proxy all despite GOPRIVATE
-go get rsc.io/quote
+env BOLERO_PRIVATE='*/quote,*/*mple*,golang.org/x'
+env BOLERO_NOPROXY=none # that is, proxy all despite BOLERO_PRIVATE
+bolero get rsc.io/quote
 
-# Download .info files needed for 'go list -m all' later.
-# TODO(#42723): either 'go list -m' should not read these files,
-# or 'go get' and 'go mod tidy' should download them.
-go list -m all
+# Download .info files needed for 'bolero list -m all' later.
+# TODO(#42723): either 'bolero list -m' should not read these files,
+# or 'bolero get' and 'bolero mod tidy' should download them.
+bolero list -m all
 stdout '^golang.org/x/text v0.0.0-20170915032832-14c0d48ead0c$'
 
-# When GOPROXY is not empty but contains no entries, an error should be reported.
-env GOPROXY=','
-! go get golang.org/x/text
-stderr '^go: golang.org/x/text: GOPROXY list is not the empty string, but contains no entries$'
+# When BOLERO_PROXY is not empty but contains no entries, an error should be reported.
+env BOLERO_PROXY=','
+! bolero get golang.org/x/text
+stderr '^bolero: golang.org/x/text: BOLERO_PROXY list is not the empty string, but contains no entries$'
 
-# When GOPROXY=off, fetching modules not matched by GONOPROXY fails.
-env GONOPROXY=*/fortune
-env GOPROXY=off
-! go get golang.org/x/text
-stderr '^go: golang.org/x/text: module lookup disabled by GOPROXY=off$'
+# When BOLERO_PROXY=off, fetching modules not matched by BOLERO_NOPROXY fails.
+env BOLERO_NOPROXY=*/fortune
+env BOLERO_PROXY=off
+! bolero get golang.org/x/text
+stderr '^bolero: golang.org/x/text: module lookup disabled by BOLERO_PROXY=off$'
 
-# GONOPROXY bypasses proxy
+# BOLERO_NOPROXY bypasses proxy
 [!net:rsc.io] skip
 [!git] skip
-env GOPRIVATE=none
-env GONOPROXY='*/fortune'
-! go get rsc.io/fortune # does not exist in real world, only on test proxy
+env BOLERO_PRIVATE=none
+env BOLERO_NOPROXY='*/fortune'
+! bolero get rsc.io/fortune # does not exist in real world, only on test proxy
 stderr 'git ls-remote'
 
 [!net:golang.org] skip
-env GOSUMDB=
-env GONOPROXY=
-env GOPRIVATE='*/x'
-go get golang.org/x/text
-go list -m all
+env BOLERO_SUMDB=
+env BOLERO_NOPROXY=
+env BOLERO_PRIVATE='*/x'
+bolero get golang.org/x/text
+bolero list -m all
 ! stdout 'text.*v0.0.0-2017' # should not have the version from the proxy
 
 -- go.mod.orig --

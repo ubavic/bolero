@@ -633,7 +633,7 @@ func buildPtrTests(t *testing.T, gopath string, cgocheck2 bool) (exe string) {
 	}
 	cmd := exec.Command(testenv.GoToolPath(t), "build", "-o", exeName)
 	cmd.Dir = src
-	cmd.Env = append(os.Environ(), "GOPATH="+gopath)
+	cmd.Env = append(os.Environ(), "BOLERO_PATH="+gopath)
 
 	// Set or remove cgocheck2 from the environment.
 	goexperiment := strings.Split(os.Getenv("GOEXPERIMENT"), ",")
@@ -655,7 +655,7 @@ func buildPtrTests(t *testing.T, gopath string, cgocheck2 bool) (exe string) {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Fatalf("go build: %v\n%s", err, out)
+		t.Fatalf("bolero build: %v\n%s", err, out)
 	}
 
 	return filepath.Join(src, exeName)

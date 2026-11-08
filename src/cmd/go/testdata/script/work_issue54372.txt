@@ -1,7 +1,7 @@
-# go mod verify should not try to verify the workspace modules.
+# bolero mod verify should not try to verify the workspace modules.
 # This is a test for #54372.
 
-go mod verify
+bolero mod verify
 stdout 'all modules verified'
 ! stderr .
 

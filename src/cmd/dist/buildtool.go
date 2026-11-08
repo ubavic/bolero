@@ -152,7 +152,7 @@ func bootstrapBuildTools() {
 		fatalf("%s does not meet the minimum bootstrap requirement of %s or later", ver, minBootstrap)
 	}
 
-	xprintf("Building Go toolchain1 using %s.\n", goroot_bootstrap)
+	xprintf("Building toolchain1 using %s.\n", goroot_bootstrap)
 
 	mkbuildcfg(pathf("%s/src/internal/buildcfg/zbootstrap.go", goroot))
 	mkobjabi(pathf("%s/src/cmd/internal/objabi/zbootstrap.go", goroot))

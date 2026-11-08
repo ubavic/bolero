@@ -1,27 +1,27 @@
 # Package with external tests
-! go vet m/vetpkg
+! bolero vet m/vetpkg
 stderr 'Printf'
 
 # With tags
-! go vet -tags tagtest m/vetpkg
+! bolero vet -tags tagtest m/vetpkg
 stderr 'c\.go.*Printf'
 
 # With flags on
-! go vet -printf m/vetpkg
+! bolero vet -printf m/vetpkg
 stderr 'Printf'
 
 # With flags off
-go vet -printf=false m/vetpkg
+bolero vet -printf=false m/vetpkg
 ! stderr .
 
 # With only test files (tests issue #23395)
-go vet m/onlytest
+bolero vet m/onlytest
 ! stderr .
 
 # With only cgo files (tests issue #24193)
 [!cgo] skip
 [short] skip
-go vet m/onlycgo
+bolero vet m/onlycgo
 ! stderr .
 
 -- go.mod --

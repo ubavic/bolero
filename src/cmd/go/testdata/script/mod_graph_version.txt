@@ -16,13 +16,13 @@
 
 cp go.mod go.mod.orig
 
-go mod graph
+bolero mod graph
 cp stdout graph-1.17.txt
 stdout '^example\.com/m example\.com/retract/incompatible@v1\.0\.0$'
 stdout '^example\.net/lazy@v0\.1\.0 example\.com/retract/incompatible@v1\.0\.0$'
 ! stdout 'example\.com/retract/incompatible@v2\.0\.0\+incompatible'
 
-go mod graph -go=1.17
+bolero mod graph -go=1.17
 cmp stdout graph-1.17.txt
 
 cmp go.mod go.mod.orig
@@ -31,7 +31,7 @@ cmp go.mod go.mod.orig
 # Setting -go=1.16 should report the graph as viewed by Go 1.16,
 # but should not edit the go.mod file.
 
-go mod graph -go=1.16
+bolero mod graph -go=1.16
 cp stdout graph-1.16.txt
 stdout '^example\.com/m example\.com/retract/incompatible@v1\.0\.0$'
 stdout '^example\.net/lazy@v0\.1\.0 example.com/retract/incompatible@v1\.0\.0$'
@@ -40,14 +40,14 @@ stdout '^example.net/requireincompatible@v0.1.0 example.com/retract/incompatible
 cmp go.mod go.mod.orig
 
 
-# If we actually update the go.mod file to the requested go version,
+# If we actually update the go.mod file to the requested bolero version,
 # we should get the same selected versions, but the roots of the graph
 # may be updated.
 #
 # TODO(#45551): The roots should not be updated.
 
-go mod edit -go=1.16
-go mod graph
+bolero mod edit -go=1.16
+bolero mod graph
 ! stdout '^example\.com/m example\.com/retract/incompatible@v1\.0\.0$'
 stdout '^example\.net/lazy@v0.1.0 example.com/retract/incompatible@v1\.0\.0$'
 stdout '^example.net/requireincompatible@v0.1.0 example.com/retract/incompatible@v2\.0\.0\+incompatible$'
@@ -56,8 +56,8 @@ stdout '^example.net/requireincompatible@v0.1.0 example.com/retract/incompatible
 
 # Unsupported go versions should be rejected, since we don't know
 # what versions they would report.
-! go mod graph -go=1.99999999999
-stderr '^invalid value "1\.99999999999" for flag -go: maximum supported Go version is '$goversion'\nusage: go mod graph \[-go=version\] \[-x\]\nRun ''go help mod graph'' for details.$'
+! bolero mod graph -go=1.99999999999
+stderr '^invalid value "1\.99999999999" for flag -go: maximum supported Go version is '$goversion'\nusage: bolero mod graph \[-go=version\] \[-x\]\nRun ''bolero help mod graph'' for details.$'
 
 
 -- go.mod --

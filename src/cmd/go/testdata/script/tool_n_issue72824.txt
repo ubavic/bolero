@@ -2,18 +2,18 @@
 
 # Start with a fresh cache because we want to verify the behavior
 # when the tool hasn't been cached previously.
-env GOCACHE=$WORK${/}cache
+env BOLERO_CACHE=$WORK${/}cache
 
 # Even when the tool hasn't been previously cached but was built and
-# saved to the cache in the invocation of 'go tool -n' we should return
+# saved to the cache in the invocation of 'bolero tool -n' we should return
 # its cached location.
-go tool -n foo
-stdout $GOCACHE
+bolero tool -n foo
+stdout $BOLERO_CACHE
 
 # And of course we should also return the cached location on subsequent
 # runs.
-go tool -n foo
-stdout $GOCACHE
+bolero tool -n foo
+stdout $BOLERO_CACHE
 
 -- go.mod --
 module example.com/foo

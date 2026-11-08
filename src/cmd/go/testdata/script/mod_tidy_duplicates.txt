@@ -1,9 +1,9 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # Regression test for golang.org/issue/28456:
-# 'go mod tidy' should not leave duplicate lines when re-writing the file.
+# 'bolero mod tidy' should not leave duplicate lines when re-writing the file.
 
-go mod tidy
+bolero mod tidy
 cmp go.sum golden.sum
 
 -- go.mod --

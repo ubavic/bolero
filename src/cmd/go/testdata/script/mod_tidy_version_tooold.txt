@@ -1,7 +1,7 @@
 env TESTGO_VERSION=go1.22.0
 
-! go mod tidy -go=1.21
-stderr '^go: example.net/a@v0.1.0 requires go@1.22, but 1.21 is requested$'
+! bolero mod tidy -go=1.21
+stderr '^bolero: example.net/a@v0.1.0 requires go@1.22, but 1.21 is requested$'
 
 -- go.mod --
 module example

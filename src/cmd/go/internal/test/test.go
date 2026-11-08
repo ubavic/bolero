@@ -44,14 +44,14 @@ func init() {
 	CmdTest.Run = runTest
 }
 
-const testUsage = "go test [build/test flags] [packages] [build/test flags & test binary flags]"
+const testUsage = "bolero test [build/test flags] [packages] [build/test flags & test binary flags]"
 
 var CmdTest = &base.Command{
 	CustomFlags: true,
 	UsageLine:   testUsage,
 	Short:       "test packages",
 	Long: `
-'Go test' automates testing the packages named by the import paths.
+'Bolero test' automates testing the packages named by the import paths.
 It prints a summary of the test results in the format:
 
 	ok   archive/tar   0.011s
@@ -61,67 +61,67 @@ It prints a summary of the test results in the format:
 
 followed by detailed output for each failed package.
 
-'Go test' recompiles each package along with any files with names matching
+'Bolero test' recompiles each package along with any files with names matching
 the file pattern "*_test.go".
 These additional files can contain test functions, benchmark functions, fuzz
-tests and example functions. See 'go help testfunc' for more.
+tests and example functions. See 'bolero help testfunc' for more.
 Each listed package causes the execution of a separate test binary.
 Files whose names begin with "_" (including "_test.go") or "." are ignored.
 
 Test files that declare a package with the suffix "_test" will be compiled as a
 separate package, and then linked and run with the main test binary.
 
-The go tool will ignore a directory named "testdata", making it available
+The bolero tool will ignore a directory named "testdata", making it available
 to hold ancillary data needed by the tests.
 
-As part of building a test binary, go test runs go vet on the package
-and its test source files to identify significant problems. If go vet
-finds any problems, go test reports those and does not run the test
-binary. Only a high-confidence subset of the default go vet checks are
+As part of building a test binary, bolero test runs bolero vet on the package
+and its test source files to identify significant problems. If bolero vet
+finds any problems, bolero test reports those and does not run the test
+binary. Only a high-confidence subset of the default bolero vet checks are
 used. That subset is: atomic, bool, buildtags, directive, errorsas,
 ifaceassert, nilfunc, printf, stringintconv, and tests. You can see
-the documentation for these and other vet tests via "go doc cmd/vet".
-To disable the running of go vet, use the -vet=off flag. To run all
+the documentation for these and other vet tests via "bolero doc cmd/vet".
+To disable the running of bolero vet, use the -vet=off flag. To run all
 checks, use the -vet=all flag.
 
-All test output and summary lines are printed to the go command's
+All test output and summary lines are printed to the bolero command's
 standard output, even if the test printed them to its own standard
-error. (The go command's standard error is reserved for printing
+error. (The bolero command's standard error is reserved for printing
 errors building the tests.)
 
-The go command places $GOROOT/bin at the beginning of $PATH
+The bolero command places $BOLERO_ROOT/bin at the beginning of $PATH
 in the test's environment, so that tests that execute
-'go' commands use the same 'go' as the parent 'go test' command.
+'go' commands use the same 'go' as the parent 'bolero test' command.
 
-Go test runs in two different modes:
+Bolero test runs in two different modes:
 
-The first, called local directory mode, occurs when go test is
-invoked with no package arguments (for example, 'go test' or 'go
-test -v'). In this mode, go test compiles the package sources and
+The first, called local directory mode, occurs when bolero test is
+invoked with no package arguments (for example, 'bolero test' or 'go
+test -v'). In this mode, bolero test compiles the package sources and
 tests found in the current directory and then runs the resulting
 test binary. In this mode, caching (discussed below) is disabled.
-After the package test finishes, go test prints a summary line
+After the package test finishes, bolero test prints a summary line
 showing the test status ('ok' or 'FAIL'), package name, and elapsed
 time.
 
-The second, called package list mode, occurs when go test is invoked
-with explicit package arguments (for example 'go test math', 'go
-test ./...', and even 'go test .'). In this mode, go test compiles
+The second, called package list mode, occurs when bolero test is invoked
+with explicit package arguments (for example 'bolero test math', 'go
+test ./...', and even 'bolero test .'). In this mode, bolero test compiles
 and tests each of the packages listed on the command line. If a
-package test passes, go test prints only the final 'ok' summary
-line. If a package test fails, go test prints the full test output.
-If invoked with the -bench or -v flag, go test prints the full
+package test passes, bolero test prints only the final 'ok' summary
+line. If a package test fails, bolero test prints the full test output.
+If invoked with the -bench or -v flag, bolero test prints the full
 output even for passing package tests, in order to display the
 requested benchmark results or verbose logging. After the package
 tests for all of the listed packages finish, and their output is
-printed, go test prints a final 'FAIL' status if any package test
+printed, bolero test prints a final 'FAIL' status if any package test
 has failed.
 
-In package list mode only, go test caches successful package test
+In package list mode only, bolero test caches successful package test
 results to avoid unnecessary repeated running of tests. When the
-result of a test can be recovered from the cache, go test will
+result of a test can be recovered from the cache, bolero test will
 redisplay the previous output instead of running the test binary
-again. When this happens, go test prints '(cached)' in place of the
+again. When this happens, bolero test prints '(cached)' in place of the
 elapsed time in the summary line.
 
 The rule for a match in the cache is that the run involves the same
@@ -129,7 +129,7 @@ test binary and the flags on the command line come entirely from a
 restricted set of 'cacheable' test flags, defined as -benchtime,
 -coverprofile, -cpu, -failfast, -fullpath, -list, -outputdir, -parallel,
 -run, -short, -skip, -timeout and -v.
-If a run of go test has any test or non-test flags outside this set,
+If a run of bolero test has any test or non-test flags outside this set,
 the result is not cached. To disable test caching, use any test flag
 or argument other than the cacheable flags. The idiomatic way to disable
 test caching explicitly is to use -count=1. Tests that open files within
@@ -139,7 +139,7 @@ unchanged. A cached test result is treated as executing in no time
 at all, so a successful package test result will be cached and
 reused regardless of -timeout setting.
 
-In addition to the build flags, the flags handled by 'go test' itself are:
+In addition to the build flags, the flags handled by 'bolero test' itself are:
 
 	-args
 	    Pass the remainder of the command line (everything after -args)
@@ -154,12 +154,12 @@ In addition to the build flags, the flags handled by 'go test' itself are:
 
 	-exec xprog
 	    Run the test binary using xprog. The behavior is the same as
-	    in 'go run'. See 'go help run' for details.
+	    in 'bolero run'. See 'bolero help run' for details.
 
 	-json
 	    Convert test output to JSON suitable for automated processing.
-	    See 'go doc test2json' for the encoding details.
-	    Also emits build output in JSON. See 'go help buildjson'.
+	    See 'bolero doc test2json' for the encoding details.
+	    Also emits build output in JSON. See 'bolero help buildjson'.
 
 	-o file
 	    Save a copy of the test binary to the named file.
@@ -168,12 +168,12 @@ In addition to the build flags, the flags handled by 'go test' itself are:
 	    the test is written to pkg.test in that directory.
 
 The test binary also accepts flags that control execution of the test; these
-flags are also accessible by 'go test'. See 'go help testflag' for details.
+flags are also accessible by 'bolero test'. See 'bolero help testflag' for details.
 
-For more about build flags, see 'go help build'.
-For more about specifying packages, see 'go help packages'.
+For more about build flags, see 'bolero help build'.
+For more about specifying packages, see 'bolero help packages'.
 
-See also: go build, go vet.
+See also: bolero build, bolero vet.
 `,
 }
 
@@ -181,20 +181,20 @@ var HelpTestflag = &base.Command{
 	UsageLine: "testflag",
 	Short:     "testing flags",
 	Long: `
-The 'go test' command takes both flags that apply to 'go test' itself
+The 'bolero test' command takes both flags that apply to 'bolero test' itself
 and flags that apply to the resulting test binary.
 
 Several of the flags control profiling and write an execution profile
-suitable for "go tool pprof"; run "go tool pprof -h" for more
+suitable for "bolero tool pprof"; run "bolero tool pprof -h" for more
 information. The -sample_index=alloc_space, -sample_index=alloc_objects,
 and -show_bytes options of pprof control how the information is presented.
 
-The following flags are recognized by the 'go test' command and
+The following flags are recognized by the 'bolero test' command and
 control the execution of any test:
 
 	-artifacts
 	    Save test artifacts in the directory specified by -outputdir.
-	    See 'go doc testing.T.ArtifactDir'.
+	    See 'bolero doc testing.T.ArtifactDir'.
 
 	-bench regexp
 	    Run only those benchmarks matching a regular expression.
@@ -243,7 +243,7 @@ control the execution of any test:
 	-coverpkg pattern1,pattern2,pattern3
 	    Apply coverage analysis in each test to packages whose import paths
 	    match the patterns. The default is for each test to analyze only
-	    the package being tested. See 'go help packages' for a description
+	    the package being tested. See 'bolero help packages' for a description
 	    of package patterns. Sets -cover.
 
 	-cpu 1,2,4
@@ -292,7 +292,7 @@ control the execution of any test:
 
 	-outputdir directory
 	    Place output files from profiling and test artifacts in the
-	    specified directory, by default the directory in which "go test" is running.
+	    specified directory, by default the directory in which "bolero test" is running.
 
 	-parallel n
 	    Allow parallel execution of test functions that call t.Parallel, and
@@ -306,9 +306,9 @@ control the execution of any test:
 	    Setting -parallel to values higher than GOMAXPROCS may cause degraded
 	    performance due to CPU contention, especially when fuzzing.
 	    Note that -parallel only applies within a single test binary.
-	    The 'go test' command may run tests for different packages
+	    The 'bolero test' command may run tests for different packages
 	    in parallel as well, according to the setting of the -p flag
-	    (see 'go help build').
+	    (see 'bolero help build').
 
 	-run regexp
 	    Run only those tests, examples, and fuzz tests matching the regular
@@ -324,7 +324,7 @@ control the execution of any test:
 	-short
 	    Tell long-running tests to shorten their run time.
 	    It is off by default but set during all.bash so that installing
-	    the Go tree can run a sanity check but not spend time running
+	    the Bolero tree can run a sanity check but not spend time running
 	    exhaustive tests.
 
 	-shuffle off,on,N
@@ -352,13 +352,13 @@ control the execution of any test:
 	    text from Log and Logf calls even if the test succeeds.
 
 	-vet list
-	    Configure the invocation of "go vet" during "go test"
+	    Configure the invocation of "bolero vet" during "bolero test"
 	    to use the comma-separated list of vet checks.
-	    If list is empty, "go test" runs "go vet" with a curated list of
+	    If list is empty, "bolero test" runs "bolero vet" with a curated list of
 	    checks believed to be always worth addressing.
-	    If list is "off", "go test" does not run "go vet" at all.
+	    If list is "off", "bolero test" does not run "bolero vet" at all.
 
-The following flags are also recognized by 'go test' and can be used to
+The following flags are also recognized by 'bolero test' and can be used to
 profile the tests during execution:
 
 	-benchmem
@@ -373,7 +373,7 @@ profile the tests during execution:
 	-blockprofilerate n
 	    Control the detail provided in goroutine blocking profiles by
 	    calling runtime.SetBlockProfileRate with n.
-	    See 'go doc runtime.SetBlockProfileRate'.
+	    See 'bolero doc runtime.SetBlockProfileRate'.
 	    The profiler aims to sample, on average, one blocking event every
 	    n nanoseconds the program spends blocked. By default,
 	    if -test.blockprofile is set without this flag, all blocking events
@@ -393,7 +393,7 @@ profile the tests during execution:
 
 	-memprofilerate n
 	    Enable more precise (and expensive) memory allocation profiles by
-	    setting runtime.MemProfileRate. See 'go doc runtime.MemProfileRate'.
+	    setting runtime.MemProfileRate. See 'bolero doc runtime.MemProfileRate'.
 	    To profile all memory allocations, use -test.memprofilerate=1.
 
 	-mutexprofile mutex.out
@@ -410,27 +410,27 @@ profile the tests during execution:
 
 Each of these flags is also recognized with an optional 'test.' prefix,
 as in -test.v. When invoking the generated test binary (the result of
-'go test -c') directly, however, the prefix is mandatory.
+'bolero test -c') directly, however, the prefix is mandatory.
 
-The 'go test' command rewrites or removes recognized flags,
+The 'bolero test' command rewrites or removes recognized flags,
 as appropriate, both before and after the optional package list,
 before invoking the test binary.
 
 For instance, the command
 
-	go test -v -myflag testdata -cpuprofile=prof.out -x
+	bolero test -v -myflag testdata -cpuprofile=prof.out -x
 
 will compile the test binary and then run it as
 
 	pkg.test -test.v -myflag testdata -test.cpuprofile=prof.out
 
-(The -x flag is removed because it applies only to the go command's
+(The -x flag is removed because it applies only to the bolero command's
 execution, not to the test itself.)
 
 The test flags that generate profiles (other than for coverage) also
 leave the test binary in pkg.test for use when analyzing the profiles.
 
-When 'go test' runs a test binary, it does so from within the
+When 'bolero test' runs a test binary, it does so from within the
 corresponding package's source code directory. Depending on the test,
 it may be necessary to do the same when invoking a generated test
 binary directly. Because that directory may be located within the
@@ -440,24 +440,24 @@ unless explicitly requested by the user (such as with the -fuzz flag,
 which writes failures to testdata/fuzz).
 
 The command-line package list, if present, must appear before any
-flag not known to the go test command. Continuing the example above,
+flag not known to the bolero test command. Continuing the example above,
 the package list would have to appear before -myflag, but could appear
 on either side of -v.
 
-When 'go test' runs in package list mode, 'go test' caches successful
+When 'bolero test' runs in package list mode, 'bolero test' caches successful
 package test results to avoid unnecessary repeated running of tests. To
 disable test caching, use any test flag or argument other than the
 cacheable flags. The idiomatic way to disable test caching explicitly
 is to use -count=1.
 
 To keep an argument for a test binary from being interpreted as a
-known flag or a package name, use -args (see 'go help test') which
+known flag or a package name, use -args (see 'bolero help test') which
 passes the remainder of the command line through to the test binary
 uninterpreted and unaltered.
 
 For instance, the command
 
-	go test -v -args -x -v
+	bolero test -v -args -x -v
 
 will compile the test binary and then run it as
 
@@ -465,14 +465,14 @@ will compile the test binary and then run it as
 
 Similarly,
 
-	go test -args math
+	bolero test -args math
 
 will compile the test binary and then run it as
 
 	pkg.test math
 
 In the first example, the -x and the second -v are passed through to the
-test binary unchanged and with no effect on the go command itself.
+test binary unchanged and with no effect on the bolero command itself.
 In the second example, the argument math is passed through to the test
 binary, instead of being interpreted as the package list.
 `,
@@ -482,7 +482,7 @@ var HelpTestfunc = &base.Command{
 	UsageLine: "testfunc",
 	Short:     "testing functions",
 	Long: `
-The 'go test' command expects to find test, benchmark, and example functions
+The 'bolero test' command expects to find test, benchmark, and example functions
 in the "*_test.go" files corresponding to the package under test.
 
 A test function is one named TestXxx (where Xxx does not start with a
@@ -744,10 +744,10 @@ func runTest(ctx context.Context, cmd *base.Command, args []string) {
 			}
 		} else if pkgs[0].Standard && moduleLoaderState.Enabled() {
 			// Because packages in 'std' and 'cmd' are part of the standard library,
-			// they are only treated as part of a module in 'go mod' subcommands and
-			// 'go get'. However, we still don't want to accidentally corrupt their
+			// they are only treated as part of a module in 'bolero mod' subcommands and
+			// 'bolero get'. However, we still don't want to accidentally corrupt their
 			// testdata during fuzzing, nor do we want to fail with surprising errors
-			// if GOROOT isn't writable (as is often the case for Go toolchains
+			// if BOLERO_ROOT isn't writable (as is often the case for Go toolchains
 			// installed through package managers).
 			//
 			// If the user is requesting to fuzz a standard-library package, ensure
@@ -845,7 +845,7 @@ func runTest(ctx context.Context, cmd *base.Command, args []string) {
 	}
 
 	// Read testcache expiration time, if present.
-	// (We implement go clean -testcache by writing an expiration date
+	// (We implement bolero clean -testcache by writing an expiration date
 	// instead of searching out and deleting test result cache entries.)
 	if dir, _, _ := cache.DefaultDir(); dir != "off" {
 		if data, _ := lockedfile.Read(filepath.Join(dir, "testexpire.txt")); len(data) > 0 && data[len(data)-1] == '\n' {
@@ -884,7 +884,7 @@ func runTest(ctx context.Context, cmd *base.Command, args []string) {
 			// packages will depend on it. Motivating example:
 			// supposed we have a top level directory with three
 			// package subdirs, "a", "b", and "c", and
-			// from the top level, a user runs "go test -coverpkg=./... ./...".
+			// from the top level, a user runs "bolero test -coverpkg=./... ./...".
 			// This will result in (roughly) the following action graph:
 			//
 			//	build("a")       build("b")         build("c")
@@ -1026,7 +1026,7 @@ func runTest(ctx context.Context, cmd *base.Command, args []string) {
 					json.Close()
 				}()
 				if gotestjsonbuildtext.Value() == "1" {
-					// While this flag is about go build -json, the other effect
+					// While this flag is about bolero build -json, the other effect
 					// of that change was to include "FailedBuild" in the test JSON.
 					gotestjsonbuildtext.IncNonDefault()
 				} else {
@@ -1097,7 +1097,7 @@ func runTest(ctx context.Context, cmd *base.Command, args []string) {
 	}
 
 	// Ultimately the goal is to print the output.
-	root := &work.Action{Mode: "go test", Actor: work.ActorFunc(printExitStatus), Deps: prints}
+	root := &work.Action{Mode: "bolero test", Actor: work.ActorFunc(printExitStatus), Deps: prints}
 
 	// Force the printing of results to happen in order,
 	// one at a time.
@@ -1234,14 +1234,14 @@ func builderTest(loaderstate *modload.State, b *work.Builder, ctx context.Contex
 		// go.codereview/patch tests.
 		// For package names containing those words, use test.test.exe
 		// instead of pkgname.test.exe.
-		// Note that this file name is only used in the Go command's
+		// Note that this file name is only used in the Bolero command's
 		// temporary directory. If the -c or other flags are
 		// given, the code below will still use pkgname.test.exe.
 		// There are two user-visible effects of this change.
-		// First, you can actually run 'go test' in directories that
+		// First, you can actually run 'bolero test' in directories that
 		// have names that Windows thinks are installer-like,
 		// without getting a dialog box asking for more permissions.
-		// Second, in the Windows process listing during go test,
+		// Second, in the Windows process listing during bolero test,
 		// the test shows up as test.test.exe, not pkgname.test.exe.
 		// That second one is a drawback, but it seems a small
 		// price to pay for the test running at all.
@@ -1313,7 +1313,7 @@ func builderTest(loaderstate *modload.State, b *work.Builder, ctx context.Contex
 		}
 		if writeCoverMetaAct != nil {
 			// If writeCoverMetaAct != nil, this indicates that our
-			// "go test -coverpkg" run actions will need to read the
+			// "bolero test -coverpkg" run actions will need to read the
 			// meta-files summary file written by writeCoverMetaAct,
 			// so add a dependence edge from writeCoverMetaAct to the
 			// run action.
@@ -1464,7 +1464,7 @@ func (r *runTestActor) Act(b *work.Builder, ctx context.Context, a *work.Action)
 	// hurry the output along, echoing it as soon as it comes in.
 	// We still have to copy to &buf for caching the result. This special
 	// case was introduced in Go 1.5 and is intentionally undocumented:
-	// the exact details of output buffering are up to the go command and
+	// the exact details of output buffering are up to the bolero command and
 	// subject to change. It would be nice to remove this special case
 	// entirely, but it is surely very helpful to see progress being made
 	// when tests are run on slow single-CPU ARM systems.
@@ -1614,7 +1614,7 @@ func (r *runTestActor) Act(b *work.Builder, ctx context.Context, a *work.Action)
 		}
 		// Even though we are passing the -test.gocoverdir option to
 		// the test binary, also set GOCOVERDIR as well. This is
-		// intended to help with tests that run "go build" to build
+		// intended to help with tests that run "bolero build" to build
 		// fresh copies of tools to test as part of the testing.
 		addToEnv = "GOCOVERDIR=" + gcd
 	}
@@ -1783,8 +1783,8 @@ func (c *runCache) tryCache(b *work.Builder, a *work.Action, linkAction *work.Ac
 
 func (c *runCache) tryCacheWithID(b *work.Builder, a *work.Action, id string) bool {
 	if len(pkgArgs) == 0 {
-		// Caching does not apply to "go test",
-		// only to "go test foo" (including "go test .").
+		// Caching does not apply to "bolero test",
+		// only to "bolero test foo" (including "bolero test .").
 		if cache.DebugTest {
 			fmt.Fprintf(os.Stderr, "testcache: caching disabled in local directory mode\n")
 		}
@@ -1793,9 +1793,9 @@ func (c *runCache) tryCacheWithID(b *work.Builder, a *work.Action, id string) bo
 	}
 
 	if a.Package.Root == "" {
-		// Caching does not apply to tests outside of any module, GOPATH, or GOROOT.
+		// Caching does not apply to tests outside of any module, BOLERO_PATH, or BOLERO_ROOT.
 		if cache.DebugTest {
-			fmt.Fprintf(os.Stderr, "testcache: caching disabled for package outside of module root, GOPATH, or GOROOT: %s\n", a.Package.ImportPath)
+			fmt.Fprintf(os.Stderr, "testcache: caching disabled for package outside of module root, BOLERO_PATH, or BOLERO_ROOT: %s\n", a.Package.ImportPath)
 		}
 		c.disableCache = true
 		return false
@@ -1968,7 +1968,7 @@ func (c *runCache) tryCacheWithID(b *work.Builder, a *work.Action, id string) bo
 	}
 	if entry.Time.Before(testCacheExpire) {
 		if cache.DebugTest {
-			fmt.Fprintf(os.Stderr, "testcache: %s: test output expired due to go clean -testcache\n", a.Package.ImportPath)
+			fmt.Fprintf(os.Stderr, "testcache: %s: test output expired due to bolero clean -testcache\n", a.Package.ImportPath)
 		}
 		return false
 	}
@@ -2039,7 +2039,7 @@ func computeTestInputsID(a *work.Action, testlog []byte) (cache.ActionID, error)
 				name = filepath.Join(pwd, name)
 			}
 			if a.Package.Root == "" || search.InDir(name, a.Package.Root) == "" {
-				// Do not recheck files outside the module, GOPATH, or GOROOT root.
+				// Do not recheck files outside the module, BOLERO_PATH, or BOLERO_ROOT root.
 				break
 			}
 			fmt.Fprintf(h, "stat %s %x\n", name, hashStat(name))
@@ -2048,7 +2048,7 @@ func computeTestInputsID(a *work.Action, testlog []byte) (cache.ActionID, error)
 				name = filepath.Join(pwd, name)
 			}
 			if a.Package.Root == "" || search.InDir(name, a.Package.Root) == "" {
-				// Do not recheck files outside the module, GOPATH, or GOROOT root.
+				// Do not recheck files outside the module, BOLERO_PATH, or BOLERO_ROOT root.
 				break
 			}
 			fh, err := hashOpen(name)
@@ -2227,7 +2227,7 @@ func coveragePercentage(out []byte) string {
 	re := regexp.MustCompile(`coverage: (.*)\n`)
 	matches := re.FindSubmatch(out)
 	if matches == nil {
-		// Probably running "go test -cover" not "go test -cover fmt".
+		// Probably running "bolero test -cover" not "bolero test -cover fmt".
 		// The coverage output will appear in the output directly.
 		return ""
 	}
@@ -2288,7 +2288,7 @@ func printExitStatus(b *work.Builder, ctx context.Context, a *work.Action) error
 // Use last element of import path, not package name.
 // They differ when package name is "main".
 // But if the import path is "command-line-arguments",
-// like it is during 'go run', use the package name.
+// like it is during 'bolero run', use the package name.
 func testBinaryName(p *load.Package) string {
 	var elem string
 	if p.ImportPath == "command-line-arguments" {

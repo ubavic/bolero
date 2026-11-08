@@ -1,13 +1,13 @@
-# In GOPATH mode, vendored packages can replace std packages.
-env GO111MODULE=off
+# In BOLERO_PATH mode, vendored packages can replace std packages.
+env BOLERO_MODULE=off
 cd vend/hello
-go test -v
+bolero test -v
 stdout TestMsgInternal
 stdout TestMsgExternal
 
 # In module mode, they cannot.
-env GO111MODULE=on
-! go test -mod=vendor
+env BOLERO_MODULE=on
+! bolero test -mod=vendor
 stderr 'undefined: strings.Msg'
 
 -- vend/hello/go.mod --

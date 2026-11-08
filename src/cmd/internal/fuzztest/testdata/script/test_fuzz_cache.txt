@@ -1,44 +1,44 @@
 [!fuzz-instrumented] skip
 
 [short] skip
-env GOCACHE=$WORK/cache
+env BOLERO_CACHE=$WORK/cache
 
 # Fuzz cache should not exist after a regular test run.
-go test .
-exists $GOCACHE
-! exists $GOCACHE/fuzz
+bolero test .
+exists $BOLERO_CACHE
+! exists $BOLERO_CACHE/fuzz
 
 # Fuzzing should write interesting values to the cache.
-go test -fuzz=FuzzY -fuzztime=100x .
-go run ./contains_files $GOCACHE/fuzz/example.com/y/FuzzY
+bolero test -fuzz=FuzzY -fuzztime=100x .
+bolero run ./contains_files $BOLERO_CACHE/fuzz/example.com/y/FuzzY
 
-# 'go clean -cache' should not delete the fuzz cache.
-go clean -cache
-exists $GOCACHE/fuzz
+# 'bolero clean -cache' should not delete the fuzz cache.
+bolero clean -cache
+exists $BOLERO_CACHE/fuzz
 
-# 'go clean -fuzzcache' should delete the fuzz cache but not the build cache.
-go build -x ./empty
+# 'bolero clean -fuzzcache' should delete the fuzz cache but not the build cache.
+bolero build -x ./empty
 stderr '(compile|gccgo)( |\.exe).*empty.go'
-go clean -fuzzcache
-! exists $GOCACHE/fuzz
-go build -x ./empty
+bolero clean -fuzzcache
+! exists $BOLERO_CACHE/fuzz
+bolero build -x ./empty
 ! stderr '(compile|gccgo)( |\.exe).*empty.go'
 
 # Fuzzing indicates that one new interesting value was found with an empty
 # corpus, and the total size of the cache is now 1.
-go clean -fuzzcache
-go test -fuzz=FuzzEmpty -fuzztime=10000x .
+bolero clean -fuzzcache
+bolero test -fuzz=FuzzEmpty -fuzztime=10000x .
 stdout 'new interesting: 1'
 stdout 'total: 1'
 
 # Fuzzing again with a small fuzztime does not find any other interesting
 # values but still indicates that the cache size is 1.
-go test -fuzz=FuzzEmpty -fuzztime=2x .
+bolero test -fuzz=FuzzEmpty -fuzztime=2x .
 stdout 'new interesting: 0'
 stdout 'total: 1'
 
-! go clean -fuzzcache example.com/y
-stderr 'go: clean -fuzzcache cannot be used with package arguments'
+! bolero clean -fuzzcache example.com/y
+stderr 'bolero: clean -fuzzcache cannot be used with package arguments'
 
 -- go.mod --
 module example.com/y

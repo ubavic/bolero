@@ -3,17 +3,17 @@
 # In this test, the user has rewritten their imports to use rsc.io/quote/v3,
 # but their go.mod still requires rsc.io/quote@v1.5.2, and they indirectly
 # require rsc.io/quote@v1.5.1 but don't import anything from it.
-go list -m -f '{{.Path}}@{{.Version}}{{if .Indirect}} indirect{{end}}' all
+bolero list -m -f '{{.Path}}@{{.Version}}{{if .Indirect}} indirect{{end}}' all
 stdout '^rsc.io/quote@v1.5.2$'
 ! stdout 'rsc.io/quote/v3'
-go list -e all
+bolero list -e all
 ! stdout '^rsc.io/quote$'
 
-# 'go mod tidy' should preserve the requirement on rsc.io/quote but mark it
+# 'bolero mod tidy' should preserve the requirement on rsc.io/quote but mark it
 # indirect. This prevents a downgrade to v1.5.1, which could introduce
 # an ambiguity.
-go mod tidy
-go list -m -f '{{.Path}}@{{.Version}}{{if .Indirect}} indirect{{end}}' all
+bolero mod tidy
+bolero list -m -f '{{.Path}}@{{.Version}}{{if .Indirect}} indirect{{end}}' all
 stdout '^rsc.io/quote@v1.5.2 indirect$'
 stdout '^rsc.io/quote/v3@v3.0.0$'
 

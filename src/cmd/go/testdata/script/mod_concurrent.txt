@@ -1,9 +1,9 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # Concurrent builds should succeed, even if they need to download modules.
-go get ./x ./y
-go build ./x &
-go build ./y
+bolero get ./x ./y
+bolero build ./x &
+bolero build ./y
 wait
 
 # Concurrent builds should update go.sum to the union of the hashes for the

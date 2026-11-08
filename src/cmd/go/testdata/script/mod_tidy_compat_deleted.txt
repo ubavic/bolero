@@ -1,4 +1,4 @@
-# https://golang.org/issue/46141: 'go mod tidy' for a Go 1.17 module should by
+# https://golang.org/issue/46141: 'bolero mod tidy' for a Go 1.17 module should by
 # default preserve enough checksums for the module to be used by Go 1.16.
 #
 # We don't have a copy of Go 1.16 handy, but we can simulate it by editing the
@@ -15,33 +15,33 @@ env MODFMT='{{with .Module}}{{.Path}} {{.Version}}{{end}}'
 
 cp go.mod go.mod.orig
 
-! go mod tidy
+! bolero mod tidy
 
-stderr '^go: example\.com/m imports\n\texample\.net/deleted loaded from example\.net/deleted@v0\.1\.0,\n\tbut go 1\.16 would fail to locate it in example\.net/deleted@v0\.2\.0\n\n'
+stderr '^bolero: example\.com/m imports\n\texample\.net/deleted loaded from example\.net/deleted@v0\.1\.0,\n\tbut go 1\.16 would fail to locate it in example\.net/deleted@v0\.2\.0\n\n'
 
-stderr '\n\nTo upgrade to the versions selected by go 1.16, leaving some packages unresolved:\n\tgo mod tidy -e -go=1\.16 && go mod tidy -e -go=1\.17\nIf reproducibility with go 1.16 is not needed:\n\tgo mod tidy -compat=1\.17\nFor information about ''go mod tidy'' compatibility, see:\n\thttps://go\.dev/ref/mod#graph-pruning\n'
+stderr '\n\nTo upgrade to the versions selected by go 1.16, leaving some packages unresolved:\n\tbolero mod tidy -e -go=1\.16 && bolero mod tidy -e -go=1\.17\nIf reproducibility with go 1.16 is not needed:\n\tbolero mod tidy -compat=1\.17\nFor information about ''bolero mod tidy'' compatibility, see:\n\thttps://go\.dev/ref/mod#graph-pruning\n'
 
 # Make sure that -diff behaves the same as tidy.
 [exec:patch] cp go.mod.orig go.mod
 [exec:patch] ! exists go.sum
-[exec:patch] ! go mod tidy -diff
+[exec:patch] ! bolero mod tidy -diff
 [exec:patch] ! stdout .
-[exec:patch] stderr '^go: example\.com/m imports\n\texample\.net/deleted loaded from example\.net/deleted@v0\.1\.0,\n\tbut go 1\.16 would fail to locate it in example\.net/deleted@v0\.2\.0\n\n'
-[exec:patch] stderr '\n\nTo upgrade to the versions selected by go 1.16, leaving some packages unresolved:\n\tgo mod tidy -e -go=1\.16 && go mod tidy -e -go=1\.17\nIf reproducibility with go 1.16 is not needed:\n\tgo mod tidy -compat=1\.17\nFor information about ''go mod tidy'' compatibility, see:\n\thttps://go\.dev/ref/mod#graph-pruning\n'
+[exec:patch] stderr '^bolero: example\.com/m imports\n\texample\.net/deleted loaded from example\.net/deleted@v0\.1\.0,\n\tbut go 1\.16 would fail to locate it in example\.net/deleted@v0\.2\.0\n\n'
+[exec:patch] stderr '\n\nTo upgrade to the versions selected by go 1.16, leaving some packages unresolved:\n\tbolero mod tidy -e -go=1\.16 && bolero mod tidy -e -go=1\.17\nIf reproducibility with go 1.16 is not needed:\n\tbolero mod tidy -compat=1\.17\nFor information about ''bolero mod tidy'' compatibility, see:\n\thttps://go\.dev/ref/mod#graph-pruning\n'
 
-# The suggested 'go mod tidy -e' command should proceed anyway.
+# The suggested 'bolero mod tidy -e' command should proceed anyway.
 
-go mod tidy -e
+bolero mod tidy -e
 cmp go.mod go.mod.tidy
 
 # Make sure that -diff behaves the same as tidy.
 [exec:patch] cp go.mod go.mod.tidyResult
 [exec:patch] ! exists go.sum
 [exec:patch] cp go.mod.orig go.mod
-[exec:patch] ! go mod tidy -e -diff
+[exec:patch] ! bolero mod tidy -e -diff
 [exec:patch] cp stdout diff.patch
 [exec:patch] exec patch -p1 -i diff.patch
-[exec:patch] go mod tidy -e -diff
+[exec:patch] bolero mod tidy -e -diff
 [exec:patch] ! stdout .
 [exec:patch] cmp go.mod go.mod.tidyResult
 [exec:patch] ! exists go.sum
@@ -49,24 +49,24 @@ cmp go.mod go.mod.tidy
 # In 'go 1.16' mode we should error out in the way we claimed.
 
 cd 116-outside
-! go list -deps -f $MODFMT example.com/m
-stderr '^\.\.[/\\]m\.go:4:2: no required module provides package example\.net/deleted; to add it:\n\tgo get example\.net/deleted$'
+! bolero list -deps -f $MODFMT example.com/m
+stderr '^\.\.[/\\]m\.go:4:2: no required module provides package example\.net/deleted; to add it:\n\tbolero get example\.net/deleted$'
 cd ..
 
-go mod edit -go=1.16
-! go list -deps -f $MODFMT example.com/m
-stderr '^go: updates to go\.mod needed; to update it:\n\tgo mod tidy$'
+bolero mod edit -go=1.16
+! bolero list -deps -f $MODFMT example.com/m
+stderr '^bolero: updates to go\.mod needed; to update it:\n\tbolero mod tidy$'
 
 [exec:patch] cp go.mod go.mod.orig
-! go mod tidy
-stderr '^go: example\.com/m imports\n\texample\.net/deleted: module example\.net/deleted@latest found \(v0\.2\.0, replaced by \./d2\), but does not contain package example\.net/deleted$'
+! bolero mod tidy
+stderr '^bolero: example\.com/m imports\n\texample\.net/deleted: module example\.net/deleted@latest found \(v0\.2\.0, replaced by \./d2\), but does not contain package example\.net/deleted$'
 
 # Make sure that -diff behaves the same as tidy.
 [exec:patch] cp go.mod.orig go.mod
 [exec:patch] ! exists go.sum
-[exec:patch] ! go mod tidy -diff
+[exec:patch] ! bolero mod tidy -diff
 [exec:patch] ! stdout .
-[exec:patch] stderr '^go: example\.com/m imports\n\texample\.net/deleted: module example\.net/deleted@latest found \(v0\.2\.0, replaced by \./d2\), but does not contain package example\.net/deleted$'
+[exec:patch] stderr '^bolero: example\.com/m imports\n\texample\.net/deleted: module example\.net/deleted@latest found \(v0\.2\.0, replaced by \./d2\), but does not contain package example\.net/deleted$'
 
 -- go.mod --
 module example.com/m

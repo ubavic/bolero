@@ -37,7 +37,7 @@ if [ -e $targ ]; then
 	exit 2
 fi
 
-unset GOROOT
+unset BOLERO_ROOT
 src=$(cd .. && pwd)
 echo "#### Copying to $targ"
 cp -Rp "$src" "$targ"
@@ -54,10 +54,10 @@ echo "#### Building $targ"
 echo
 cd src
 ./make.bash --no-banner $forceflag
-gohostos="$(../bin/go env GOHOSTOS)"
-gohostarch="$(../bin/go env GOHOSTARCH)"
-goos="$(../bin/go env GOOS)"
-goarch="$(../bin/go env GOARCH)"
+gohostos="$(../bin/bolero env GOHOSTOS)"
+gohostarch="$(../bin/bolero env GOHOSTARCH)"
+goos="$(../bin/bolero env GOOS)"
+goarch="$(../bin/bolero env GOARCH)"
 
 # NOTE: Cannot invoke go command after this point.
 # We're about to delete all but the cross-compiled binaries.

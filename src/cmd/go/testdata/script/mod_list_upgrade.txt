@@ -1,10 +1,10 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # Populate go.sum
-go list -m -mod=mod all
+bolero list -m -mod=mod all
 
 # Check for upgrades.
-go list -m -u all
+bolero list -m -u all
 stdout 'rsc.io/quote v1.2.0 \[v1\.5\.2\]'
 
 -- go.mod --

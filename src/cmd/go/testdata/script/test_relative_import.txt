@@ -1,10 +1,10 @@
-# Relative imports in go test
-env GO111MODULE=off # relative import not supported in module mode
+# Relative imports in bolero test
+env BOLERO_MODULE=off # relative import not supported in module mode
 
-# Run tests outside GOPATH.
-env GOPATH=$WORK/tmp
+# Run tests outside BOLERO_PATH.
+env BOLERO_PATH=$WORK/tmp
 
-go test ./testimport
+bolero test ./testimport
 stdout '^ok'
 
 -- testimport/p.go --

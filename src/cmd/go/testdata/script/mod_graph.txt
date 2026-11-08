@@ -1,14 +1,14 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-go mod graph
+bolero mod graph
 stdout '^m rsc.io/quote@v1.5.2$'
 stdout '^rsc.io/quote@v1.5.2 rsc.io/sampler@v1.3.0$'
 ! stdout '^m rsc.io/sampler@v1.3.0$'
-! stderr 'get '$GOPROXY
+! stderr 'get '$BOLERO_PROXY
 
-rm $GOPATH/pkg/mod/cache/download/rsc.io/quote
-go mod graph -x
-stderr 'get '$GOPROXY
+rm $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote
+bolero mod graph -x
+stderr 'get '$BOLERO_PROXY
 
 -- go.mod --
 module m

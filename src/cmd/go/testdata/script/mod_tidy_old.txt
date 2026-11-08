@@ -1,8 +1,8 @@
-# 'go mod tidy' should remove content sums for module versions that aren't
+# 'bolero mod tidy' should remove content sums for module versions that aren't
 # in the build list. It should preserve go.mod sums for module versions that
 # are in the module graph though.
 # Verifies golang.org/issue/33008.
-go mod tidy
+bolero mod tidy
 ! grep '^rsc.io/quote v1.5.0 h1:' go.sum
 grep '^rsc.io/quote v1.5.0/go.mod h1:' go.sum
 

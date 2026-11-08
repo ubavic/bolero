@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-//go:generate go test cmd/link -v -run=TestScript/README --fixreadme
+//go:generate bolero test cmd/link -v -run=TestScript/README --fixreadme
 
 var fixReadme = flag.Bool("fixreadme", false, "if true, update README for script tests")
 

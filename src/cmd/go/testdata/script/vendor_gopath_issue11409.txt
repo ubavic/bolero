@@ -1,8 +1,8 @@
 [!GOOS:windows] [short] stop 'this test only applies to Windows'
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-go build run_go.go
-exec ./run_go$GOEXE $GOPATH $GOPATH/src/vend/hello
+bolero build run_go.go
+exec ./run_go$GOEXE $BOLERO_PATH $BOLERO_PATH/src/vend/hello
 stdout 'hello, world'
 
 -- run_go.go --
@@ -24,9 +24,9 @@ func changeVolume(s string, f func(s string) string) string {
 func main() {
 	gopath := changeVolume(os.Args[1], strings.ToLower)
 	dir := changeVolume(os.Args[2], strings.ToUpper)
-	cmd := exec.Command("go", "run", "hello.go")
+	cmd := exec.Command("bolero", "run", "hello.go")
 	cmd.Dir = dir
-	cmd.Env = append(os.Environ(), "GOPATH="+gopath)
+	cmd.Env = append(os.Environ(), "BOLERO_PATH="+gopath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {

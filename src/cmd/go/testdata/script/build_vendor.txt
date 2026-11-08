@@ -1,6 +1,6 @@
 # Build
-env GO111MODULE=off
-go build vend/x
+env BOLERO_MODULE=off
+bolero build vend/x
 ! stdout .
 ! stderr .
 

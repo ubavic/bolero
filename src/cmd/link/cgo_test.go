@@ -125,7 +125,7 @@ func testCGOLTO(t *testing.T, cc, cgoCflags string, test int) {
 	t.Logf("%s", out)
 
 	if err != nil {
-		t.Logf("go build failed: %v", err)
+		t.Logf("bolero build failed: %v", err)
 
 		// Error messages we've seen indicating that LTO is not supported.
 		// These errors come from GCC or clang, not Go.

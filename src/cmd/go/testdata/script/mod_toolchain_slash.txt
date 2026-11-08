@@ -3,11 +3,11 @@
 chmod 0777 go1.999999-/run.sh
 chmod 0777 run.sh
 
-! go list all
+! bolero list all
 ! stdout 'RAN SCRIPT'
 
 cd subdir
-! go list all
+! bolero list all
 ! stdout 'RAN SCRIPT'
 
 -- go.mod --

@@ -5,14 +5,14 @@
 
 [!cgo] skip
 
-go build
+bolero build
 
 [!exec:gccgo] skip
 
 # TODO: remove once gccgo on builder is updated
 [GOOS:aix] [GOARCH:ppc64] skip
 
-go build -compiler gccgo
+bolero build -compiler gccgo
 
 -- go.mod --
 module m

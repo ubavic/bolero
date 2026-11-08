@@ -33,7 +33,7 @@ import (
 
 var (
 	// main operation modes
-	list        = flag.Bool("l", false, "list files whose formatting differs from gofmt's")
+	list        = flag.Bool("l", false, "list files whose formatting differs from bolerofmt's")
 	write       = flag.Bool("w", false, "write result to (source) file instead of stdout")
 	rewriteRule = flag.String("r", "", "rewrite rule (e.g., 'a[b:len(a)] -> a[b:]')")
 	simplifyAST = flag.Bool("s", false, "simplify code")
@@ -44,7 +44,7 @@ var (
 	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to this file")
 
 	// errors
-	errFormattingDiffers = fmt.Errorf("formatting differs from gofmt's")
+	errFormattingDiffers = fmt.Errorf("formatting differs from bolerofmt's")
 )
 
 // Keep these in sync with go/format/format.go.
@@ -75,7 +75,7 @@ var (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: gofmt [flags] [path ...]\n")
+	fmt.Fprintf(os.Stderr, "usage: bolerofmt [flags] [path ...]\n")
 	flag.PrintDefaults()
 }
 
@@ -486,7 +486,7 @@ func writeFile(filename string, orig, formatted []byte, perm fs.FileMode, size i
 	defer fout.Close() // for error paths
 
 	restoreFail := func(err error) {
-		fmt.Fprintf(os.Stderr, "gofmt: %s: error restoring file to original: %v; backup in %s\n", filename, err, bakname)
+		fmt.Fprintf(os.Stderr, "bolerofmt: %s: error restoring file to original: %v; backup in %s\n", filename, err, bakname)
 	}
 
 	n, err := fout.Write(formatted)

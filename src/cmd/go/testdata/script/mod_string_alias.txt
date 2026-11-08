@@ -1,10 +1,10 @@
 [short] skip
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-go mod init golang.org/issue/27584
+bolero mod init golang.org/issue/27584
 
-go build .
+bolero build .
 
 -- main.go --
 package main

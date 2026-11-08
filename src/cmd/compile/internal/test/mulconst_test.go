@@ -88,7 +88,7 @@ func TestConstantMultiplies(t *testing.T) {
 	cmd := testenv.Command(t, testenv.GoToolPath(t), "run", src)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Fatalf("go run failed: %v\n%s", err, out)
+		t.Fatalf("bolero run failed: %v\n%s", err, out)
 	}
 	if len(out) > 0 {
 		t.Fatalf("got output when expecting none: %s\n", string(out))

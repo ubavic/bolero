@@ -1,64 +1,64 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-# GOFLAGS sets flags for commands
+# BOLERO_FLAGS sets flags for commands
 
-env GOFLAGS='-e -f={{.Dir}} --test.benchtime=1s -count=10'
-go list asdfasdfasdf  # succeeds because of -e
-go list runtime
+env BOLERO_FLAGS='-e -f={{.Dir}} --test.benchtime=1s -count=10'
+bolero list asdfasdfasdf  # succeeds because of -e
+bolero list runtime
 stdout '[\\/]runtime$'
 
-env GOFLAGS=-race OLDGOARCH=$GOARCH OLDGOOS=$GOOS GOARCH=386 GOOS=linux
-! go list runtime
+env BOLERO_FLAGS=-race OLDGOARCH=$GOARCH OLDGOOS=$GOOS GOARCH=386 GOOS=linux
+! bolero list runtime
 stderr 'race is not supported on linux/386'
 
 env GOARCH=$OLDGOARCH GOOS=$OLDGOOS
 
-# go env succeeds even though -f={{.Dir}} is inappropriate
-go env
+# bolero env succeeds even though -f={{.Dir}} is inappropriate
+bolero env
 
 # bad flags are diagnosed
-env GOFLAGS=-typoflag
-! go list runtime
+env BOLERO_FLAGS=-typoflag
+! bolero list runtime
 stderr 'unknown flag -typoflag'
 
-env GOFLAGS=-
-! go list runtime
-stderr '^go: parsing \$GOFLAGS: non-flag "-"'
+env BOLERO_FLAGS=-
+! bolero list runtime
+stderr '^bolero: parsing \$BOLERO_FLAGS: non-flag "-"'
 
-env GOFLAGS=--
-! go list runtime
-stderr '^go: parsing \$GOFLAGS: non-flag "--"'
+env BOLERO_FLAGS=--
+! bolero list runtime
+stderr '^bolero: parsing \$BOLERO_FLAGS: non-flag "--"'
 
-env GOFLAGS=---oops
-! go list runtime
-stderr '^go: parsing \$GOFLAGS: non-flag "---oops"'
+env BOLERO_FLAGS=---oops
+! bolero list runtime
+stderr '^bolero: parsing \$BOLERO_FLAGS: non-flag "---oops"'
 
-env GOFLAGS=-=noname
-! go list runtime
-stderr '^go: parsing \$GOFLAGS: non-flag "-=noname"'
+env BOLERO_FLAGS=-=noname
+! bolero list runtime
+stderr '^bolero: parsing \$BOLERO_FLAGS: non-flag "-=noname"'
 
-env GOFLAGS=-f
-! go list runtime
-stderr '^go: flag needs an argument: -f \(from (\$GOFLAGS|%GOFLAGS%)\)$'
+env BOLERO_FLAGS=-f
+! bolero list runtime
+stderr '^bolero: flag needs an argument: -f \(from (\$BOLERO_FLAGS|%BOLERO_FLAGS%)\)$'
 
-env GOFLAGS=-e=asdf
-! go list runtime
-stderr '^go: invalid boolean value \"asdf\" for flag -e \(from (\$GOFLAGS|%GOFLAGS%)\)'
+env BOLERO_FLAGS=-e=asdf
+! bolero list runtime
+stderr '^bolero: invalid boolean value \"asdf\" for flag -e \(from (\$BOLERO_FLAGS|%BOLERO_FLAGS%)\)'
 
-# except in go bug (untested) and go env
-go env
-stdout GOFLAGS
+# except in bolero bug (untested) and bolero env
+bolero env
+stdout BOLERO_FLAGS
 
-# Flags listed in GOFLAGS should be safe to duplicate on the command line.
-env GOFLAGS=-tags=magic
-go list -tags=magic
-go test -tags=magic -c -o $devnull
-go vet -tags=magic
+# Flags listed in BOLERO_FLAGS should be safe to duplicate on the command line.
+env BOLERO_FLAGS=-tags=magic
+bolero list -tags=magic
+bolero test -tags=magic -c -o $devnull
+bolero vet -tags=magic
 
-# GOFLAGS uses the same quoting rules (quoted.Split) as the rest of
-# the go command env variables
-env GOFLAGS='"-tags=magic wizardry"'
-go list
+# BOLERO_FLAGS uses the same quoting rules (quoted.Split) as the rest of
+# the bolero command env variables
+env BOLERO_FLAGS='"-tags=magic wizardry"'
+bolero list
 
 -- foo_test.go --
 package foo

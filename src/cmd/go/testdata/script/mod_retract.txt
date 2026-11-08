@@ -1,26 +1,26 @@
 cp go.mod go.mod.orig
 
-# 'go list pkg' does not report an error when a retracted version is used.
-go list -e -f '{{if .Error}}{{.Error}}{{end}}' ./use
+# 'bolero list pkg' does not report an error when a retracted version is used.
+bolero list -e -f '{{if .Error}}{{.Error}}{{end}}' ./use
 ! stdout .
 cmp go.mod go.mod.orig
 
-# Nor does 'go build'.
-[!short] go build ./use
+# Nor does 'bolero build'.
+[!short] bolero build ./use
 [!short] ! stderr .
 [!short] cmp go.mod go.mod.orig
 
-# Neither 'go list' nor 'go build' should download go.mod from the version
+# Neither 'bolero list' nor 'bolero build' should download go.mod from the version
 # that would list retractions.
-exists $GOPATH/pkg/mod/cache/download/example.com/retract/@v/v1.0.0-bad.mod
-! exists $GOPATH/pkg/mod/cache/download/example.com/retract/@v/v1.1.0.mod
+exists $BOLERO_PATH/pkg/mod/cache/download/example.com/retract/@v/v1.0.0-bad.mod
+! exists $BOLERO_PATH/pkg/mod/cache/download/example.com/retract/@v/v1.1.0.mod
 
 # Importing a package from a module with a retracted latest version will
 # select the latest non-retracted version.
-go get ./use_self_prev
-go list -m example.com/retract/self/prev
+bolero get ./use_self_prev
+bolero list -m example.com/retract/self/prev
 stdout '^example.com/retract/self/prev v1.1.0$'
-exists $GOPATH/pkg/mod/cache/download/example.com/retract/self/prev/@v/v1.9.0.mod
+exists $BOLERO_PATH/pkg/mod/cache/download/example.com/retract/self/prev/@v/v1.9.0.mod
 
 -- go.mod --
 module example.com/use

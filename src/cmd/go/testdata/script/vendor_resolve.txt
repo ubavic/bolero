@@ -1,5 +1,5 @@
-env GO111MODULE=off
-! go build p
+env BOLERO_MODULE=off
+! bolero build p
 stderr 'must be imported as x'
 
 -- p/p.go --

@@ -1,6 +1,6 @@
-env GOTOOLCHAIN=local
-! go list .
-stderr 'go: go.mod requires go >= 1.999'
+env BOLERO_TOOLCHAIN=local
+! bolero list .
+stderr 'bolero: go.mod requires go >= 1.999'
 
 
 -- go.mod --

@@ -67,11 +67,11 @@ import (
 //
 // The “one-element cache” purpose is a bit more complex for installed
 // binaries. For a binary, like cmd/gofmt, there are two steps: compile
-// cmd/gofmt/*.go into main.a, and then link main.a into the gofmt binary.
-// We do not install gofmt's main.a, only the gofmt binary. Being able to
-// decide that the gofmt binary is up-to-date means computing the action ID
-// for the final link of the gofmt binary and comparing it against the
-// already-installed gofmt binary. But computing the action ID for the link
+// cmd/gofmt/*.go into main.a, and then link main.a into the bolerofmt binary.
+// We do not install bolerofmt's main.a, only the bolerofmt binary. Being able to
+// decide that the bolerofmt binary is up-to-date means computing the action ID
+// for the final link of the bolerofmt binary and comparing it against the
+// already-installed bolerofmt binary. But computing the action ID for the link
 // means knowing the content ID of main.a, which we did not keep.
 // To sidestep this problem, each binary actually stores an expanded build ID:
 //
@@ -85,7 +85,7 @@ import (
 // about the prefix or suffix halves ignore the middle and preserves the
 // original build ID as a contiguous string.)
 //
-// During the build, when it's time to build main.a, the gofmt binary has the
+// During the build, when it's time to build main.a, the bolerofmt binary has the
 // information needed to decide whether the eventual link would produce
 // the same binary: if the action ID for main.a's inputs matches and then
 // the action ID for the link step matches when assuming the given main.a
@@ -124,7 +124,7 @@ func contentID(buildID string) string {
 // invoked via a wrapper program specified by -toolexec and we don't know
 // what the wrapper program does. In particular, we want "-toolexec toolstash"
 // to continue working: it does no good if "-toolexec toolstash" is executing a
-// stashed copy of the compiler but the go command is acting as if it will run
+// stashed copy of the compiler but the bolero command is acting as if it will run
 // the standard copy of the compiler. The solution is to ask the tool binary to tell
 // us its own build ID using the "-V=full" flag now supported by all tools.
 // Then we know we're getting the build ID of the compiler that will actually run
@@ -141,12 +141,12 @@ func contentID(buildID string) string {
 // of the compiler binary's content hash. This assumes that all compilers built
 // on all different systems are semantically equivalent, which is of course only true
 // modulo bugs. (Producing the exact same executables also requires that the different
-// build setups agree on details like $GOROOT and file name paths, but at least the
+// build setups agree on details like $BOLERO_ROOT and file name paths, but at least the
 // tool IDs do not make it impossible.)
 func (b *Builder) toolID(name string) string {
 	return b.toolIDCache.Do(name, func() string {
 		path := base.Tool(name)
-		desc := "go tool " + name
+		desc := "bolero tool " + name
 
 		// Special case: -{vet,fix}tool overrides usual cmd/{vet,fix}
 		// for testing or supplying an alternative analysis tool.
@@ -165,13 +165,13 @@ func (b *Builder) toolID(name string) string {
 			if stderr.Len() > 0 {
 				os.Stderr.WriteString(stderr.String())
 			}
-			base.Fatalf("go: error obtaining buildID for %s: %v", desc, err)
+			base.Fatalf("bolero: error obtaining buildID for %s: %v", desc, err)
 		}
 
 		line := stdout.String()
 		f := strings.Fields(line)
 		if len(f) < 3 || f[0] != name && path != VetTool || f[1] != "version" || strings.Contains(f[2], "devel") && !strings.HasPrefix(f[len(f)-1], "buildID=") {
-			base.Fatalf("go: parsing buildID from %s -V=full: unexpected output:\n\t%s", desc, line)
+			base.Fatalf("bolero: parsing buildID from %s -V=full: unexpected output:\n\t%s", desc, line)
 		}
 		if strings.Contains(f[2], "devel") {
 			// On the development branch, use the content ID part of the build ID.
@@ -539,7 +539,7 @@ func (b *Builder) useCache(a *Action, actionHash cache.ActionID, target string, 
 	// TODO(matloob): If we end up caching all executables, the test executable will
 	// already be cached so building it won't do any work. But for now we won't
 	// cache all executables and instead only want to cache some:
-	// we only cache executables produced for 'go run' (and soon, for 'go tool').
+	// we only cache executables produced for 'bolero run' (and soon, for 'bolero tool').
 	//
 	// Special case for linking a test binary: if the only thing we
 	// want the binary for is to run the test, and the test result is cached,
@@ -662,7 +662,7 @@ func (b *Builder) updateBuildID(a *Action, target string) error {
 	sh := b.Shell(a)
 
 	if cfg.BuildX || cfg.BuildN {
-		sh.ShowCmd("", "%s # internal", joinUnambiguously(str.StringList("go", "tool", "buildid", "-w", target)))
+		sh.ShowCmd("", "%s # internal", joinUnambiguously(str.StringList("bolero", "tool", "buildid", "-w", target)))
 		if cfg.BuildN {
 			return nil
 		}

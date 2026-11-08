@@ -2,34 +2,34 @@
 [!git] skip
 
 env PATH=$WORK/tmp/bin${:}$PATH
-go build -o $WORK/tmp/bin/ssh ssh.go
+bolero build -o $WORK/tmp/bin/ssh ssh.go
 
 # Modules: Set up
-env GOPATH=$WORK/m/gp
+env BOLERO_PATH=$WORK/m/gp
 mkdir $WORK/m
 cp module_file $WORK/m/go.mod
 cd $WORK/m
-env GO111MODULE=on
-env GOPROXY=''
+env BOLERO_MODULE=on
+env BOLERO_PROXY=''
 
-# Modules: Try go get -d of HTTP-only repo (should fail).
-! go get -d insecure.go-get-issue-15410.appspot.com/pkg/p
+# Modules: Try bolero get -d of HTTP-only repo (should fail).
+! bolero get -d insecure.go-get-issue-15410.appspot.com/pkg/p
 
-# Modules: Try again with GOINSECURE (should succeed).
-env GOINSECURE=insecure.go-get-issue-15410.appspot.com
-env GONOSUMDB=insecure.go-get-issue-15410.appspot.com
-go get -d insecure.go-get-issue-15410.appspot.com/pkg/p
+# Modules: Try again with BOLERO_INSECURE (should succeed).
+env BOLERO_INSECURE=insecure.go-get-issue-15410.appspot.com
+env BOLERO_NOSUMDB=insecure.go-get-issue-15410.appspot.com
+bolero get -d insecure.go-get-issue-15410.appspot.com/pkg/p
 
-# Modules: Try updating without GOINSECURE (should fail).
-env GOINSECURE=''
-env GONOSUMDB=''
-! go get -d -u -f insecure.go-get-issue-15410.appspot.com/pkg/p
+# Modules: Try updating without BOLERO_INSECURE (should fail).
+env BOLERO_INSECURE=''
+env BOLERO_NOSUMDB=''
+! bolero get -d -u -f insecure.go-get-issue-15410.appspot.com/pkg/p
 
-go list -m ...
+bolero list -m ...
 stdout 'insecure.go-get-issue'
 
 -- ssh.go --
-// stub out uses of ssh by go get
+// stub out uses of ssh by bolero get
 package main
 
 import "os"

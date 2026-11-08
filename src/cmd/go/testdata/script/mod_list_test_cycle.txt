@@ -2,7 +2,7 @@
 # import cycle should be diagnosed, instead of causing an infinite loop.
 # The failure mode of this test prior to the fix was a timeout or OOM crash.
 
-go list -e -test -deps ./datastore/sql
+bolero list -e -test -deps ./datastore/sql
 
 -- go.mod --
 module golang.org/issue45863

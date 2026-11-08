@@ -1,24 +1,24 @@
 # This test exercises that vendoring works properly using the workspace in the
 # the work_prune test case.
 
-go work vendor
+bolero work vendor
 cmp vendor/modules.txt modules.txt.want
 cmp vendor/example.com/b/b.go b/b.go
 cmp vendor/example.com/q/q.go q1_1_0/q.go
-go list -m -f '{{.Version}}' example.com/q
+bolero list -m -f '{{.Version}}' example.com/q
 stdout '^v1.1.0$'
 
-go list -f '{{.Dir}}' example.com/q
-stdout $GOPATH[\\/]src[\\/]vendor[\\/]example.com[\\/]q
-go list -f '{{.Dir}}' example.com/b
-stdout $GOPATH[\\/]src[\\/]vendor[\\/]example.com[\\/]b
+bolero list -f '{{.Dir}}' example.com/q
+stdout $BOLERO_PATH[\\/]src[\\/]vendor[\\/]example.com[\\/]q
+bolero list -f '{{.Dir}}' example.com/b
+stdout $BOLERO_PATH[\\/]src[\\/]vendor[\\/]example.com[\\/]b
 
 [short] skip
 
 rm b
 rm q1_0_0
 rm q1_1_0
-go run example.com/p
+bolero run example.com/p
 stdout 'version 1.1.0'
 
 -- modules.txt.want --

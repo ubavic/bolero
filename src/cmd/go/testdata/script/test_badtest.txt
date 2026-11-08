@@ -1,18 +1,18 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-! go test badtest/badexec
+! bolero test badtest/badexec
 ! stdout ^ok
 stdout ^FAIL\tbadtest/badexec
 
-! go test badtest/badsyntax
+! bolero test badtest/badsyntax
 ! stdout ^ok
 stdout ^FAIL\tbadtest/badsyntax
 
-! go test badtest/badvar
+! bolero test badtest/badvar
 ! stdout ^ok
 stdout ^FAIL\tbadtest/badvar
 
-! go test notest
+! bolero test notest
 ! stdout ^ok
 stderr '^notest.hello.go:6:1: syntax error: non-declaration statement outside function body' # Exercise issue #7108
 

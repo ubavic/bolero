@@ -1,6 +1,6 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-! go test -c compile_binary/...
+! bolero test -c compile_binary/...
 stderr 'build comment'
 
 -- compile_binary/foo_test.go --

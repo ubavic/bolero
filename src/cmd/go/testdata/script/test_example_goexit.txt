@@ -1,7 +1,7 @@
 # For issue golang.org/issue/41084
 [short] skip
 
-! go test -v examplegoexit
+! bolero test -v examplegoexit
 stdout '(?s)--- PASS.*--- FAIL.*'
 stdout 'panic: test executed panic\(nil\) or runtime\.Goexit'
 

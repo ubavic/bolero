@@ -1,11 +1,11 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-env GOPATH=$WORK${/}invalid-gopath
+env BOLERO_PATH=$WORK${/}invalid-gopath
 
-go list -m
+bolero list -m
 stdout '^example.com$'
 
-go list
+bolero list
 stdout '^example.com$'
 
 -- go.mod --

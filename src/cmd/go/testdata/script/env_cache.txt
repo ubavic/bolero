@@ -1,5 +1,5 @@
-# go env should caches compiler results
-go env
-go env -x
+# bolero env should caches compiler results
+bolero env
+bolero env -x
 ! stdout '\|\| true'
 

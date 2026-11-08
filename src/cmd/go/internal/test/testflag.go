@@ -20,9 +20,9 @@ import (
 	"time"
 )
 
-//go:generate go run ./genflags.go
+//go:generate bolero run ./genflags.go
 
-// The flag handling part of go test is large and distracting.
+// The flag handling part of bolero test is large and distracting.
 // We can't use (*flag.FlagSet).Parse because some of the flags from
 // our command line are for us, and some are for the test binary, and
 // some are for both.
@@ -116,7 +116,7 @@ func (f *outputdirFlag) getAbs() string {
 type vetFlag struct {
 	explicit bool
 	off      bool
-	flags    []string // passed to vet when invoked automatically during 'go test'
+	flags    []string // passed to vet when invoked automatically during 'bolero test'
 }
 
 func (f *vetFlag) String() string {
@@ -218,14 +218,14 @@ func (f *shuffleFlag) Set(value string) error {
 
 // testFlags processes the command line, grabbing -x and -c, rewriting known flags
 // to have "test" before them, and reading the command line for the test binary.
-// Unfortunately for us, we need to do our own flag processing because go test
+// Unfortunately for us, we need to do our own flag processing because bolero test
 // grabs some flags but otherwise its command line is just a holding place for
 // pkg.test's arguments.
 // We allow known flags both before and after the package name list,
 // to allow both
 //
-//	go test fmt -custom-flag-for-fmt-test
-//	go test -x math
+//	bolero test fmt -custom-flag-for-fmt-test
+//	bolero test -x math
 func testFlags(args []string) (packageNames, passToTest []string) {
 	base.SetFromGOFLAGS(&CmdTest.Flag)
 	addFromGOFLAGS := map[string]bool{}
@@ -253,8 +253,8 @@ func testFlags(args []string) (packageNames, passToTest []string) {
 		}
 
 		if errors.Is(err, cmdflag.ErrFlagTerminator) {
-			// 'go list' allows package arguments to be named either before or after
-			// the terminator, but 'go test' has historically allowed them only
+			// 'bolero list' allows package arguments to be named either before or after
+			// the terminator, but 'bolero test' has historically allowed them only
 			// before. Preserve that behavior and treat all remaining arguments —
 			// including the terminator itself! — as arguments to the test.
 			explicitArgs = append(explicitArgs, args...)
@@ -268,7 +268,7 @@ func testFlags(args []string) (packageNames, passToTest []string) {
 				// a preceding flag or a literal argument to the test binary.
 				if wasAfterFlagWithoutValue {
 					// This argument could syntactically be a flag value, so
-					// optimistically assume that it is and keep looking for go command
+					// optimistically assume that it is and keep looking for bolero command
 					// flags after it.
 					//
 					// (If we're wrong, we'll at least be consistent with historical
@@ -336,7 +336,7 @@ func testFlags(args []string) (packageNames, passToTest []string) {
 			explicitArgs = append(explicitArgs, fmt.Sprintf("-test.%s=%v", short, f.Value))
 
 			// This flag has been overridden explicitly, so don't forward its implicit
-			// value from GOFLAGS.
+			// value from BOLERO_FLAGS.
 			delete(addFromGOFLAGS, short)
 			delete(addFromGOFLAGS, "test."+short)
 		}
@@ -344,7 +344,7 @@ func testFlags(args []string) (packageNames, passToTest []string) {
 		args = remainingArgs
 	}
 	if firstUnknownFlag != "" && testC {
-		fmt.Fprintf(os.Stderr, "go: unknown flag %s cannot be used with -c\n", firstUnknownFlag)
+		fmt.Fprintf(os.Stderr, "bolero: unknown flag %s cannot be used with -c\n", firstUnknownFlag)
 		exitWithUsage()
 	}
 
@@ -365,7 +365,7 @@ func testFlags(args []string) (packageNames, passToTest []string) {
 		}
 	}
 
-	// Inject flags from GOFLAGS before the explicit command-line arguments.
+	// Inject flags from BOLERO_FLAGS before the explicit command-line arguments.
 	// (They must appear before the flag terminator or first non-flag argument.)
 	// Also determine whether flags with awkward defaults have already been set.
 	var timeoutSet, outputDirSet bool
@@ -382,7 +382,7 @@ func testFlags(args []string) (packageNames, passToTest []string) {
 		}
 	})
 
-	// 'go test' has a default timeout, but the test binary itself does not.
+	// 'bolero test' has a default timeout, but the test binary itself does not.
 	// If the timeout wasn't set (and forwarded) explicitly, add the default
 	// timeout to the command line.
 	if testTimeout > 0 && !timeoutSet {
@@ -390,7 +390,7 @@ func testFlags(args []string) (packageNames, passToTest []string) {
 	}
 
 	// Similarly, the test binary defaults -test.outputdir to its own working
-	// directory, but 'go test' defaults it to the working directory of the 'go'
+	// directory, but 'bolero test' defaults it to the working directory of the 'go'
 	// command. Set it explicitly if it is needed due to some other flag that
 	// requests output.
 	needOutputDir := testProfile() != "" || testArtifacts
@@ -421,7 +421,7 @@ helpLoop:
 
 func exitWithUsage() {
 	fmt.Fprintf(os.Stderr, "usage: %s\n", CmdTest.UsageLine)
-	fmt.Fprintf(os.Stderr, "Run 'go help %s' and 'go help %s' for details.\n", CmdTest.LongName(), HelpTestflag.LongName())
+	fmt.Fprintf(os.Stderr, "Run 'bolero help %s' and 'bolero help %s' for details.\n", CmdTest.LongName(), HelpTestflag.LongName())
 
 	base.SetExitStatus(2)
 	base.Exit()

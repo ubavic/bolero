@@ -1,9 +1,9 @@
-# Ensure go work sync works without any modules in go.work.
-go work sync
+# Ensure bolero work sync works without any modules in go.work.
+bolero work sync
 
-# Ensure go work sync works even without a go.mod file.
+# Ensure bolero work sync works even without a go.mod file.
 rm go.mod
-go work sync
+bolero work sync
 
 -- go.work --
 go 1.18

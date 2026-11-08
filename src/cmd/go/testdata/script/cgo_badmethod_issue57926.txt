@@ -4,7 +4,7 @@
 # Test that cgo rejects attempts to declare methods
 # on the types C.T or *C.T; see issue #57926.
 
-! go build
+! bolero build
 stderr 'cannot define new methods on non-local type C.T'
 stderr 'cannot define new methods on non-local type \*C.T'
 ! stderr 'Alias'

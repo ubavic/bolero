@@ -1,5 +1,5 @@
 # Matches only tests
-go test -run Test standalone_test.go
+bolero test -run Test standalone_test.go
 ! stdout '^ok.*\[no tests to run\]'
 ! stderr '^ok.*\[no tests to run\]'
 stdout '^ok'

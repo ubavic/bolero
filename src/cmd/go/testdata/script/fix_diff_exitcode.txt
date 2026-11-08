@@ -1,15 +1,15 @@
-# Test that go fix -diff exits with non-zero status when diffs exist,
+# Test that bolero fix -diff exits with non-zero status when diffs exist,
 # and exits with zero status when no diffs are needed.
-# This is consistent with gofmt -d (#46289) and go mod tidy -diff (#27005).
+# This is consistent with gofmt -d (#46289) and bolero mod tidy -diff (#27005).
 
-# When the source needs fixes, go fix -diff should print the diff
+# When the source needs fixes, bolero fix -diff should print the diff
 # and exit with a non-zero code.
-! go fix -diff example.com/needsfix
+! bolero fix -diff example.com/needsfix
 stdout 'net.JoinHostPort'
 
-# When the source is already clean, go fix -diff should print nothing
+# When the source is already clean, bolero fix -diff should print nothing
 # and exit with a zero code.
-go fix -diff example.com/clean
+bolero fix -diff example.com/clean
 ! stdout .
 
 -- go.mod --

@@ -1,7 +1,7 @@
 # Run
-env GO111MODULE=off
+env BOLERO_MODULE=off
 cd vend/hello
-go run hello.go
+bolero run hello.go
 stdout 'hello, world'
 
 -- vend/hello/hello.go --

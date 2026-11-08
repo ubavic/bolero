@@ -1,0 +1,84 @@
+# The toolchain is configured through BOLERO_* variables only.
+# Upstream GO* configuration variables are ignored.
+
+env BOLERO_MODULE=on
+
+bolero version
+stdout '^bolero version '
+
+# BOLERO_* variables are read and reported.
+env BOLERO_FLAGS=-tags=identity
+bolero env BOLERO_FLAGS
+stdout '^-tags=identity$'
+env BOLERO_FLAGS=
+
+# GO* configuration variables have no effect and are not reported.
+env GOFLAGS=-bogus-flag
+env GOPROXY=off
+env GOPATH=$WORK/ignored
+env GOCACHE=$WORK/ignored
+bolero env BOLERO_FLAGS
+! stdout .
+bolero env BOLERO_PATH
+! stdout 'ignored'
+bolero env BOLERO_CACHE
+! stdout 'ignored'
+bolero env
+! stdout '^(set )?(GOROOT|GOPATH|GOFLAGS|GOPROXY|GOCACHE|GOTOOLCHAIN|GOENV)='
+stdout 'BOLERO_ROOT='
+env GOFLAGS=
+env GOPROXY=
+env GOPATH=
+env GOCACHE=
+
+# Variables that configure the compiler and the target stay as they are.
+bolero env GOOS GOARCH CGO_ENABLED
+stdout '.'
+
+# Defaults are read from bolero.env in the toolchain root.
+exists $BOLERO_ROOT/bolero.env
+! exists $BOLERO_ROOT/go.env
+
+# The user configuration file lives in a bolero directory.
+env BOLERO_ENV=
+env HOME=$WORK/home
+env XDG_CONFIG_HOME=$WORK/home/.config
+mkdir $WORK/home/.config
+[GOOS:windows] skip 'the location of the user configuration differs'
+[GOOS:darwin] skip 'the location of the user configuration differs'
+[GOOS:plan9] skip 'the location of the user configuration differs'
+bolero env BOLERO_ENV
+stdout 'bolero[/\\]env$'
+bolero env -w BOLERO_FLAGS=-tags=written
+bolero env BOLERO_FLAGS
+stdout '^-tags=written$'
+bolero env -u BOLERO_FLAGS
+
+# The executables are named bolero and bolerofmt.
+bolero list -f '{{.Target}}' cmd/go
+stdout 'bin[/\\]bolero'$GOEXE'$'
+bolero list -f '{{.Target}}' cmd/gofmt
+stdout 'bin[/\\]bolerofmt'$GOEXE'$'
+exists -exec $BOLERO_ROOT/bin/bolero$GOEXE
+exists -exec $BOLERO_ROOT/bin/bolerofmt$GOEXE
+! exists $BOLERO_ROOT/bin/go$GOEXE
+! exists $BOLERO_ROOT/bin/gofmt$GOEXE
+
+# Messages name the bolero command.
+! bolero asdf
+stderr '^bolero asdf: unknown command'
+! stderr '\bgo\b'
+
+# The go.mod, go.sum and go.work files keep their names.
+cd m
+bolero mod init example.com/m
+exists go.mod
+bolero run .
+stdout 'hello'
+
+-- m/main.go --
+package main
+
+import "fmt"
+
+func main() { fmt.Println("hello") }

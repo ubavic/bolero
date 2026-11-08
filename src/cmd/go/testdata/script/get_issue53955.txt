@@ -18,7 +18,7 @@ stdout 'Go Gopher'
 # Inject a local repo in place of a remote one, so that we can
 # add commits to the repo partway through the test.
 env GIT_ALLOW_PROTOCOL=file
-env GOPRIVATE=github.com/golang/issue53955
+env BOLERO_PRIVATE=github.com/golang/issue53955
 
 [!GOOS:windows] exec git config --global 'url.file://'$WORK'/repo.insteadOf' 'https://github.com/golang/issue53955'
 [GOOS:windows]  exec git config --global 'url.file:///'$WORK'/repo.insteadOf' 'https://github.com/golang/issue53955'
@@ -47,16 +47,16 @@ exec git show-ref --tags --heads
 cmp stdout $WORK/.git-refs-1
 
 cd $WORK/m
-go get -x github.com/golang/issue53955@2cb3d49f
-stderr '^go: added github.com/golang/issue53955 v1.0.10-0.20220719150701-2cb3d49f8874$'
+bolero get -x github.com/golang/issue53955@2cb3d49f
+stderr '^bolero: added github.com/golang/issue53955 v1.0.10-0.20220719150701-2cb3d49f8874$'
 
 cd $WORK/repo
 exec git tag v1.0.10
 
 cd $WORK/m
-go get -x github.com/golang/issue53955@v1.0.10
+bolero get -x github.com/golang/issue53955@v1.0.10
 ! stderr 'v1\.0\.10 is not a tag'
-stderr '^go: upgraded github.com/golang/issue53955 v.* => v1\.0\.10$'
+stderr '^bolero: upgraded github.com/golang/issue53955 v.* => v1\.0\.10$'
 
 -- $WORK/repo/go.mod --
 module github.com/golang/issue53955

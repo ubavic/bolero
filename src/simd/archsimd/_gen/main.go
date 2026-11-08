@@ -86,7 +86,7 @@ func resolveXEDPath(pathList string) (xedPath string, err error) {
 }
 
 func resolveGOROOT() (goRoot string, err error) {
-	cmd := exec.Command("go", "env", "GOROOT")
+	cmd := exec.Command("bolero", "env", "GOROOT")
 	cmd.Stderr = os.Stderr
 	out, err := cmd.Output()
 	if err != nil {
@@ -97,7 +97,7 @@ func resolveGOROOT() (goRoot string, err error) {
 }
 
 func goRun(args ...string) {
-	exe := filepath.Join(goRoot, "bin", "go")
+	exe := filepath.Join(goRoot, "bin", "bolero")
 	cmd := exec.Command(exe, append([]string{"run"}, args...)...)
 	run(cmd)
 }

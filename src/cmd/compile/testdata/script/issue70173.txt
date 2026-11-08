@@ -1,4 +1,4 @@
-go run main.go
+bolero run main.go
 ! stdout .
 ! stderr .
 

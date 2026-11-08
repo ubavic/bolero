@@ -2,7 +2,7 @@
 # DWARF generation for inlined functions may require more runtime type
 # descriptors to be written.
 
-go build
+bolero build
 
 -- go.mod --
 module m

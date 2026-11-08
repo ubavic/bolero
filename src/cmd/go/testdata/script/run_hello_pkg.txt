@@ -1,8 +1,8 @@
-go run m/hello
+bolero run m/hello
 stderr 'hello, world'
 
 cd hello
-go run .
+bolero run .
 stderr 'hello, world'
 
 -- go.mod --

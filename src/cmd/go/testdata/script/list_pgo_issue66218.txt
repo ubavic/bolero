@@ -2,7 +2,7 @@
 # the non-pgo variant's slice when it modifies the pgo variant's Imports field to
 # add the [.ForMain] suffix.
 
-go list -f 'ImportPath: "{{.ImportPath}}", Imports: "{{.Imports}}", ImportMap: "{{.ImportMap}}"' m/a m/b
+bolero list -f 'ImportPath: "{{.ImportPath}}", Imports: "{{.Imports}}", ImportMap: "{{.ImportMap}}"' m/a m/b
 cmp stdout want
 
 -- want --

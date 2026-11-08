@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package fsys implements a virtual file system that the go command
+// Package fsys implements a virtual file system that the bolero command
 // uses to read source file trees. The virtual file system redirects some
 // OS file paths to other OS file paths, according to an overlay file.
-// Editors can use this overlay support to invoke the go command on
+// Editors can use this overlay support to invoke the bolero command on
 // temporary files that have been edited but not yet saved into their
 // final locations.
 package fsys
@@ -524,8 +524,8 @@ func Replaced(name string) bool {
 // DirContainsReplacement reports whether the named directory is affected by a replacement,
 // either because a parent directory has been replaced, it has been replaced, or a file or
 // directory under it has been replaced.
-// It is meant to be used to detect cases where GOMODCACHE has been replaced. That replacement
-// is not supported (GOMODCACHE is meant to be immutable) and the caller will use the
+// It is meant to be used to detect cases where BOLERO_MODCACHE has been replaced. That replacement
+// is not supported (BOLERO_MODCACHE is meant to be immutable) and the caller will use the
 // information to return an error.
 func DirContainsReplacement(name string) (string, bool) {
 	apath := abs(name)

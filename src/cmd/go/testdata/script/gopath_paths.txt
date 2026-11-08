@@ -1,38 +1,38 @@
-# Regression test for GOPATH validation in GOPATH mode.
-env GO111MODULE=off
+# Regression test for BOLERO_PATH validation in BOLERO_PATH mode.
+env BOLERO_MODULE=off
 
-env ORIG_GOPATH=$GOPATH
+env ORIG_GOPATH=$BOLERO_PATH
 
-# The literal path '.' in GOPATH should be rejected.
-env GOPATH=.
-! go build go-cmd-test/helloworld.go
-stderr 'GOPATH entry is relative'
+# The literal path '.' in BOLERO_PATH should be rejected.
+env BOLERO_PATH=.
+! bolero build go-cmd-test/helloworld.go
+stderr 'BOLERO_PATH entry is relative'
 
 # It should still be rejected if the requested package can be
 # found using another entry.
-env GOPATH=${:}$ORIG_GOPATH${:}.
-! go build go-cmd-test
-stderr 'GOPATH entry is relative'
+env BOLERO_PATH=${:}$ORIG_GOPATH${:}.
+! bolero build go-cmd-test
+stderr 'BOLERO_PATH entry is relative'
 
-# GOPATH cannot be a relative subdirectory of the working directory.
+# BOLERO_PATH cannot be a relative subdirectory of the working directory.
 env ORIG_GOPATH
 stdout 'ORIG_GOPATH='$WORK[/\\]gopath
 cd $WORK
-env GOPATH=gopath
-! go build gopath/src/go-cmd-test/helloworld.go
-stderr 'GOPATH entry is relative'
+env BOLERO_PATH=gopath
+! bolero build gopath/src/go-cmd-test/helloworld.go
+stderr 'BOLERO_PATH entry is relative'
 
-# Blank paths in GOPATH should be rejected as relative (issue 21928).
-env GOPATH=' '${:}$ORIG_GOPATH
-! go build go-cmd-test
-stderr 'GOPATH entry is relative'
+# Blank paths in BOLERO_PATH should be rejected as relative (issue 21928).
+env BOLERO_PATH=' '${:}$ORIG_GOPATH
+! bolero build go-cmd-test
+stderr 'BOLERO_PATH entry is relative'
 
 [short] stop
 
-# Empty paths in GOPATH should be ignored (issue 21928).
-env GOPATH=${:}$ORIG_GOPATH
-env GOPATH
-go install go-cmd-test
+# Empty paths in BOLERO_PATH should be ignored (issue 21928).
+env BOLERO_PATH=${:}$ORIG_GOPATH
+env BOLERO_PATH
+bolero install go-cmd-test
 exists $ORIG_GOPATH/bin/go-cmd-test$GOEXE
 
 -- go-cmd-test/helloworld.go --

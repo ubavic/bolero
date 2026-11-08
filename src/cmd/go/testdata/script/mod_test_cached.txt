@@ -1,39 +1,39 @@
 [short] skip
 
-env GO111MODULE=on
-env GOCACHE=$WORK/gocache
+env BOLERO_MODULE=on
+env BOLERO_CACHE=$WORK/gocache
 env GODEBUG=gocachetest=1
 
 # The first run of a test should not be cached.
 # The second run should be.
-go test -run=WriteTmp .
+bolero test -run=WriteTmp .
 ! stdout '(cached)'
-go test -run=WriteTmp .
+bolero test -run=WriteTmp .
 stdout '(cached)'
 
-# 'go test' without arguments should never be cached.
-go test -run=WriteTmp
+# 'bolero test' without arguments should never be cached.
+bolero test -run=WriteTmp
 ! stdout '(cached)'
-go test -run=WriteTmp
+bolero test -run=WriteTmp
 ! stdout '(cached)'
 
 # We should never cache a test run from command-line files.
-go test -run=WriteTmp ./foo_test.go
+bolero test -run=WriteTmp ./foo_test.go
 ! stdout '(cached)'
-go test -run=WriteTmp ./foo_test.go
+bolero test -run=WriteTmp ./foo_test.go
 ! stdout '(cached)'
 
 [!exec:sleep] stop
-# The go command refuses to cache access to files younger than 2s, so sleep that long.
+# The bolero command refuses to cache access to files younger than 2s, so sleep that long.
 exec sleep 2
 
 # Touching a file that the test reads from within its testdata should invalidate the cache.
-go test -run=ReadTestdata .
+bolero test -run=ReadTestdata .
 ! stdout '(cached)'
-go test -run=ReadTestdata .
+bolero test -run=ReadTestdata .
 stdout '(cached)'
 cp testdata/bar.txt testdata/foo.txt
-go test -run=ReadTestdata .
+bolero test -run=ReadTestdata .
 ! stdout '(cached)'
 
 -- go.mod --

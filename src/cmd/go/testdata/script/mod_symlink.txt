@@ -1,35 +1,35 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 [!symlink] skip
 
-# 'go get' should resolve modules of imported packages.
-go get
-go list -deps -f '{{.Module}}' .
+# 'bolero get' should resolve modules of imported packages.
+bolero get
+bolero list -deps -f '{{.Module}}' .
 stdout golang.org/x/text
 
-go get ./subpkg
-go list -deps -f '{{.Module}}' ./subpkg
+bolero get ./subpkg
+bolero list -deps -f '{{.Module}}' ./subpkg
 stdout golang.org/x/text
 
 # Create a copy of the module using symlinks in src/links.
 mkdir links
-symlink links/go.mod -> $GOPATH/src/go.mod
-symlink links/go.sum -> $GOPATH/src/go.sum
-symlink links/issue.go -> $GOPATH/src/issue.go
+symlink links/go.mod -> $BOLERO_PATH/src/go.mod
+symlink links/go.sum -> $BOLERO_PATH/src/go.sum
+symlink links/issue.go -> $BOLERO_PATH/src/issue.go
 mkdir links/subpkg
-symlink links/subpkg/issue.go -> $GOPATH/src/subpkg/issue.go
+symlink links/subpkg/issue.go -> $BOLERO_PATH/src/subpkg/issue.go
 
 # We should see the copy as a valid module root.
 cd links
-go env GOMOD
+bolero env BOLERO_MOD
 stdout links[/\\]go.mod
-go list -m
+bolero list -m
 stdout golang.org/issue/28107
 
 # The symlink-based copy should contain the same packages
 # and have the same dependencies as the original.
-go list -deps -f '{{.Module}}' .
+bolero list -deps -f '{{.Module}}' .
 stdout golang.org/x/text
-go list -deps -f '{{.Module}}' ./subpkg
+bolero list -deps -f '{{.Module}}' ./subpkg
 stdout golang.org/x/text
 
 -- go.mod --

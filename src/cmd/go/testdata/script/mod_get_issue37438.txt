@@ -2,11 +2,11 @@
 #
 # If a path exists at the requested version, but does not exist at the
 # version of the module that is already required and does not exist at
-# the version that would be selected by 'go mod tidy', then
-# 'go get foo@requested' should resolve the requested version,
+# the version that would be selected by 'bolero mod tidy', then
+# 'bolero get foo@requested' should resolve the requested version,
 # not error out on the (unrelated) latest one.
 
-go get example.net/a/p@v0.2.0
+bolero get example.net/a/p@v0.2.0
 
 -- go.mod --
 module example

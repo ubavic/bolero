@@ -10,7 +10,7 @@
 
 cc -c -o syso/x.syso syso/x.c
 cc -c -o syso2/x.syso syso2/x.c
-go build m/cgo
+bolero build m/cgo
 
 -- go.mod --
 module m

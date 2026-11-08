@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	out, err := exec.Command("go", "run", "fixedbugs/issue9862.go").CombinedOutput()
+	out, err := exec.Command("bolero", "run", "fixedbugs/issue9862.go").CombinedOutput()
 	outstr := string(out)
 	if err == nil {
 		println("go run issue9862.go succeeded, should have failed\n", outstr)

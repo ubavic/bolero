@@ -63,7 +63,7 @@ func init() {
 
 // Flags used by the linker. The exported flags are used by the architecture-specific packages.
 var (
-	flagBuildid = flag.String("buildid", "", "record `id` as Go toolchain build id")
+	flagBuildid = flag.String("buildid", "", "record `id` as toolchain build id")
 	flagBindNow = flag.Bool("bindnow", false, "mark a dynamically linked ELF object for immediate function binding")
 
 	flagOutfile    = flag.String("o", "", "write output to `file`")
@@ -91,12 +91,12 @@ var (
 	FlagC             = flag.Bool("c", false, "dump call graph")
 	FlagD             = flag.Bool("d", false, "disable dynamic executable")
 	flagF             = flag.Bool("f", false, "ignore version mismatch")
-	flagG             = flag.Bool("g", false, "disable go package data checks")
+	flagG             = flag.Bool("g", false, "disable package data checks")
 	flagH             = flag.Bool("h", false, "halt on error")
 	flagN             = flag.Bool("n", false, "no-op (deprecated)")
 	FlagS             = flag.Bool("s", false, "disable symbol table")
 	flag8             bool // use 64-bit addresses in symbol table
-	flagHostBuildid   = flag.String("B", "", "set ELF NT_GNU_BUILD_ID `note` or Mach-O UUID; use \"gobuildid\" to generate it from the Go build ID; \"none\" to disable")
+	flagHostBuildid   = flag.String("B", "", "set ELF NT_GNU_BUILD_ID `note` or Mach-O UUID; use \"gobuildid\" to generate it from the build ID; \"none\" to disable")
 	flagInterpreter   = flag.String("I", "", "use `linker` as ELF dynamic linker")
 	flagCheckLinkname = flag.Bool("checklinkname", true, "check linkname symbol references")
 	FlagDebugTramp    = flag.Int("debugtramp", 0, "debug trampolines")
@@ -201,7 +201,7 @@ func Main(arch *sys.Arch, theArch Arch) {
 		flag.BoolVar(&flag8, "8", false, "use 64-bit addresses in symbol table")
 	}
 	flagHeadType := flag.String("H", "", "set header `type`")
-	flag.BoolVar(&ctxt.linkShared, "linkshared", false, "link against installed Go shared libraries")
+	flag.BoolVar(&ctxt.linkShared, "linkshared", false, "link against installed shared libraries")
 	flag.Var(&ctxt.LinkMode, "linkmode", "set link `mode`")
 	flag.Var(&ctxt.BuildMode, "buildmode", "set build `mode`")
 	flag.BoolVar(&ctxt.compressDWARF, "compressdwarf", true, "compress DWARF if possible")

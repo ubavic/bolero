@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package list implements the “go list” command.
+// Package list implements the “bolero list” command.
 package list
 
 import (
@@ -37,7 +37,7 @@ import (
 var CmdList = &base.Command{
 	// Note: -f -json -m are listed explicitly because they are the most common list flags.
 	// Do not send CLs removing them because they're covered by [list flags].
-	UsageLine: "go list [-f format] [-json] [-m] [list flags] [build flags] [packages]",
+	UsageLine: "bolero list [-f format] [-json] [-m] [list flags] [build flags] [packages]",
 	Short:     "list packages or modules",
 	Long: `
 List lists the named packages, one per line.
@@ -64,12 +64,12 @@ to -f '{{.ImportPath}}'. The struct being passed to the template is:
         Doc            string   // package documentation string
         Target         string   // install path
         Shlib          string   // the shared library that contains this package (only set when -linkshared)
-        Goroot         bool     // is this package in the Go root?
-        Standard       bool     // is this package part of the standard Go library?
-        Stale          bool     // would 'go install' do anything for this package?
+        Goroot         bool     // is this package in the Bolero root?
+        Standard       bool     // is this package part of the standard Bolero library?
+        Stale          bool     // would 'bolero install' do anything for this package?
         StaleReason    string   // explanation for Stale==true
-        Root           string   // Go root or Go path dir containing this package
-        ConflictDir    string   // this directory shadows Dir in $GOPATH
+        Root           string   // Bolero root or Bolero path dir containing this package
+        ConflictDir    string   // this directory shadows Dir in $BOLERO_PATH
         BinaryOnly     bool     // binary-only package (no longer supported)
         ForTest        string   // package is only for use in named test
         Export         string   // file containing export data (when using -export)
@@ -150,8 +150,8 @@ The template function "context" returns the build context, defined as:
     type Context struct {
         GOARCH        string   // target architecture
         GOOS          string   // target operating system
-        GOROOT        string   // Go root
-        GOPATH        string   // Go path
+        BOLERO_ROOT        string   // Bolero root
+        BOLERO_PATH        string   // Bolero path
         CgoEnabled    bool     // whether cgo can be used
         UseAllFiles   bool     // use files regardless of //go:build lines, file names
         Compiler      string   // compiler to assume when computing target paths
@@ -170,9 +170,9 @@ provided with a set of comma-separated required field names to be output.
 If so, those required fields will always appear in JSON output, but
 others may be omitted to save work in computing the JSON struct.
 
-The -compiled flag causes list to set CompiledGoFiles to the Go source
+The -compiled flag causes list to set CompiledGoFiles to the Bolero source
 files presented to the compiler. Typically this means that it repeats
-the files listed in GoFiles and then also adds the Go code generated
+the files listed in GoFiles and then also adds the Bolero code generated
 by processing CgoFiles and SwigFiles. The Imports list contains the
 union of all imports from both GoFiles and CompiledGoFiles.
 
@@ -221,8 +221,8 @@ are all absolute paths.
 By default, the lists GoFiles, CgoFiles, and so on hold names of files in Dir
 (that is, paths relative to Dir, not absolute paths).
 The generated files added when using the -compiled and -test flags
-are absolute paths referring to cached copies of generated Go source files.
-Although they are Go source files, the paths may not end in ".go".
+are absolute paths referring to cached copies of generated Bolero source files.
+Although they are Bolero source files, the paths may not end in ".go".
 
 The -m flag causes list to list modules instead of packages.
 
@@ -260,7 +260,7 @@ module is in the module cache or if the -modfile flag is used.
 
 The default output is to print the module path and then
 information about the version and replacement if any.
-For example, 'go list -m all' might print:
+For example, 'bolero list -m all' might print:
 
     my/main/module
     golang.org/x/text v0.3.0 => /tmp/text
@@ -284,13 +284,13 @@ the module's Retracted field if the current version is retracted.
 The Module's String method indicates an available upgrade by
 formatting the newer version in brackets after the current version.
 If a version is retracted, the string "(retracted)" will follow it.
-For example, 'go list -m -u all' might print:
+For example, 'bolero list -m -u all' might print:
 
     my/main/module
     golang.org/x/text v0.3.0 [v0.4.0] => /tmp/text
     rsc.io/pdf v0.1.1 (retracted) [v0.1.2]
 
-(For tools, 'go list -m -u -json all' may be more convenient to parse.)
+(For tools, 'bolero list -m -u -json all' may be more convenient to parse.)
 
 The -versions flag causes list to set the Module's Versions field
 to a list of all known versions of that module, ordered according
@@ -318,7 +318,7 @@ A pattern containing "..." specifies the active modules whose
 module paths match the pattern.
 A query of the form path@version specifies the result of that query,
 which is not limited to active modules.
-See 'go help modules' for more about module queries.
+See 'bolero help modules' for more about module queries.
 
 The template function "module" takes a single string argument
 that must be a module path or query and returns the specified
@@ -326,18 +326,18 @@ module as a Module struct. If an error occurs, the result will
 be a Module struct with a non-nil Error field.
 
 When using -m, the -reuse=old.json flag accepts the name of file containing
-the JSON output of a previous 'go list -m -json' invocation with the
+the JSON output of a previous 'bolero list -m -json' invocation with the
 same set of modifier flags (such as -u, -retracted, and -versions).
-The go command may use this file to determine that a module is unchanged
+The bolero command may use this file to determine that a module is unchanged
 since the previous invocation and avoid redownloading information about it.
 Modules that are not redownloaded will be marked in the new output by
 setting the Reuse field to true. Normally the module cache provides this
 kind of reuse automatically; the -reuse flag can be useful on systems that
 do not preserve the module cache.
 
-For more about build flags, see 'go help build'.
+For more about build flags, see 'bolero help build'.
 
-For more about specifying packages, see 'go help packages'.
+For more about specifying packages, see 'bolero help packages'.
 
 For more about modules, see https://golang.org/ref/mod.
 	`,
@@ -423,13 +423,13 @@ func runList(ctx context.Context, cmd *base.Command, args []string) {
 	moduleLoaderState.InitWorkfile()
 
 	if *listFmt != "" && listJson {
-		base.Fatalf("go list -f cannot be used with -json")
+		base.Fatalf("bolero list -f cannot be used with -json")
 	}
 	if *listReuse != "" && !*listM {
-		base.Fatalf("go list -reuse cannot be used without -m")
+		base.Fatalf("bolero list -reuse cannot be used without -m")
 	}
 	if *listReuse != "" && moduleLoaderState.HasModRoot() {
-		base.Fatalf("go list -reuse cannot be used inside a module")
+		base.Fatalf("bolero list -reuse cannot be used inside a module")
 	}
 
 	work.BuildInit(moduleLoaderState)
@@ -500,39 +500,39 @@ func runList(ctx context.Context, cmd *base.Command, args []string) {
 	modload.Init(moduleLoaderState)
 	if *listRetracted {
 		if cfg.BuildMod == "vendor" {
-			base.Fatalf("go list -retracted cannot be used when vendoring is enabled")
+			base.Fatalf("bolero list -retracted cannot be used when vendoring is enabled")
 		}
 		if !moduleLoaderState.Enabled() {
-			base.Fatalf("go list -retracted can only be used in module-aware mode")
+			base.Fatalf("bolero list -retracted can only be used in module-aware mode")
 		}
 	}
 
 	if *listM {
 		// Module mode.
 		if *listCompiled {
-			base.Fatalf("go list -compiled cannot be used with -m")
+			base.Fatalf("bolero list -compiled cannot be used with -m")
 		}
 		if *listDeps {
 			// TODO(rsc): Could make this mean something with -m.
-			base.Fatalf("go list -deps cannot be used with -m")
+			base.Fatalf("bolero list -deps cannot be used with -m")
 		}
 		if *listExport {
-			base.Fatalf("go list -export cannot be used with -m")
+			base.Fatalf("bolero list -export cannot be used with -m")
 		}
 		if *listFind {
-			base.Fatalf("go list -find cannot be used with -m")
+			base.Fatalf("bolero list -find cannot be used with -m")
 		}
 		if *listTest {
-			base.Fatalf("go list -test cannot be used with -m")
+			base.Fatalf("bolero list -test cannot be used with -m")
 		}
 
 		if modload.Init(moduleLoaderState); !moduleLoaderState.Enabled() {
-			base.Fatalf("go: list -m cannot be used with GO111MODULE=off")
+			base.Fatalf("bolero: list -m cannot be used with BOLERO_MODULE=off")
 		}
 
 		modload.LoadModFile(moduleLoaderState, ctx) // Sets cfg.BuildMod as a side-effect.
 		if cfg.BuildMod == "vendor" {
-			const actionDisabledFormat = "go: can't %s using the vendor directory\n\t(Use -mod=mod or -mod=readonly to bypass.)"
+			const actionDisabledFormat = "bolero: can't %s using the vendor directory\n\t(Use -mod=mod or -mod=readonly to bypass.)"
 
 			if *listVersions {
 				base.Fatalf(actionDisabledFormat, "determine available versions")
@@ -568,7 +568,7 @@ func runList(ctx context.Context, cmd *base.Command, args []string) {
 			}
 		}
 		if *listReuse != "" && len(args) == 0 {
-			base.Fatalf("go: list -m -reuse only has an effect with module@version arguments")
+			base.Fatalf("bolero: list -m -reuse only has an effect with module@version arguments")
 		}
 		mods, err := modload.ListModules(moduleLoaderState, ctx, args, mode, *listReuse)
 		if !*listE {
@@ -590,21 +590,21 @@ func runList(ctx context.Context, cmd *base.Command, args []string) {
 
 	// Package mode (not -m).
 	if *listU {
-		base.Fatalf("go list -u can only be used with -m")
+		base.Fatalf("bolero list -u can only be used with -m")
 	}
 	if *listVersions {
-		base.Fatalf("go list -versions can only be used with -m")
+		base.Fatalf("bolero list -versions can only be used with -m")
 	}
 
 	// These pairings make no sense.
 	if *listFind && *listDeps {
-		base.Fatalf("go list -deps cannot be used with -find")
+		base.Fatalf("bolero list -deps cannot be used with -find")
 	}
 	if *listFind && *listTest {
-		base.Fatalf("go list -test cannot be used with -find")
+		base.Fatalf("bolero list -test cannot be used with -find")
 	}
 	if *listFind && *listExport {
-		base.Fatalf("go list -export cannot be used with -find")
+		base.Fatalf("bolero list -export cannot be used with -find")
 	}
 
 	pkgOpts := load.PackageOpts{
@@ -654,7 +654,7 @@ func runList(ctx context.Context, cmd *base.Command, args []string) {
 					var perr *load.Package
 					pmain, ptest, pxtest, perr = load.TestPackagesFor(moduleLoaderState, ctx, pkgOpts, p, nil)
 					if perr != nil {
-						base.Fatalf("go: can't load test package: %s", perr.Error)
+						base.Fatalf("bolero: can't load test package: %s", perr.Error)
 					}
 				}
 				testPackages = append(testPackages, testPackageSet{p, pmain, ptest, pxtest})

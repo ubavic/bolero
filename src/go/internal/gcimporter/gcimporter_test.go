@@ -139,7 +139,7 @@ func TestImportTypeparamTests(t *testing.T) {
 	gorootTest := filepath.Join(testenv.GOROOT(t), "test")
 	if _, err := os.Stat(gorootTest); os.IsNotExist(err) {
 		if _, err := os.Stat(filepath.Join(testenv.GOROOT(t), "VERSION")); err == nil {
-			t.Skipf("skipping: GOROOT/test not present")
+			t.Skipf("skipping: BOLERO_ROOT/test not present")
 		}
 	}
 
@@ -367,7 +367,7 @@ func TestImportStdLib(t *testing.T) {
 
 	// Get list of packages in stdlib. Filter out test-only packages with {{if .GoFiles}} check.
 	var stderr bytes.Buffer
-	cmd := exec.Command("go", "list", "-f", "{{if .GoFiles}}{{.ImportPath}}{{end}}", "std")
+	cmd := exec.Command("bolero", "list", "-f", "{{if .GoFiles}}{{.ImportPath}}{{end}}", "std")
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {

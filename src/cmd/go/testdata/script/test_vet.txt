@@ -1,50 +1,50 @@
 [short] skip
 
 # Test file
-! go test p1_test.go
+! bolero test p1_test.go
 stderr 'Logf format %d'
-go test -vet=off
+bolero test -vet=off
 stdout '^ok'
 
 # Non-test file
-! go test p1.go
+! bolero test p1.go
 stderr 'Printf format %d'
-go test -x -vet=shift p1.go
+bolero test -x -vet=shift p1.go
 stderr '[\\/]vet.*-shift'
 stdout '\[no test files\]'
-go test -vet=off p1.go
+bolero test -vet=off p1.go
 ! stderr '[\\/]vet.*-shift'
 stdout '\[no test files\]'
 
 # ensure all runs non-default vet
-! go test -vet=all ./vetall/...
+! bolero test -vet=all ./vetall/...
 stderr 'using resp before checking for errors'
 
 # Test issue #47309
-! go test -vet=bools,xyz ./vetall/...
+! bolero test -vet=bools,xyz ./vetall/...
 stderr '-vet argument must be a supported analyzer'
 
 # Test with a single analyzer
-! go test -vet=httpresponse ./vetall/...
+! bolero test -vet=httpresponse ./vetall/...
 stderr 'using resp before checking for errors'
 
 # Test with a list of analyzers
-go test -vet=atomic,bools,nilfunc ./vetall/...
+bolero test -vet=atomic,bools,nilfunc ./vetall/...
 stdout 'm/vetall.*\[no tests to run\]'
 
 # Test issue #22890
-go test m/vetcycle
+bolero test m/vetcycle
 stdout 'm/vetcycle.*\[no test files\]'
 
 # Test with ...
-! go test ./vetfail/...
+! bolero test ./vetfail/...
 stderr 'Printf format %d'
 stdout 'ok\s+m/vetfail/p2'
 
 # Check there's no diagnosis of a bad build constraint in vetxonly mode.
 # Use -a so that we need to recompute the vet-specific export data for
 # vetfail/p1.
-go test -a m/vetfail/p2
+bolero test -a m/vetfail/p2
 ! stderr 'invalid.*constraint'
 
 -- go.mod --

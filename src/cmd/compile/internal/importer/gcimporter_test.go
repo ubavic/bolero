@@ -60,7 +60,7 @@ func compile(t *testing.T, dirname, filename, outdirname string, packagefiles ma
 	if err != nil {
 		t.Helper()
 		t.Logf("%s", out)
-		t.Fatalf("go tool compile %s failed: %s", filename, err)
+		t.Fatalf("bolero tool compile %s failed: %s", filename, err)
 	}
 	return outname
 }
@@ -247,7 +247,7 @@ func TestImportStdLib(t *testing.T) {
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {
-		t.Fatalf("failed to run go list to determine stdlib packages: %v\nstderr:\n%v", err, stderr.String())
+		t.Fatalf("failed to run bolero list to determine stdlib packages: %v\nstderr:\n%v", err, stderr.String())
 	}
 	pkgs := strings.Fields(string(out))
 

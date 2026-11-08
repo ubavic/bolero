@@ -22,13 +22,13 @@ func TestDocsUpToDate(t *testing.T) {
 		t.Parallel()
 	}
 
-	// We run 'go help documentation' as a subprocess instead of
+	// We run 'bolero help documentation' as a subprocess instead of
 	// calling help.Help directly because it may be sensitive to
 	// init-time configuration
 	cmd := testenv.Command(t, testGo, "help", "documentation")
-	// Unset GO111MODULE so that the 'go get' section matches
-	// the default 'go get' implementation.
-	cmd.Env = append(cmd.Environ(), "GO111MODULE=")
+	// Unset BOLERO_MODULE so that the 'bolero get' section matches
+	// the default 'bolero get' implementation.
+	cmd.Env = append(cmd.Environ(), "BOLERO_MODULE=")
 	cmd.Stderr = new(strings.Builder)
 	out, err := cmd.Output()
 	if err != nil {
@@ -45,7 +45,7 @@ func TestDocsUpToDate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error reading %s: %v", srcPath, err)
 	}
-	diff := diff.Diff(srcPath, old, "go help documentation | gofmt", alldocs)
+	diff := diff.Diff(srcPath, old, "bolero help documentation | gofmt", alldocs)
 	if diff == nil {
 		t.Logf("%s is up to date.", srcPath)
 		return
@@ -58,6 +58,6 @@ func TestDocsUpToDate(t *testing.T) {
 		t.Logf("wrote %d bytes to %s", len(alldocs), srcPath)
 	} else {
 		t.Logf("\n%s", diff)
-		t.Errorf("%s is stale. To update, run 'go generate cmd/go'.", srcPath)
+		t.Errorf("%s is stale. To update, run 'bolero generate cmd/go'.", srcPath)
 	}
 }

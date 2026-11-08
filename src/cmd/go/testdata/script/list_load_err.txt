@@ -1,41 +1,41 @@
-# go list -e -deps should list imports from any file it can read, even if
+# bolero list -e -deps should list imports from any file it can read, even if
 # other files in the same package cause go/build.Import to return an error.
 # Verifies golang.org/issue/38568
 
-go list -e -deps ./scan
+bolero list -e -deps ./scan
 stdout m/want
 
-go list -e -deps ./multi
+bolero list -e -deps ./multi
 stdout m/want
 
-go list -e -deps ./constraint
+bolero list -e -deps ./constraint
 stdout m/want
 
-[cgo] go list -e -test -deps ./cgotest
+[cgo] bolero list -e -test -deps ./cgotest
 [cgo] stdout m/want
 
-[cgo] go list -e -deps ./cgoflag
+[cgo] bolero list -e -deps ./cgoflag
 [cgo] stdout m/want
 
 
-# go list -e should include files with errors in GoFiles, TestGoFiles, and
+# bolero list -e should include files with errors in GoFiles, TestGoFiles, and
 # other lists, assuming they match constraints.
 # Verifies golang.org/issue/39986
-go list -e -f '{{range .GoFiles}}{{.}},{{end}}' ./scan
+bolero list -e -f '{{range .GoFiles}}{{.}},{{end}}' ./scan
 stdout '^good.go,scan.go,$'
 
-go list -e -f '{{range .GoFiles}}{{.}},{{end}}' ./multi
+bolero list -e -f '{{range .GoFiles}}{{.}},{{end}}' ./multi
 stdout '^a.go,b.go,$'
 
-go list -e -f '{{range .GoFiles}}{{.}},{{end}}' ./constraint
+bolero list -e -f '{{range .GoFiles}}{{.}},{{end}}' ./constraint
 stdout '^good.go,$'
-go list -e -f '{{range .IgnoredGoFiles}}{{.}},{{end}}' ./constraint
+bolero list -e -f '{{range .IgnoredGoFiles}}{{.}},{{end}}' ./constraint
 stdout '^constraint.go,$'
 
-[cgo] go list -e -f '{{range .XTestGoFiles}}{{.}},{{end}}' ./cgotest
+[cgo] bolero list -e -f '{{range .XTestGoFiles}}{{.}},{{end}}' ./cgotest
 [cgo] stdout '^cgo_test.go,$'
 
-[cgo] go list -e -f '{{range .GoFiles}}{{.}},{{end}}' ./cgoflag
+[cgo] bolero list -e -f '{{range .GoFiles}}{{.}},{{end}}' ./cgoflag
 [cgo] stdout '^cgoflag.go,$'
 
 -- go.mod --

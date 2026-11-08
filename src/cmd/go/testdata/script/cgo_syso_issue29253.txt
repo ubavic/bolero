@@ -1,4 +1,4 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 [short] skip
 
 # This test tests that we can link in-package syso files that provides symbols
@@ -6,7 +6,7 @@ env GO111MODULE=off
 [!cgo] stop
 [!compiler:gc] stop
 cc -c -o pkg/o.syso ext.c
-go build main.go
+bolero build main.go
 
 -- ext.c --
 // +build ignore

@@ -1,22 +1,22 @@
 # Test that build tags are used.
 # golang.org/issue/24053.
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 cd x
-! go list -f {{.GoFiles}}
-stderr 'build constraints exclude all Go files'
+! bolero list -f {{.GoFiles}}
+stderr 'build constraints exclude all Bolero files'
 
-go list -f {{.GoFiles}} -tags tag1
+bolero list -f {{.GoFiles}} -tags tag1
 stdout '\[x.go\]'
 
-go list -f {{.GoFiles}} -tags tag2
+bolero list -f {{.GoFiles}} -tags tag2
 stdout '\[y\.go\]'
 
-go list -f {{.GoFiles}} -tags 'tag1 tag2'
+bolero list -f {{.GoFiles}} -tags 'tag1 tag2'
 stdout '\[x\.go y\.go\]'
 
-go list -f {{.GoFiles}} -tags tag1,tag2 # commas allowed as of Go 1.13
+bolero list -f {{.GoFiles}} -tags tag1,tag2 # commas allowed as of Go 1.13
 stdout '\[x\.go y\.go\]'
 
 -- x/go.mod --

@@ -1,24 +1,24 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 [short] skip # rebuilds std for alternate architecture
 
 cd mycmd
-go build mycmd
+bolero build mycmd
 
-# cross-compile install with implicit GOBIN=$GOPATH/bin can make subdirectory
+# cross-compile install with implicit BOLERO_BIN=$BOLERO_PATH/bin can make subdirectory
 env GOARCH=386
 [GOARCH:386] env GOARCH=amd64
 env GOOS=linux
-go install mycmd
-exists $GOPATH/bin/linux_$GOARCH/mycmd
+bolero install mycmd
+exists $BOLERO_PATH/bin/linux_$GOARCH/mycmd
 
-# cross-compile install with explicit GOBIN cannot make subdirectory
-env GOBIN=$WORK/bin
-! go install mycmd
-! exists $GOBIN/linux_$GOARCH
+# cross-compile install with explicit BOLERO_BIN cannot make subdirectory
+env BOLERO_BIN=$WORK/bin
+! bolero install mycmd
+! exists $BOLERO_BIN/linux_$GOARCH
 
 # The install directory for a cross-compiled standard command should include GOARCH.
-go list -f '{{.Target}}'  cmd/pack
-stdout ${GOROOT}[/\\]pkg[/\\]tool[/\\]${GOOS}_${GOARCH}[/\\]pack$
+bolero list -f '{{.Target}}'  cmd/pack
+stdout ${BOLERO_ROOT}[/\\]pkg[/\\]tool[/\\]${GOOS}_${GOARCH}[/\\]pack$
 
 -- mycmd/x.go --
 package main

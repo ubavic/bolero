@@ -1,66 +1,66 @@
-# This test covers the HTTP authentication mechanism over GOAUTH
+# This test covers the HTTP authentication mechanism over BOLERO_AUTH
 # See golang.org/issue/26232
 
 [short] skip 'constructs a local git repo'
 [!git] skip
 
-env GOPROXY=direct
-env GOSUMDB=off
+env BOLERO_PROXY=direct
+env BOLERO_SUMDB=off
 # Disable 'git credential fill' interactive prompts.
 env GIT_TERMINAL_PROMPT=0
 exec git init
 exec git config credential.helper 'store --file=.git-credentials'
 cp go.mod.orig go.mod
 
-# Set GOAUTH to git without a working directory.
-env GOAUTH='git'
-! go get vcs-test.golang.org/auth/or401
-stderr 'GOAUTH=git dir method requires an absolute path to the git working directory'
+# Set BOLERO_AUTH to git without a working directory.
+env BOLERO_AUTH='git'
+! bolero get vcs-test.golang.org/auth/or401
+stderr 'BOLERO_AUTH=git dir method requires an absolute path to the git working directory'
 
-# Set GOAUTH to git with a non-existent directory.
-env GOAUTH='git gitDir'
-! go get vcs-test.golang.org/auth/or401
-stderr 'GOAUTH=git dir method requires an absolute path to the git working directory'
+# Set BOLERO_AUTH to git with a non-existent directory.
+env BOLERO_AUTH='git gitDir'
+! bolero get vcs-test.golang.org/auth/or401
+stderr 'BOLERO_AUTH=git dir method requires an absolute path to the git working directory'
 
-# Set GOAUTH to git with a relative working directory.
+# Set BOLERO_AUTH to git with a relative working directory.
 mkdir relative
-env GOAUTH='git relative'
-! go get vcs-test.golang.org/auth/or401
-stderr 'GOAUTH=git dir method requires an absolute path to the git working directory'
+env BOLERO_AUTH='git relative'
+! bolero get vcs-test.golang.org/auth/or401
+stderr 'BOLERO_AUTH=git dir method requires an absolute path to the git working directory'
 
-# Set GOAUTH to git and use a blank .git-credentials.
+# Set BOLERO_AUTH to git and use a blank .git-credentials.
 # Without credentials, downloading a module from a path that requires HTTPS
 # basic auth should fail.
-env GOAUTH=git' '$PWD''
-! go get -x vcs-test.golang.org/auth/or401
+env BOLERO_AUTH=git' '$PWD''
+! bolero get -x vcs-test.golang.org/auth/or401
 stderr '^\tserver response: ACCESS DENIED, buddy$'
-stderr 'GOAUTH encountered errors for https://vcs-test.golang.org'
-stderr GOAUTH=git' '$PWD''
+stderr 'BOLERO_AUTH encountered errors for https://vcs-test.golang.org'
+stderr BOLERO_AUTH=git' '$PWD''
 # go imports should fail as well.
-! go mod tidy -x
+! bolero mod tidy -x
 stderr '^\tserver response: File\? What file\?$'
-stderr 'GOAUTH encountered errors for https://vcs-test.golang.org'
-stderr GOAUTH=git' '$PWD''
+stderr 'BOLERO_AUTH encountered errors for https://vcs-test.golang.org'
+stderr BOLERO_AUTH=git' '$PWD''
 
 # With credentials from git credentials, it should succeed.
 cp .git-credentials.cred .git-credentials
-go get vcs-test.golang.org/auth/or401
+bolero get vcs-test.golang.org/auth/or401
 # go imports should resolve correctly as well.
-go mod tidy
-go list all
+bolero mod tidy
+bolero list all
 stdout vcs-test.golang.org/auth/or404
 # With cached credentials, re-downloading in debug mode should succeed.
-go get -x vcs-test.golang.org/auth/or401
+bolero get -x vcs-test.golang.org/auth/or401
 
-# Clearing GOAUTH credentials should result in failures.
-env GOAUTH='off'
+# Clearing BOLERO_AUTH credentials should result in failures.
+env BOLERO_AUTH='off'
 # Without credentials, downloading a module from a path that requires HTTPS
 # basic auth should fail.
-! go get vcs-test.golang.org/auth/or401
+! bolero get vcs-test.golang.org/auth/or401
 stderr '^\tserver response: ACCESS DENIED, buddy$'
 # go imports should fail as well.
 cp go.mod.orig go.mod
-! go mod tidy
+! bolero mod tidy
 stderr '^\tserver response: File\? What file\?$'
 
 -- main.go --

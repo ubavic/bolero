@@ -1,18 +1,18 @@
-# In GOPATH mode, module legacy support does path rewriting very similar to vendoring.
+# In BOLERO_PATH mode, module legacy support does path rewriting very similar to vendoring.
 
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-go list -f '{{range .Imports}}{{.}}{{"\n"}}{{end}}' old/p1
+bolero list -f '{{range .Imports}}{{.}}{{"\n"}}{{end}}' old/p1
 stdout ^new/p1$
 
-go list -f '{{range .Imports}}{{.}}{{"\n"}}{{end}}' new/p1
+bolero list -f '{{range .Imports}}{{.}}{{"\n"}}{{end}}' new/p1
 stdout ^new/p2$           # not new/v2/p2
 ! stdout ^new/v2
 stdout ^new/sub/x/v1/y$   # not new/sub/v2/x/v1/y
 ! stdout ^new/sub/v2
 stdout ^new/sub/inner/x # not new/sub/v2/inner/x
 
-go build old/p1 new/p1
+bolero build old/p1 new/p1
 
 -- new/go.mod --
 module "new/v2"

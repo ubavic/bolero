@@ -17,11 +17,11 @@ import (
 )
 
 func init() {
-	// GOVCS defaults to public:git|hg,private:all,
+	// BOLERO_VCS defaults to public:git|hg,private:all,
 	// which breaks many tests here - they can't use non-git, non-hg VCS at all!
 	// Change to fully permissive.
-	// The tests of the GOVCS setting itself are in ../../testdata/script/govcs.txt.
-	os.Setenv("GOVCS", "*:all")
+	// The tests of the BOLERO_VCS setting itself are in ../../testdata/script/govcs.txt.
+	os.Setenv("BOLERO_VCS", "*:all")
 }
 
 // Test that RepoRootForImportPath determines the correct RepoRoot for a given importPath.
@@ -612,21 +612,21 @@ var govcsErrors = []struct {
 	s   string
 	err string
 }{
-	{`,`, `empty entry in GOVCS`},
-	{`,x`, `empty entry in GOVCS`},
-	{`x,`, `malformed entry in GOVCS (missing colon): "x"`},
-	{`x:y,`, `empty entry in GOVCS`},
-	{`x`, `malformed entry in GOVCS (missing colon): "x"`},
-	{`x:`, `empty VCS list in GOVCS: "x:"`},
-	{`x:|`, `empty VCS name in GOVCS: "x:|"`},
-	{`x:y|`, `empty VCS name in GOVCS: "x:y|"`},
-	{`x:|y`, `empty VCS name in GOVCS: "x:|y"`},
-	{`x:y,z:`, `empty VCS list in GOVCS: "z:"`},
-	{`x:y,z:|`, `empty VCS name in GOVCS: "z:|"`},
-	{`x:y,z:|w`, `empty VCS name in GOVCS: "z:|w"`},
-	{`x:y,z:w|`, `empty VCS name in GOVCS: "z:w|"`},
-	{`x:y,z:w||v`, `empty VCS name in GOVCS: "z:w||v"`},
-	{`x:y,x:z`, `unreachable pattern in GOVCS: "x:z" after "x:y"`},
+	{`,`, `empty entry in BOLERO_VCS`},
+	{`,x`, `empty entry in BOLERO_VCS`},
+	{`x,`, `malformed entry in BOLERO_VCS (missing colon): "x"`},
+	{`x:y,`, `empty entry in BOLERO_VCS`},
+	{`x`, `malformed entry in BOLERO_VCS (missing colon): "x"`},
+	{`x:`, `empty VCS list in BOLERO_VCS: "x:"`},
+	{`x:|`, `empty VCS name in BOLERO_VCS: "x:|"`},
+	{`x:y|`, `empty VCS name in BOLERO_VCS: "x:y|"`},
+	{`x:|y`, `empty VCS name in BOLERO_VCS: "x:|y"`},
+	{`x:y,z:`, `empty VCS list in BOLERO_VCS: "z:"`},
+	{`x:y,z:|`, `empty VCS name in BOLERO_VCS: "z:|"`},
+	{`x:y,z:|w`, `empty VCS name in BOLERO_VCS: "z:|w"`},
+	{`x:y,z:w|`, `empty VCS name in BOLERO_VCS: "z:w|"`},
+	{`x:y,z:w||v`, `empty VCS name in BOLERO_VCS: "z:w||v"`},
+	{`x:y,x:z`, `unreachable pattern in BOLERO_VCS: "x:z" after "x:y"`},
 }
 
 func TestGOVCSErrors(t *testing.T) {

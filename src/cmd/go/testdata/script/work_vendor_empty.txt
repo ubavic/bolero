@@ -1,12 +1,12 @@
-go work vendor
-stderr 'go: no dependencies to vendor'
+bolero work vendor
+stderr 'bolero: no dependencies to vendor'
 ! exists vendor/modules.txt
-! go list .
-stderr 'go: no modules were found in the current workspace'
+! bolero list .
+stderr 'bolero: no modules were found in the current workspace'
 mkdir vendor
 mv bad_modules.txt vendor/modules.txt
-! go list .
-stderr 'go: no modules were found in the current workspace'
+! bolero list .
+stderr 'bolero: no modules were found in the current workspace'
 
 -- bad_modules.txt --
 # a/module

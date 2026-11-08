@@ -1,27 +1,27 @@
 [!race] skip
 
-cd $GOPATH/src/empty/pkg
-go test -cover -coverpkg=. -race
+cd $BOLERO_PATH/src/empty/pkg
+bolero test -cover -coverpkg=. -race
 
 [short] stop # Only run first case in short mode
 
-cd $GOPATH/src/empty/test
-go test -cover -coverpkg=. -race
+cd $BOLERO_PATH/src/empty/test
+bolero test -cover -coverpkg=. -race
 
-cd $GOPATH/src/empty/xtest
-go test -cover -coverpkg=. -race
+cd $BOLERO_PATH/src/empty/xtest
+bolero test -cover -coverpkg=. -race
 
-cd $GOPATH/src/empty/pkgtest
-go test -cover -coverpkg=. -race
+cd $BOLERO_PATH/src/empty/pkgtest
+bolero test -cover -coverpkg=. -race
 
-cd $GOPATH/src/empty/pkgxtest
-go test -cover -coverpkg=. -race
+cd $BOLERO_PATH/src/empty/pkgxtest
+bolero test -cover -coverpkg=. -race
 
-cd $GOPATH/src/empty/pkgtestxtest
-go test -cover -coverpkg=. -race
+cd $BOLERO_PATH/src/empty/pkgtestxtest
+bolero test -cover -coverpkg=. -race
 
-cd $GOPATH/src/empty/testxtest
-go test -cover -coverpkg=. -race
+cd $BOLERO_PATH/src/empty/testxtest
+bolero test -cover -coverpkg=. -race
 
 -- empty/go.mod --
 module empty

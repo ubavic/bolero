@@ -72,7 +72,7 @@ func SVGProfileHandlerFunc(f ProfileFunc) http.HandlerFunc {
 		}
 		svgFilename := blockf.Name() + ".svg"
 		if output, err := exec.Command(goCmd(), "tool", "pprof", "-svg", "-output", svgFilename, blockf.Name()).CombinedOutput(); err != nil {
-			http.Error(w, fmt.Sprintf("failed to execute go tool pprof: %v\n%s", err, output), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("failed to execute bolero tool pprof: %v\n%s", err, output), http.StatusInternalServerError)
 			return
 		}
 		defer os.Remove(svgFilename)
@@ -142,7 +142,7 @@ func goCmd() string {
 	if runtime.GOOS == "windows" {
 		exeSuffix = ".exe"
 	}
-	path := filepath.Join(runtime.GOROOT(), "bin", "go"+exeSuffix)
+	path := filepath.Join(runtime.GOROOT(), "bin", "bolero"+exeSuffix)
 	if _, err := os.Stat(path); err == nil {
 		return path
 	}

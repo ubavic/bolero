@@ -1,2 +1,2 @@
-! go asdf
-stderr '^go asdf: unknown command'
+! bolero asdf
+stderr '^bolero asdf: unknown command'

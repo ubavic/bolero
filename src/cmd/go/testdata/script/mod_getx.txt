@@ -1,13 +1,13 @@
 [!net:golang.org] skip
 [!git] skip
 
-env GO111MODULE=on
-env GOPROXY=direct
-env GOSUMDB=off
+env BOLERO_MODULE=on
+env BOLERO_PROXY=direct
+env BOLERO_SUMDB=off
 
-# 'go get -x' should log URLs with an HTTP or HTTPS scheme.
+# 'bolero get -x' should log URLs with an HTTP or HTTPS scheme.
 # A bug had caused us to log schemeless URLs instead.
-go get -x golang.org/x/text@v0.1.0
+bolero get -x golang.org/x/text@v0.1.0
 stderr '^# get https://golang.org/x/text\?go-get=1$'
 stderr '^# get https://golang.org/x/text\?go-get=1: 200 OK \([0-9.]+s\)$'
 ! stderr '^# get //.*'

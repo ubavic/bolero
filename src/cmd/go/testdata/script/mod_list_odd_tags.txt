@@ -1,12 +1,12 @@
 [short] skip
 [!git] skip
 
-env GOPROXY=direct
+env BOLERO_PROXY=direct
 
-go list -m vcs-test.golang.org/git/odd-tags.git@latest
+bolero list -m vcs-test.golang.org/git/odd-tags.git@latest
 stdout -count=1 '^.'
 stdout '^vcs-test.golang.org/git/odd-tags.git v0.1.1-0.20220223184835-9d863d525bbf$'
 
-go list -m -versions vcs-test.golang.org/git/odd-tags.git
+bolero list -m -versions vcs-test.golang.org/git/odd-tags.git
 stdout -count=1 '^.'
 stdout '^vcs-test.golang.org/git/odd-tags.git$'  # No versions listed — the odd tags are filtered out.

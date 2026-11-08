@@ -1,24 +1,24 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 [short] skip
 
-# Set up fresh GOCACHE.
-env GOCACHE=$WORK/gocache
-mkdir $GOCACHE
+# Set up fresh BOLERO_CACHE.
+env BOLERO_CACHE=$WORK/gocache
+mkdir $BOLERO_CACHE
 
 # Building a main package should run the compiler and linker ...
-go build -o $devnull -x main.go
+bolero build -o $devnull -x main.go
 stderr '(compile|gccgo)( |\.exe).*main\.go'
 stderr '(link|gccgo)( |\.exe)'
 
 # ... and then the linker again ...
-go build -o $devnull -x main.go
+bolero build -o $devnull -x main.go
 ! stderr '(compile|gccgo)( |\.exe).*main\.go'
 stderr '(link|gccgo)( |\.exe)'
 
 # ... but the output binary can serve as a cache.
-go build -o main$GOEXE -x main.go
+bolero build -o main$GOEXE -x main.go
 stderr '(link|gccgo)( |\.exe)'
-go build -o main$GOEXE -x main.go
+bolero build -o main$GOEXE -x main.go
 ! stderr '(link|gccgo)( |\.exe)'
 
 -- main.go --

@@ -46,7 +46,7 @@ func runHello(t *testing.T, flag string) {
 	cmd := testenv.Command(t, testenv.GoToolPath(t), "run", "-gcflags=all="+flag, src)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Fatalf("go run failed: %v\n%s", err, out)
+		t.Fatalf("bolero run failed: %v\n%s", err, out)
 	}
 	if string(out) != "hello\n" {
 		t.Errorf("wrong output: got %q, want %q", out, "hello\n")

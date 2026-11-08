@@ -1,22 +1,22 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 [short] skip
 
 cd m
 
-# 'go list all' should list all of the packages used (directly or indirectly) by
+# 'bolero list all' should list all of the packages used (directly or indirectly) by
 # the packages in the main module, but no other packages from the standard
 # library or active modules.
 #
-# 'go list ...' should list packages in all active modules and the standard library.
+# 'bolero list ...' should list packages in all active modules and the standard library.
 #
-# 'go list example.com/m/...' should list packages in all modules that begin with 'example.com/m/'.
+# 'bolero list example.com/m/...' should list packages in all modules that begin with 'example.com/m/'.
 #
-# 'go list ./...' should list only packages in the current module, not other active modules.
+# 'bolero list ./...' should list only packages in the current module, not other active modules.
 #
 # Warnings about unmatched patterns should only be printed once.
 #
-# And the go command should be able to keep track of all this!
-go list -f '{{.ImportPath}}: {{.Match}}' all ... example.com/m/... ./... ./xyz...
+# And the bolero command should be able to keep track of all this!
+bolero list -f '{{.ImportPath}}: {{.Match}}' all ... example.com/m/... ./... ./xyz...
 stdout 'example.com/m/useunicode: \[all \.\.\. example.com/m/... ./...\]'
 stdout 'example.com/m/useunsafe: \[all \.\.\. example.com/m/... ./...\]'
 [cgo] stdout 'example.com/m/useC: \[all \.\.\. example.com/m/... ./...\]'
@@ -28,19 +28,19 @@ stdout '^unsafe: \[all \.\.\.\]'
 stdout 'index/suffixarray: \[\.\.\.\]'
 stdout 'cmd/pprof: \[\.\.\.\]'
 
-stderr -count=1 '^go: warning: "./xyz..." matched no packages$'
+stderr -count=1 '^bolero: warning: "./xyz..." matched no packages$'
 
-# 'go list ./...' should not try to resolve the main module.
+# 'bolero list ./...' should not try to resolve the main module.
 cd ../empty
-go list -deps ./...
+bolero list -deps ./...
 ! stdout .
 ! stderr 'finding'
-stderr -count=1 '^go: warning: "./..." matched no packages'
+stderr -count=1 '^bolero: warning: "./..." matched no packages'
 
 # disabling cgo should drop useC
 [short] skip
 env CGO_ENABLED=0
-go list -f '{{.ImportPath}}: {{.Match}}' all ... example.com/m/... ./... ./xyz...
+bolero list -f '{{.ImportPath}}: {{.Match}}' all ... example.com/m/... ./... ./xyz...
 ! stdout example.com/m/useC
 
 -- m/go.mod --

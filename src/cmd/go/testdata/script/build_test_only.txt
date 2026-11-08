@@ -1,13 +1,13 @@
 # Named explicitly, test-only packages should be reported as
 # unbuildable/uninstallable, even if there is a wildcard also matching.
-! go build m/testonly m/testonly...
-stderr 'no non-test Go files in'
-! go install ./testonly
-stderr 'no non-test Go files in'
+! bolero build m/testonly m/testonly...
+stderr 'no non-test Bolero files in'
+! bolero install ./testonly
+stderr 'no non-test Bolero files in'
 
 # Named through a wildcard, the test-only packages should be silently ignored.
-go build m/testonly...
-go install ./testonly...
+bolero build m/testonly...
+bolero install ./testonly...
 
 -- go.mod --
 module m

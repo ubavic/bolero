@@ -1,15 +1,15 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
 # Issue 23882
 
 [short] skip
 
-go test -coverpkg=all x
+bolero test -coverpkg=all x
 stdout ok[\s\S]+?coverage
 
 [!race] stop
 
-go test -coverpkg=all -race x
+bolero test -coverpkg=all -race x
 stdout ok[\s\S]+?coverage
 
 -- x/x.go --

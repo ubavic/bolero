@@ -2,10 +2,10 @@ cp go.mod go.mod.orig
 
 # The -u flag should not (even temporarily) upgrade modules whose versions are
 # determined by explicit queries to any version other than the explicit one.
-# Otherwise, 'go get -u' could introduce spurious dependencies.
+# Otherwise, 'bolero get -u' could introduce spurious dependencies.
 
-go get -u example.net/a@v0.1.0 example.net/b@v0.1.0
-go list -m all
+bolero get -u example.net/a@v0.1.0 example.net/b@v0.1.0
+bolero list -m all
 stdout '^example.net/a v0.1.0 '
 stdout '^example.net/b v0.1.0 '
 ! stdout '^example.net/c '
@@ -16,8 +16,8 @@ stdout '^example.net/b v0.1.0 '
 
 cp go.mod.orig go.mod
 
-go get -u example.net/a@v0.1.0 example.net/b/...@v0.1.0
-go list -m all
+bolero get -u example.net/a@v0.1.0 example.net/b/...@v0.1.0
+bolero list -m all
 stdout '^example.net/a v0.1.0 '
 stdout '^example.net/b v0.1.0 '
 stdout '^example.net/c '  # BUG, but a minor and rare one

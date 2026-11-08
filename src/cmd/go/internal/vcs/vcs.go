@@ -373,7 +373,7 @@ func svnStatus(vcsSvn *Cmd, rootDir string) (Status, error) {
 	}, nil
 }
 
-// fossilRepoName is the name go get associates with a fossil repository. In the
+// fossilRepoName is the name bolero get associates with a fossil repository. In the
 // real world the file can be named anything.
 const fossilRepoName = ".fossil"
 
@@ -513,7 +513,7 @@ func (v *Cmd) run1(dir string, cmdline string, keyval []string, verbose bool) ([
 	_, err := pathcache.LookPath(v.Cmd)
 	if err != nil {
 		fmt.Fprintf(os.Stderr,
-			"go: missing %s command. See https://golang.org/s/gogetcmd\n",
+			"bolero: missing %s command. See https://golang.org/s/gogetcmd\n",
 			v.Name)
 		return nil, err
 	}
@@ -545,8 +545,8 @@ func (v *Cmd) run1(dir string, cmdline string, keyval []string, verbose bool) ([
 func (v *Cmd) Ping(scheme, repo string) error {
 	// Run the ping command in an arbitrary working directory,
 	// but don't let the current working directory pollute the results.
-	// In module mode, we expect GOMODCACHE to exist and be a safe place for
-	// commands; in GOPATH mode, we expect that to be true of GOPATH/src.
+	// In module mode, we expect BOLERO_MODCACHE to exist and be a safe place for
+	// commands; in BOLERO_PATH mode, we expect that to be true of BOLERO_PATH/src.
 	dir := cfg.GOMODCACHE
 	if !cfg.ModulesEnabled {
 		dir = filepath.Join(cfg.BuildContext.GOPATH, "src")
@@ -661,13 +661,13 @@ func (e *vcsNotFoundError) Is(err error) bool {
 	return err == os.ErrNotExist
 }
 
-// A govcsRule is a single GOVCS rule like private:hg|svn.
+// A govcsRule is a single BOLERO_VCS rule like private:hg|svn.
 type govcsRule struct {
 	pattern string
 	allowed []string
 }
 
-// A govcsConfig is a full GOVCS configuration.
+// A govcsConfig is a full BOLERO_VCS configuration.
 type govcsConfig []govcsRule
 
 func parseGOVCS(s string) (govcsConfig, error) {
@@ -680,31 +680,31 @@ func parseGOVCS(s string) (govcsConfig, error) {
 	for item := range strings.SplitSeq(s, ",") {
 		item = strings.TrimSpace(item)
 		if item == "" {
-			return nil, fmt.Errorf("empty entry in GOVCS")
+			return nil, fmt.Errorf("empty entry in BOLERO_VCS")
 		}
 		pattern, list, found := strings.Cut(item, ":")
 		if !found {
-			return nil, fmt.Errorf("malformed entry in GOVCS (missing colon): %q", item)
+			return nil, fmt.Errorf("malformed entry in BOLERO_VCS (missing colon): %q", item)
 		}
 		pattern, list = strings.TrimSpace(pattern), strings.TrimSpace(list)
 		if pattern == "" {
-			return nil, fmt.Errorf("empty pattern in GOVCS: %q", item)
+			return nil, fmt.Errorf("empty pattern in BOLERO_VCS: %q", item)
 		}
 		if list == "" {
-			return nil, fmt.Errorf("empty VCS list in GOVCS: %q", item)
+			return nil, fmt.Errorf("empty VCS list in BOLERO_VCS: %q", item)
 		}
 		if search.IsRelativePath(pattern) {
-			return nil, fmt.Errorf("relative pattern not allowed in GOVCS: %q", pattern)
+			return nil, fmt.Errorf("relative pattern not allowed in BOLERO_VCS: %q", pattern)
 		}
 		if old := have[pattern]; old != "" {
-			return nil, fmt.Errorf("unreachable pattern in GOVCS: %q after %q", item, old)
+			return nil, fmt.Errorf("unreachable pattern in BOLERO_VCS: %q after %q", item, old)
 		}
 		have[pattern] = item
 		allowed := strings.Split(list, "|")
 		for i, a := range allowed {
 			a = strings.TrimSpace(a)
 			if a == "" {
-				return nil, fmt.Errorf("empty VCS name in GOVCS: %q", item)
+				return nil, fmt.Errorf("empty VCS name in BOLERO_VCS: %q", item)
 			}
 			allowed[i] = a
 		}
@@ -747,9 +747,9 @@ var (
 	govcsOnce sync.Once
 )
 
-// defaultGOVCS is the default setting for GOVCS.
-// Setting GOVCS adds entries ahead of these but does not remove them.
-// (They are appended to the parsed GOVCS setting.)
+// defaultGOVCS is the default setting for BOLERO_VCS.
+// Setting BOLERO_VCS adds entries ahead of these but does not remove them.
+// (They are appended to the parsed BOLERO_VCS setting.)
 //
 // The rationale behind allowing only Git and Mercurial is that
 // these two systems have had the most attention to issues
@@ -765,7 +765,7 @@ var defaultGOVCS = govcsConfig{
 }
 
 // checkGOVCS checks whether the policy defined by the environment variable
-// GOVCS allows the given vcs command to be used with the given repository
+// BOLERO_VCS allows the given vcs command to be used with the given repository
 // root path. Note that root may not be a real package or module path; it's
 // the same as the root path in the go-import meta tag.
 func checkGOVCS(vcs *Cmd, root string) error {
@@ -777,7 +777,7 @@ func checkGOVCS(vcs *Cmd, root string) error {
 	}
 
 	govcsOnce.Do(func() {
-		govcs, govcsErr = parseGOVCS(os.Getenv("GOVCS"))
+		govcs, govcsErr = parseGOVCS(os.Getenv("BOLERO_VCS"))
 		govcs = append(govcs, defaultGOVCS...)
 	})
 	if govcsErr != nil {
@@ -790,7 +790,7 @@ func checkGOVCS(vcs *Cmd, root string) error {
 		if private {
 			what = "private"
 		}
-		return fmt.Errorf("GOVCS disallows using %s for %s %s; see 'go help vcs'", vcs.Cmd, what, root)
+		return fmt.Errorf("BOLERO_VCS disallows using %s for %s %s; see 'bolero help vcs'", vcs.Cmd, what, root)
 	}
 
 	return nil

@@ -1,19 +1,19 @@
-# This test checks that "go mod tidy -e" do not panic when
+# This test checks that "bolero mod tidy -e" do not panic when
 # using a file goproxy that is missing some modules.
 # Verifies golang.org/issue/51589
 
 # download the modules first
-env GO111MODULE=on
-env GOPATH=$WORK/gopath
+env BOLERO_MODULE=on
+env BOLERO_PATH=$WORK/gopath
 cd $WORK/x
-go mod tidy
+bolero mod tidy
 
 # Use download cache as file:/// proxy.
-[GOOS:windows] env GOPROXY=file:///$WORK/gopath/pkg/mod/cache/download
-[!GOOS:windows] env GOPROXY=file://$WORK/gopath/pkg/mod/cache/download
+[GOOS:windows] env BOLERO_PROXY=file:///$WORK/gopath/pkg/mod/cache/download
+[!GOOS:windows] env BOLERO_PROXY=file://$WORK/gopath/pkg/mod/cache/download
 rm $WORK/gopath/pkg/mod/cache/download/golang.org/x/text/
-go mod tidy -e
-stderr '^go: rsc.io/sampler@v1.3.0 requires\n\tgolang.org/x/text@.*: reading file://.*/pkg/mod/cache/download/golang.org/x/text/.*'
+bolero mod tidy -e
+stderr '^bolero: rsc.io/sampler@v1.3.0 requires\n\tgolang.org/x/text@.*: reading file://.*/pkg/mod/cache/download/golang.org/x/text/.*'
 ! stderr 'signal SIGSEGV: segmentation violation'
 
 -- $WORK/x/go.mod --

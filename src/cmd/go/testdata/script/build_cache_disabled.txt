@@ -1,48 +1,48 @@
 # The build cache is required to build anything. It also may be needed to
-# initialize the build system, which is needed for commands like 'go env'.
+# initialize the build system, which is needed for commands like 'bolero env'.
 # However, there are lots of commands the cache is not needed for, and we
 # shouldn't require it when it won't be used.
 #
 # TODO(golang.org/issue/39882): commands below should work, too.
-# * go clean -modcache
-# * go env
-# * go fix
-# * go fmt
-# * go generate
-# * go get
-# * go list (without -export or -compiled)
+# * bolero clean -modcache
+# * bolero env
+# * bolero fix
+# * bolero fmt
+# * bolero generate
+# * bolero get
+# * bolero list (without -export or -compiled)
 
-env GOCACHE=off
+env BOLERO_CACHE=off
 
 # Commands that don't completely load packages should work.
-go doc fmt
+bolero doc fmt
 stdout Printf
 
-! go tool compile -h
+! bolero tool compile -h
 stderr usage:
 
-go version
-stdout '^go version'
+bolero version
+stdout '^bolero version'
 
 
 # Module commands that don't load packages should work.
-go mod init m
+bolero mod init m
 exists go.mod
 
-go mod edit -require rsc.io/quote@v1.5.2
+bolero mod edit -require rsc.io/quote@v1.5.2
 
-go mod download rsc.io/quote
+bolero mod download rsc.io/quote
 
-go mod graph
+bolero mod graph
 stdout rsc.io/quote
 
-go mod verify
+bolero mod verify
 
 
 # Commands that load but don't build packages should work.
-go fmt .
+bolero fmt .
 
-go doc .
+bolero doc .
 
 -- main.go --
 package main

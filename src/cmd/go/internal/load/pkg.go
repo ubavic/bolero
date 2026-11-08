@@ -57,12 +57,12 @@ import (
 
 // A Package describes a single package found in a directory.
 type Package struct {
-	PackagePublic                 // visible in 'go list'
-	Internal      PackageInternal // for use inside go command only
+	PackagePublic                 // visible in 'bolero list'
+	Internal      PackageInternal // for use inside bolero command only
 }
 
 type PackagePublic struct {
-	// Note: These fields are part of the go command's public API.
+	// Note: These fields are part of the bolero command's public API.
 	// See list.go. It is okay to add fields, but not to change or
 	// remove existing ones. Keep in sync with ../list/list.go
 	Dir           string                `json:",omitempty"` // directory containing package sources
@@ -75,8 +75,8 @@ type PackagePublic struct {
 	Root          string                `json:",omitempty"` // Go root, Go path dir, or module root dir containing this package
 	ConflictDir   string                `json:",omitempty"` // Dir is hidden by this other directory
 	ForTest       string                `json:",omitempty"` // package is only for use in named test
-	Export        string                `json:",omitempty"` // file containing export data (set by go list -export)
-	BuildID       string                `json:",omitempty"` // build ID of the compiled package (set by go list -export)
+	Export        string                `json:",omitempty"` // file containing export data (set by bolero list -export)
+	BuildID       string                `json:",omitempty"` // build ID of the compiled package (set by bolero list -export)
 	Module        *modinfo.ModulePublic `json:",omitempty"` // info about package's module, if any
 	Match         []string              `json:",omitempty"` // command-line patterns matching this package
 	Goroot        bool                  `json:",omitempty"` // is this package found in the Go root?
@@ -90,7 +90,7 @@ type PackagePublic struct {
 	// Stale and StaleReason remain here *only* for the list command.
 	// They are only initialized in preparation for list execution.
 	// The regular build determines staleness on the fly during action execution.
-	Stale       bool   `json:",omitempty"` // would 'go install' do anything for this package?
+	Stale       bool   `json:",omitempty"` // would 'bolero install' do anything for this package?
 	StaleReason string `json:",omitempty"` // why is Stale true?
 
 	// Source files
@@ -132,7 +132,7 @@ type PackagePublic struct {
 	// Error information
 	// Incomplete is above, packed into the other bools
 	Error      *PackageError   `json:",omitempty"` // error loading this package (not dependencies)
-	DepsErrors []*PackageError `json:",omitempty"` // errors loading dependencies, collected by go list before output
+	DepsErrors []*PackageError `json:",omitempty"` // errors loading dependencies, collected by bolero list before output
 
 	// Test information
 	// If you add to this list you MUST add to p.AllFiles (below) too.
@@ -234,7 +234,7 @@ type PackageInternal struct {
 	FuzzInstrument    bool                // package should be instrumented for fuzzing
 	Cover             CoverSetup          // coverage mode and other setup info of -cover is being applied to this package
 	OmitDebug         bool                // tell linker not to write debug information
-	GobinSubdir       bool                // install target would be subdir of GOBIN
+	GobinSubdir       bool                // install target would be subdir of BOLERO_BIN
 	BuildInfo         *debug.BuildInfo    // add this info to package main
 	TestmainGo        *[]byte             // content for _testmain.go
 	Embed             map[string][]string // //go:embed comment mapping
@@ -260,15 +260,15 @@ type NoGoError struct {
 func (e *NoGoError) Error() string {
 	if len(e.Package.IgnoredGoFiles) > 0 {
 		// Go files exist, but they were ignored due to build constraints.
-		return "build constraints exclude all Go files in " + e.Package.Dir
+		return "build constraints exclude all Bolero files in " + e.Package.Dir
 	}
 	if len(e.Package.TestGoFiles)+len(e.Package.XTestGoFiles) > 0 {
 		// Test Go files exist, but we're not interested in them.
 		// The double-negative is unfortunate but we want e.Package.Dir
 		// to appear at the end of error message.
-		return "no non-test Go files in " + e.Package.Dir
+		return "no non-test Bolero files in " + e.Package.Dir
 	}
-	return "no Go files in " + e.Package.Dir
+	return "no Bolero files in " + e.Package.Dir
 }
 
 // setLoadPackageDataError presents an error found when loading package data
@@ -322,7 +322,7 @@ func (p *Package) setLoadPackageDataError(err error, path string, stk *ImportSta
 	//
 	// TODO(matloob): Perhaps make each of those the errors in the first group
 	// (including modload.ImportMissingError, ImportMissingSumError, and the
-	// corresponding "cannot find package %q in any of" GOPATH-mode error
+	// corresponding "cannot find package %q in any of" BOLERO_PATH-mode error
 	// produced in build.(*Context).Import; modload.AmbiguousImportError,
 	// and modload.PackageNotInModuleError; and the malformed module path errors
 	// produced in golang.org/x/mod/module.CheckMod) implement an interface
@@ -353,7 +353,7 @@ func (p *Package) setLoadPackageDataError(err error, path string, stk *ImportSta
 // loaded during the initial load of p, so they list the imports found in
 // the source file, but most processing should be over the vendor-resolved
 // import paths. We do this resolution lazily both to avoid file system work
-// and because the eventual real load of the test imports (during 'go test')
+// and because the eventual real load of the test imports (during 'bolero test')
 // can produce better error messages if it starts with the original paths.
 // The initial load of p loads all the non-test imports and rewrites
 // the vendored paths, so nothing should ever call p.vendored(p.Imports).
@@ -377,7 +377,7 @@ func (p *Package) Resolve(s *modload.State, imports []string) []string {
 // CoverSetup holds parameters related to coverage setup for a given package (covermode, etc).
 type CoverSetup struct {
 	Mode    string // coverage mode for this package
-	Cfg     string // path to config file to pass to "go tool cover"
+	Cfg     string // path to config file to pass to "bolero tool cover"
 	GenMeta bool   // ask cover tool to emit a static meta data if set
 }
 
@@ -669,11 +669,11 @@ const (
 	// disallowVendor will reject direct use of paths containing /vendor/.
 	ResolveImport = 1 << iota
 
-	// ResolveModule is for download (part of "go get") and indicates
+	// ResolveModule is for download (part of "bolero get") and indicates
 	// that the module adjustment should be done, but not vendor adjustment.
 	ResolveModule
 
-	// GetTestDeps is for download (part of "go get") and indicates
+	// GetTestDeps is for download (part of "bolero get") and indicates
 	// that test dependencies should be fetched too.
 	GetTestDeps
 
@@ -850,7 +850,7 @@ func loadPackageData(loaderstate *modload.State, ctx context.Context, path, pare
 
 	if strings.HasPrefix(path, "mod/") {
 		// Paths beginning with "mod/" might accidentally
-		// look in the module cache directory tree in $GOPATH/pkg/mod/.
+		// look in the module cache directory tree in $BOLERO_PATH/pkg/mod/.
 		// This prefix is owned by the Go core for possible use in the
 		// standard library (since it does not begin with a domain name),
 		// so it's OK to disallow entirely.
@@ -858,7 +858,7 @@ func loadPackageData(loaderstate *modload.State, ctx context.Context, path, pare
 	}
 
 	if strings.Contains(path, "@") {
-		return nil, false, errors.New("can only use path@version syntax with 'go get' and 'go install' in module-aware mode")
+		return nil, false, errors.New("can only use path@version syntax with 'bolero get' and 'bolero install' in module-aware mode")
 	}
 
 	// Determine canonical package path and directory.
@@ -870,7 +870,7 @@ func loadPackageData(loaderstate *modload.State, ctx context.Context, path, pare
 	// Note that when modules are enabled, local import paths are normally
 	// canonicalized by modload.LoadPackages before now. However, if there's an
 	// error resolving a local path, it will be returned untransformed
-	// so that 'go list -e' reports something useful.
+	// so that 'bolero list -e' reports something useful.
 	importKey := importSpec{
 		path:        path,
 		parentPath:  parentPath,
@@ -921,7 +921,7 @@ func loadPackageData(loaderstate *modload.State, ctx context.Context, path, pare
 			if !cfg.ModulesEnabled {
 				buildMode = build.ImportComment
 			} else {
-				buildContext.GOPATH = "" // Clear GOPATH so packages are imported as pure module packages
+				buildContext.GOPATH = "" // Clear BOLERO_PATH so packages are imported as pure module packages
 			}
 			modroot := modload.PackageModRoot(loaderstate, ctx, r.path)
 			if modroot == "" && str.HasPathPrefix(r.dir, cfg.GOROOTsrc) {
@@ -942,8 +942,8 @@ func loadPackageData(loaderstate *modload.State, ctx context.Context, path, pare
 			data.p, data.err = buildContext.ImportDir(r.dir, buildMode)
 		Happy:
 			if cfg.ModulesEnabled {
-				// Override data.p.Root, since ImportDir sets it to $GOPATH, if
-				// the module is inside $GOPATH/src.
+				// Override data.p.Root, since ImportDir sets it to $BOLERO_PATH, if
+				// the module is inside $BOLERO_PATH/src.
 				if info := modload.PackageModuleInfo(loaderstate, ctx, path); info != nil {
 					data.p.Root = info.Dir
 				}
@@ -1049,8 +1049,8 @@ var preloadWorkerCount = runtime.GOMAXPROCS(0)
 // package graph. flush must be called when package loading is complete
 // to ensure preload goroutines are no longer active. This is necessary
 // because of global mutable state that cannot safely be read and written
-// concurrently. In particular, packageDataCache may be cleared by "go get"
-// in GOPATH mode, and modload.loaded (accessed via modload.Lookup) may be
+// concurrently. In particular, packageDataCache may be cleared by "bolero get"
+// in BOLERO_PATH mode, and modload.loaded (accessed via modload.Lookup) may be
 // modified by modload.LoadPackages.
 type preload struct {
 	cancel chan struct{}
@@ -1345,7 +1345,7 @@ func isVersionElement(s string) bool {
 // Define “new” code as code with a go.mod file in the same directory
 // or a parent directory. If an import in new code says x/y/v2/z but
 // x/y/v2/z does not exist and x/y/go.mod says “module x/y/v2”,
-// then go build will read the import as x/y/z instead.
+// then bolero build will read the import as x/y/z instead.
 // See golang.org/issue/25069.
 func moduleImportPath(path, parentPath, parentDir, parentRoot string) (found string) {
 	if parentRoot == "" {
@@ -1377,8 +1377,8 @@ func moduleImportPath(path, parentPath, parentDir, parentRoot string) (found str
 
 HaveGoMod:
 	// This import is in a tree with a go.mod.
-	// Allow it to refer to code in GOPATH/src/x/y/z as x/y/v2/z
-	// if GOPATH/src/x/y/go.mod says module "x/y/v2",
+	// Allow it to refer to code in BOLERO_PATH/src/x/y/z as x/y/v2/z
+	// if BOLERO_PATH/src/x/y/go.mod says module "x/y/v2",
 
 	// If x/y/v2/z exists, use it unmodified.
 	if bp, _ := cfg.BuildContext.Import(path, "", build.IgnoreVendor); bp.Dir != "" {
@@ -1515,7 +1515,7 @@ func disallowInternal(loaderstate *modload.State, ctx context.Context, srcDir st
 		i-- // rewind over slash in ".../internal"
 	}
 
-	// FIPS-140 snapshots are special, because they comes from a non-GOROOT
+	// FIPS-140 snapshots are special, because they comes from a non-BOLERO_ROOT
 	// directory, so the usual directory rules don't work apply, or rather they
 	// apply differently depending on whether we are using a snapshot or the
 	// in-tree copy of the code. We apply a consistent rule here:
@@ -1692,7 +1692,7 @@ func FindVendor(path string) (index int, ok bool) {
 type TargetDir int
 
 const (
-	ToTool    TargetDir = iota // to GOROOT/pkg/tool (default for cmd/*)
+	ToTool    TargetDir = iota // to BOLERO_ROOT/pkg/tool (default for cmd/*)
 	ToBin                      // to bin dir inside package root (default for non-cmd/*)
 	StalePath                  // an old import path; fail to build
 )
@@ -1734,6 +1734,11 @@ var foldPath = make(map[string]string)
 // a vN path element specifying the major version, then the
 // second last element of the import path is used instead.
 func (p *Package) exeFromImportPath() string {
+	if p.Standard {
+		if name, ok := bolero.ExecName(p.ImportPath); ok {
+			return name
+		}
+	}
 	_, elem := pathpkg.Split(p.ImportPath)
 	if cfg.ModulesEnabled {
 		// If this is example.com/mycmd/v2, it's more useful to
@@ -1784,7 +1789,7 @@ func (p *Package) load(loaderstate *modload.State, ctx context.Context, opts Pac
 	}
 
 	// setError sets p.Error if it hasn't already been set. We may proceed
-	// after encountering some errors so that 'go list -e' has more complete
+	// after encountering some errors so that 'bolero list -e' has more complete
 	// output. If there's more than one error, we should report the first.
 	setError := func(err error) {
 		if p.Error == nil {
@@ -1840,16 +1845,16 @@ func (p *Package) load(loaderstate *modload.State, ctx context.Context, opts Pac
 			p.Internal.Build.BinDir = modload.BinDir(loaderstate)
 		}
 		if p.Internal.Build.BinDir != "" {
-			// Install to GOBIN or bin of GOPATH entry.
+			// Install to BOLERO_BIN or bin of BOLERO_PATH entry.
 			p.Target = filepath.Join(p.Internal.Build.BinDir, elem)
 			if !p.Goroot && strings.Contains(elem, string(filepath.Separator)) && cfg.GOBIN != "" {
-				// Do not create $GOBIN/goos_goarch/elem.
+				// Do not create $BOLERO_BIN/goos_goarch/elem.
 				p.Target = ""
 				p.Internal.GobinSubdir = true
 			}
 		}
 		if InstallTargetDir(p) == ToTool {
-			// This is for 'go tool'.
+			// This is for 'bolero tool'.
 			// Override all the usual logic and force it into the tool directory.
 			if cfg.BuildToolchainName == "gccgo" {
 				p.Target = filepath.Join(build.ToolDir, elem)
@@ -2105,9 +2110,9 @@ func (e *EmbedError) Unwrap() error {
 }
 
 // ResolveEmbed resolves //go:embed patterns and returns only the file list.
-// For use by go mod vendor to find embedded files it should copy into the
+// For use by bolero mod vendor to find embedded files it should copy into the
 // vendor directory.
-// TODO(#42504): Once go mod vendor uses load.PackagesAndErrors, just
+// TODO(#42504): Once bolero mod vendor uses load.PackagesAndErrors, just
 // call (*Package).ResolveEmbed
 func ResolveEmbed(dir string, patterns []string) ([]string, error) {
 	files, _, err := resolveEmbed(dir, patterns)
@@ -2117,7 +2122,7 @@ func ResolveEmbed(dir string, patterns []string) ([]string, error) {
 var embedfollowsymlinks = godebug.New("embedfollowsymlinks")
 
 // resolveEmbed resolves //go:embed patterns to precise file lists.
-// It sets files to the list of unique files matched (for go list),
+// It sets files to the list of unique files matched (for bolero list),
 // and it sets pmap to the more precise mapping from
 // patterns to files.
 func resolveEmbed(pkgdir string, patterns []string) (files []string, pmap map[string][]string, err error) {
@@ -2513,8 +2518,8 @@ func (p *Package) setBuildInfo(ctx context.Context, f *modfetch.Fetcher, autoVCS
 	if wantVCS && p.Module != nil && p.Module.Version == "" && !p.Standard {
 		if p.Module.Path == "bootstrap" && cfg.GOROOT == os.Getenv("GOROOT_BOOTSTRAP") {
 			// During bootstrapping, the bootstrap toolchain is built in module
-			// "bootstrap" (instead of "std"), with GOROOT set to GOROOT_BOOTSTRAP
-			// (so the bootstrap toolchain packages don't even appear to be in GOROOT).
+			// "bootstrap" (instead of "std"), with BOLERO_ROOT set to GOROOT_BOOTSTRAP
+			// (so the bootstrap toolchain packages don't even appear to be in BOLERO_ROOT).
 			goto omitVCS
 		}
 		repoDir, vcsCmd, err = vcs.FromDir(base.Cwd(), "")
@@ -2676,7 +2681,7 @@ func LinkerDeps(s *modload.State, p *Package) ([]string, error) {
 // even for programs that do not use cgo, or the empty string if external
 // linking is not required.
 func externalLinkingReason(s *modload.State, p *Package) (what string) {
-	// Some targets must use external linking even inside GOROOT.
+	// Some targets must use external linking even inside BOLERO_ROOT.
 	if platform.MustLinkExternal(cfg.Goos, cfg.Goarch, false) {
 		return cfg.Goos + "/" + cfg.Goarch
 	}
@@ -3214,7 +3219,7 @@ func mainPackagesOnly(pkgs []*Package, matches []*search.Match) []*Package {
 			}
 		}
 		if !foundMain {
-			fmt.Fprintf(os.Stderr, "go: warning: %q matched only non-main packages\n", m.Pattern())
+			fmt.Fprintf(os.Stderr, "bolero: warning: %q matched only non-main packages\n", m.Pattern())
 		}
 	}
 
@@ -3278,7 +3283,7 @@ func GoFilesPackage(loaderstate *modload.State, ctx context.Context, opts Packag
 			base.Fatalf("%s", err)
 		}
 		if fi.IsDir() {
-			base.Fatalf("%s is a directory, should be a Go file", file)
+			base.Fatalf("%s is a directory, should be a Bolero file", file)
 		}
 		dir1 := filepath.Dir(file)
 		if dir == "" {
@@ -3416,7 +3421,7 @@ func PackagesAndErrorsOutsideModule(loaderstate *modload.State, ctx context.Cont
 		return nil, fmt.Errorf("%s: %w", args[0], err)
 	}
 	if deprecation != "" {
-		fmt.Fprintf(os.Stderr, "go: module %s is deprecated: %s\n", rootMod.Path, modload.ShortMessage(deprecation, ""))
+		fmt.Fprintf(os.Stderr, "bolero: module %s is deprecated: %s\n", rootMod.Path, modload.ShortMessage(deprecation, ""))
 	}
 	data, err := loaderstate.Fetcher().GoMod(ctx, rootMod.Path, rootMod.Version)
 	if err != nil {
@@ -3491,9 +3496,9 @@ func EnsureImport(s *modload.State, p *Package, pkg string) {
 	p.Internal.Imports = append(p.Internal.Imports, p1)
 }
 
-// PrepareForCoverageBuild is a helper invoked for "go install
-// -cover", "go run -cover", and "go build -cover" (but not used by
-// "go test -cover"). It walks through the packages being built (and
+// PrepareForCoverageBuild is a helper invoked for "bolero install
+// -cover", "bolero run -cover", and "bolero build -cover" (but not used by
+// "bolero test -cover"). It walks through the packages being built (and
 // dependencies) and marks them for coverage instrumentation when
 // appropriate, and possibly adding additional deps where needed.
 func PrepareForCoverageBuild(s *modload.State, pkgs []*Package) {
@@ -3583,7 +3588,7 @@ func SelectCoverPackages(s *modload.State, roots []*Package, match []func(*modlo
 		// the use of "regonly" instead of just ignoring the package
 		// completely-- we do this due to the requirements of the
 		// package ID numbering scheme. See the comment in
-		// $GOROOT/src/internal/coverage/pkid.go dealing with
+		// $BOLERO_ROOT/src/internal/coverage/pkid.go dealing with
 		// hard-coding of runtime package IDs.
 		cmode := cfg.BuildCoverMode
 		if cfg.BuildRace && p.Standard && objabi.LookupPkgSpecial(p.ImportPath).Runtime {

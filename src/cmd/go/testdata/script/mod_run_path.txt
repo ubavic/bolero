@@ -1,15 +1,15 @@
-# Test that go run does not get confused by conflict
+# Test that bolero run does not get confused by conflict
 # between go.mod's module path and what you'd
-# expect from GOPATH. golang.org/issue/26046.
+# expect from BOLERO_PATH. golang.org/issue/26046.
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-cd $GOPATH/src/example.com/hello
-go run main.go
+cd $BOLERO_PATH/src/example.com/hello
+bolero run main.go
 
--- $GOPATH/src/example.com/hello/go.mod --
+-- $BOLERO_PATH/src/example.com/hello/go.mod --
 module example.com/hello/v2
 
--- $GOPATH/src/example.com/hello/main.go --
+-- $BOLERO_PATH/src/example.com/hello/main.go --
 package main
 func main() {}

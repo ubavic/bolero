@@ -1,15 +1,15 @@
 [short] skip
 
 # Test
-go test -list=Test
+bolero test -list=Test
 stdout TestSimple
 
 # Benchmark
-go test -list=Benchmark
+bolero test -list=Benchmark
 stdout BenchmarkSimple
 
 # Examples
-go test -list=Example
+bolero test -list=Example
 stdout Example_simple
 stdout Example_withEmptyOutput
 

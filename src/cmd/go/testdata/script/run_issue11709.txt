@@ -1,5 +1,5 @@
-# 'go run' should not pass extraneous environment variables to the subprocess.
-go run run.go
+# 'bolero run' should not pass extraneous environment variables to the subprocess.
+bolero run run.go
 ! stdout .
 ! stderr .
 

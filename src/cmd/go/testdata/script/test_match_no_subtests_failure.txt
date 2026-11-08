@@ -1,5 +1,5 @@
 # Matches no subtests, but parent test still fails
-! go test -run TestThatFails/ThisWillNotMatch standalone_fail_sub_test.go
+! bolero test -run TestThatFails/ThisWillNotMatch standalone_fail_sub_test.go
 ! stdout '^ok.*\[no tests to run\]'
 ! stderr '^ok.*\[no tests to run\]'
 stdout 'FAIL'

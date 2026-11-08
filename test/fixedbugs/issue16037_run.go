@@ -64,7 +64,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	out, err := exec.Command("go", "build", "-o="+filepath.Join(dir, "out"), path).CombinedOutput()
+	out, err := exec.Command("bolero", "build", "-o="+filepath.Join(dir, "out"), path).CombinedOutput()
 	if err != nil {
 		log.Fatalf("build failed: %v\n%s", err, out)
 	}

@@ -1,10 +1,10 @@
 # Test the work and tool patterns in a per-package flag
 
-go build -n '-gcflags=work=-fakeflag' example.com/foo/a
+bolero build -n '-gcflags=work=-fakeflag' example.com/foo/a
 stderr 'compile.*-p example.com/foo/a.*-fakeflag'
 ! stderr 'compile.*-p example.com/dep.*-fakeflag'
 
-go build -n '-gcflags=tool=-fakeflag' example.com/foo/a example.com/dep/tooldep
+bolero build -n '-gcflags=tool=-fakeflag' example.com/foo/a example.com/dep/tooldep
 ! stderr 'compile.*-p example.com/foo/a.*-fakeflag'
 ! stderr 'compile.*-p example.com/dep.*-fakeflag'
 stderr 'compile.*-p main.*-fakeflag.*main.go'

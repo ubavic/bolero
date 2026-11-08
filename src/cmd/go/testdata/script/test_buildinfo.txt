@@ -1,10 +1,10 @@
 # Ensure buildinfo is populated on test binaries even if they
 # are not tests for package main. See issue #33976.
 
-[short] skip 'invokes go test'
+[short] skip 'invokes bolero test'
 
-go mod init foo
-go test -v
+bolero mod init foo
+bolero test -v
 stdout '(devel)'
 
 -- foo_test.go --

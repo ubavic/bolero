@@ -81,7 +81,7 @@ func testMain(m *testing.M) int {
 	} else {
 		defer os.RemoveAll(GOPATH)
 	}
-	os.Setenv("GOPATH", GOPATH)
+	os.Setenv("BOLERO_PATH", GOPATH)
 
 	// Copy testdata into GOPATH/src/testarchive, along with a go.mod file
 	// declaring the same path.
@@ -178,12 +178,12 @@ func testMain(m *testing.M) int {
 }
 
 func goEnv(key string) string {
-	out, err := exec.Command("go", "env", key).Output()
+	out, err := exec.Command("bolero", "env", key).Output()
 	if err != nil {
 		if ee, ok := err.(*exec.ExitError); ok {
 			fmt.Fprintf(os.Stderr, "%s", ee.Stderr)
 		}
-		log.Panicf("go env %s failed:\n%s\n", key, err)
+		log.Panicf("bolero env %s failed:\n%s\n", key, err)
 	}
 	return strings.TrimSpace(string(out))
 }
@@ -232,7 +232,7 @@ func genHeader(t *testing.T, header, dir string) {
 func testInstall(t *testing.T, exe, libgoa, libgoh string, buildcmd ...string) {
 	t.Helper()
 	cmd := exec.Command(buildcmd[0], buildcmd[1:]...)
-	cmd.Env = append(cmd.Environ(), "GO111MODULE=off") // 'go install' only works in GOPATH mode
+	cmd.Env = append(cmd.Environ(), "BOLERO_MODULE=off") // 'go install' only works in GOPATH mode
 	t.Log(buildcmd)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Logf("%s", out)
@@ -489,15 +489,15 @@ func TestInstall(t *testing.T) {
 	testInstall(t, "./testp1"+exeSuffix,
 		filepath.Join(libgodir, libgoa),
 		filepath.Join(libgodir, "libgo.h"),
-		"go", "install", "-buildmode=c-archive", "./libgo")
+		"bolero", "install", "-buildmode=c-archive", "./libgo")
 
 	// Test building libgo other than installing it.
 	// Header files are now present.
 	testInstall(t, "./testp2"+exeSuffix, "libgo.a", "libgo.h",
-		"go", "build", "-buildmode=c-archive", filepath.Join(".", "libgo", "libgo.go"))
+		"bolero", "build", "-buildmode=c-archive", filepath.Join(".", "libgo", "libgo.go"))
 
 	testInstall(t, "./testp3"+exeSuffix, "libgo.a", "libgo.h",
-		"go", "build", "-buildmode=c-archive", "-o", "libgo.a", "./libgo")
+		"bolero", "build", "-buildmode=c-archive", "-o", "libgo.a", "./libgo")
 }
 
 func TestEarlySignalHandler(t *testing.T) {
@@ -673,7 +673,7 @@ func buildSignalForwardingTest(t *testing.T) {
 		})
 	}
 
-	t.Log("go build -buildmode=c-archive -o libgo2.a ./libgo2")
+	t.Log("bolero build -buildmode=c-archive -o libgo2.a ./libgo2")
 	cmd := exec.Command(testenv.GoToolPath(t), "build", "-buildmode=c-archive", "-o", "libgo2.a", "./libgo2")
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
@@ -917,7 +917,7 @@ func TestExtar(t *testing.T) {
 
 	if _, err := os.Stat("testar.ran"); err != nil {
 		if os.IsNotExist(err) {
-			t.Error("testar does not exist after go build")
+			t.Error("testar does not exist after bolero build")
 		} else {
 			t.Errorf("error checking testar: %v", err)
 		}
@@ -1156,10 +1156,10 @@ func TestCachedInstall(t *testing.T) {
 
 	h := filepath.Join(libgodir, "libgo.h")
 
-	buildcmd := []string{"go", "install", "-buildmode=c-archive", "./libgo"}
+	buildcmd := []string{"bolero", "install", "-buildmode=c-archive", "./libgo"}
 
 	cmd := exec.Command(buildcmd[0], buildcmd[1:]...)
-	cmd.Env = append(cmd.Environ(), "GO111MODULE=off") // 'go install' only works in GOPATH mode
+	cmd.Env = append(cmd.Environ(), "BOLERO_MODULE=off") // 'go install' only works in GOPATH mode
 	t.Log(buildcmd)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Logf("%s", out)
@@ -1175,7 +1175,7 @@ func TestCachedInstall(t *testing.T) {
 	}
 
 	cmd = exec.Command(buildcmd[0], buildcmd[1:]...)
-	cmd.Env = append(cmd.Environ(), "GO111MODULE=off")
+	cmd.Env = append(cmd.Environ(), "BOLERO_MODULE=off")
 	t.Log(buildcmd)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Logf("%s", out)

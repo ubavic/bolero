@@ -1,42 +1,42 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # 'mod download' should download the module to the cache.
-go mod download rsc.io/quote@v1.5.0
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.info
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.mod
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.zip
+bolero mod download rsc.io/quote@v1.5.0
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.info
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.mod
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.zip
 
 # '-n' should print commands but not actually execute them.
-go clean -modcache -n
+bolero clean -modcache -n
 stdout '^rm -rf .*pkg.mod$'
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.info
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.mod
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.zip
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.info
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.mod
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.zip
 
-# 'go clean -modcache' should actually delete the files.
-go clean -modcache
-! exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.info
-! exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.mod
-! exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.zip
+# 'bolero clean -modcache' should actually delete the files.
+bolero clean -modcache
+! exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.info
+! exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.mod
+! exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.zip
 
-# 'go clean -r -modcache' should clean only the dependencies that are within the
+# 'bolero clean -r -modcache' should clean only the dependencies that are within the
 # main module.
 # BUG(golang.org/issue/28680): Today, it cleans across module boundaries.
 cd r
 exists ./test.out
 exists ../replaced/test.out
-go clean -r -modcache
+bolero clean -r -modcache
 ! exists ./test.out
 ! exists ../replaced/test.out  # BUG: should still exist
 
-# 'go clean -modcache' should not download anything before cleaning.
-go mod edit -require rsc.io/quote@v1.99999999.0-not-a-real-version
-go clean -modcache
+# 'bolero clean -modcache' should not download anything before cleaning.
+bolero mod edit -require rsc.io/quote@v1.99999999.0-not-a-real-version
+bolero clean -modcache
 ! stderr 'finding rsc.io'
-go mod edit -droprequire rsc.io/quote
+bolero mod edit -droprequire rsc.io/quote
 
-! go clean -modcache m
-stderr 'go: clean -modcache cannot be used with package arguments'
+! bolero clean -modcache m
+stderr 'bolero: clean -modcache cannot be used with package arguments'
 
 -- go.mod --
 module m

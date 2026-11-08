@@ -82,7 +82,7 @@ func TestStmtLines(t *testing.T) {
 	dir := t.TempDir()
 	out, err := testenv.Command(t, testenv.GoToolPath(t), "build", "-ldflags=-w=0", "-o", dir+"/test.exe", "cmd/go").CombinedOutput()
 	if err != nil {
-		t.Fatalf("go build: %v\n%s", err, out)
+		t.Fatalf("bolero build: %v\n%s", err, out)
 	}
 
 	lines := map[Line]bool{}

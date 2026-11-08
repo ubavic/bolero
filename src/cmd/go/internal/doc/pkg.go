@@ -83,7 +83,7 @@ func (p PackageError) Error() string {
 // prettyPath returns a version of the package path that is suitable for an
 // error message. It obeys the import comment if present. Also, since
 // pkg.build.ImportPath is sometimes the unhelpful "" or ".", it looks for a
-// directory name in GOROOT or GOPATH if that happens.
+// directory name in BOLERO_ROOT or BOLERO_PATH if that happens.
 func (pkg *Package) prettyPath() string {
 	path := pkg.build.ImportComment
 	if path == "" {
@@ -172,7 +172,7 @@ func parsePackage(writer io.Writer, pkg *build.Package, userPath string) *Packag
 	// list, which is what we want. For instance, time.Sunday is of type
 	// time.Weekday, so it is defined in the type but not in the
 	// Consts list for the package. This prevents
-	//	go doc time.Sunday
+	//	bolero doc time.Sunday
 	// from finding the symbol. Work around this for now, but we
 	// should fix it in go/doc.
 	// A similar story applies to factory functions.

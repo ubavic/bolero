@@ -5,10 +5,10 @@
 # leading to an infinite loop.
 
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.orig
 
-go get -u=patch ./...
+bolero get -u=patch ./...
 cmp go.mod go.mod.want
 
 -- go.mod --

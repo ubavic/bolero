@@ -473,7 +473,7 @@ func (gcToolchain) pack(b *Builder, a *Action, afile string, ofiles []string) er
 	p := a.Package
 	sh := b.Shell(a)
 	if cfg.BuildN || cfg.BuildX {
-		cmdline := str.StringList("go", "tool", "pack", "r", absAfile, absOfiles)
+		cmdline := str.StringList("bolero", "tool", "pack", "r", absAfile, absOfiles)
 		sh.ShowCmd(p.Dir, "%s # internal", joinUnambiguously(cmdline))
 	}
 	if cfg.BuildN {
@@ -581,7 +581,7 @@ func pluginPath(a *Action) string {
 	for _, file := range str.StringList(p.GoFiles, p.CgoFiles, p.SFiles) {
 		data, err := os.ReadFile(filepath.Join(p.Dir, file))
 		if err != nil {
-			base.Fatalf("go: %s", err)
+			base.Fatalf("bolero: %s", err)
 		}
 		h.Write(data)
 	}
@@ -664,11 +664,11 @@ func (gcToolchain) ld(b *Builder, root *Action, targetPath, importcfg, mainpkg s
 	}
 
 	env := cfgChangedEnv
-	// When -trimpath is used, GOROOT is cleared
+	// When -trimpath is used, BOLERO_ROOT is cleared
 	if cfg.BuildTrimpath {
-		env = append(env, "GOROOT=")
+		env = append(env, "BOLERO_ROOT=")
 	} else {
-		env = append(env, "GOROOT="+cfg.GOROOT)
+		env = append(env, "BOLERO_ROOT="+cfg.GOROOT)
 	}
 	return b.Shell(root).run(dir, root.Package.ImportPath, env, cfg.BuildToolexec, base.Tool("link"), "-o", targetPath, "-importcfg", importcfg, ldflags, mainpkg)
 }

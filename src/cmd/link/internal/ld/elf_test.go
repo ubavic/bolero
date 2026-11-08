@@ -555,7 +555,7 @@ func TestRelroSectionOverlapIssue67261(t *testing.T) {
 	stripExecs := []string{}
 	ecmd := testenv.Command(t, testenv.GoToolPath(t), "env", "CC")
 	if out, err := ecmd.CombinedOutput(); err != nil {
-		t.Fatalf("go env CC failed: %v:\n%s", err, out)
+		t.Fatalf("bolero env CC failed: %v:\n%s", err, out)
 	} else {
 		ccprog := strings.TrimSpace(string(out))
 		tries := []string{"strip", "llvm-strip"}

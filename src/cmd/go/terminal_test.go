@@ -16,8 +16,8 @@ import (
 )
 
 func TestTerminalPassthrough(t *testing.T) {
-	// Check that if 'go test' is run with a terminal connected to stdin/stdout,
-	// then the go command passes that terminal down to the test binary
+	// Check that if 'bolero test' is run with a terminal connected to stdin/stdout,
+	// then the bolero command passes that terminal down to the test binary
 	// invocation (rather than, e.g., putting a pipe in the way).
 	//
 	// See issue 18153.

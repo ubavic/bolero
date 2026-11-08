@@ -1,4 +1,4 @@
-go work use -r .
+bolero work use -r .
 cmp go.work go.work.want
 
 -- go.work --

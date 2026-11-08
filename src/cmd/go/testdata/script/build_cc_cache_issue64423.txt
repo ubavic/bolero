@@ -13,12 +13,12 @@
 [!cc:clang] skip 'test is specific to clang version parsing'
 
 # Save the location of the real clang command for our fake one to use.
-go run ./which clang
+bolero run ./which clang
 cp stdout $WORK/.realclang
 
 # Build a fake clang and ensure that it is the one in $PATH.
 mkdir $WORK/bin
-go build -o $WORK/bin/clang$GOEXE ./fakeclang
+bolero build -o $WORK/bin/clang$GOEXE ./fakeclang
 [!GOOS:plan9] env PATH=$WORK${/}bin
 [GOOS:plan9] env path=$WORK${/}bin
 
@@ -32,17 +32,17 @@ env CGO_ENABLED=1
 # if we change the way caching works, we want the test to fail
 # instead of accidentally reusing the cached information from a
 # previous test run.
-env GOCACHE=$WORK${/}.cache
-mkdir $GOCACHE
+env BOLERO_CACHE=$WORK${/}.cache
+mkdir $BOLERO_CACHE
 
-go build -x runtime/cgo
+bolero build -x runtime/cgo
 
 	# Tell our fake clang to stop working.
-	# Previously, 'go build -x runtime/cgo' would continue to
+	# Previously, 'bolero build -x runtime/cgo' would continue to
 	# succeed because both the broken clang and the non-broken one
 	# resulted in a cache key with no clang version information.
 env GO_BREAK_CLANG=1
-! go build -x runtime/cgo
+! bolero build -x runtime/cgo
 stderr '# runtime/cgo\nGO_BREAK_CLANG is set'
 
 -- go.mod --

@@ -1,9 +1,9 @@
-! go list all
+! bolero list all
 ! stderr 'panic'
 stderr 'invalid import path'
 
-# go list produces a package for 'p' but not for ''
-go list -e all
+# bolero list produces a package for 'p' but not for ''
+bolero list -e all
 cmp stdout wantlist.txt
 -- wantlist.txt --
 example.com/e

@@ -1,7 +1,7 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # Go 1.24 module should disable decoratemappings.
-go list -f '{{.Module.GoVersion}} {{.DefaultGODEBUG}}'
+bolero list -f '{{.Module.GoVersion}} {{.DefaultGODEBUG}}'
 stdout decoratemappings=0
 
 [!GOOS:linux] skip
@@ -9,7 +9,7 @@ stdout decoratemappings=0
 
 # Programs in Go 1.24 module should never see annotations. This ensures that
 # the runtime has not overridden the default.
-go run .
+bolero run .
 
 -- go.mod --
 go 1.24

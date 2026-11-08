@@ -1,35 +1,35 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # list excluded version
-go list -modfile=go.exclude.mod -m rsc.io/quote@v1.5.0
+bolero list -modfile=go.exclude.mod -m rsc.io/quote@v1.5.0
 stdout '^rsc.io/quote v1.5.0$'
 
 # list versions should not print excluded versions
-go list -m -versions rsc.io/quote
+bolero list -m -versions rsc.io/quote
 stdout '\bv1.5.0\b'
-go list -modfile=go.exclude.mod -m -versions rsc.io/quote
+bolero list -modfile=go.exclude.mod -m -versions rsc.io/quote
 ! stdout '\bv1.5.0\b'
 
 # list query with excluded version
-go list -m rsc.io/quote@>=v1.5
+bolero list -m rsc.io/quote@>=v1.5
 stdout '^rsc.io/quote v1.5.0$'
-go list -modfile=go.exclude.mod -m rsc.io/quote@>=v1.5
+bolero list -modfile=go.exclude.mod -m rsc.io/quote@>=v1.5
 stdout '^rsc.io/quote v1.5.1$'
 
 # get excluded version
 cp go.exclude.mod go.exclude.mod.orig
-! go get -modfile=go.exclude.mod rsc.io/quote@v1.5.0
-stderr '^go: rsc.io/quote@v1.5.0: excluded by go.mod$'
+! bolero get -modfile=go.exclude.mod rsc.io/quote@v1.5.0
+stderr '^bolero: rsc.io/quote@v1.5.0: excluded by go.mod$'
 
 # get non-excluded version
 cp go.exclude.mod.orig go.exclude.mod
-go get -modfile=go.exclude.mod rsc.io/quote@v1.5.1
+bolero get -modfile=go.exclude.mod rsc.io/quote@v1.5.1
 stderr 'rsc.io/quote v1.5.1'
 
 # get query with excluded version
 cp go.exclude.mod.orig go.exclude.mod
-go get -modfile=go.exclude.mod rsc.io/quote@>=v1.5
-go list -modfile=go.exclude.mod -m ...quote
+bolero get -modfile=go.exclude.mod rsc.io/quote@>=v1.5
+bolero list -modfile=go.exclude.mod -m ...quote
 stdout 'rsc.io/quote v1.5.[1-9]'
 
 -- go.mod --

@@ -1,7 +1,7 @@
 # example.net/pkgremoved@v0.1.0 refers to a package.
-go get example.net/pkgremoved@v0.1.0
+bolero get example.net/pkgremoved@v0.1.0
 
-go list example.net/pkgremoved
+bolero list example.net/pkgremoved
 stdout '^example.net/pkgremoved'
 
 cp go.mod go.mod.orig
@@ -15,8 +15,8 @@ cp go.mod go.mod.orig
 # be constrained to the latest patch of its originally-selected version (v0.1.0),
 # not upgraded to the latest patch of the new transitive dependency.
 
-! go get example.net/pkgremoved@patch example.net/other@v0.1.0
-stderr '^go: example.net/other@v0.1.0 requires example.net/pkgremoved@v0.2.0, not example.net/pkgremoved@patch \(v0.1.1\)$'
+! bolero get example.net/pkgremoved@patch example.net/other@v0.1.0
+stderr '^bolero: example.net/other@v0.1.0 requires example.net/pkgremoved@v0.2.0, not example.net/pkgremoved@patch \(v0.1.1\)$'
 cmp go.mod.orig go.mod
 
 
@@ -24,20 +24,20 @@ cmp go.mod.orig go.mod
 
 # Package to module ...
 
-go get example.net/pkgremoved@v0.3.0
-go list example.net/pkgremoved
+bolero get example.net/pkgremoved@v0.3.0
+bolero list example.net/pkgremoved
 stdout 'example.net/pkgremoved'
 
-go get example.net/pkgremoved@patch
-! go list example.net/pkgremoved
+bolero get example.net/pkgremoved@patch
+! bolero list example.net/pkgremoved
 
 # ... and module to package.
 
-go get example.net/pkgremoved@v0.4.0
-! go list example.net/pkgremoved
+bolero get example.net/pkgremoved@v0.4.0
+! bolero list example.net/pkgremoved
 
-go get example.net/pkgremoved@patch
-go list example.net/pkgremoved
+bolero get example.net/pkgremoved@patch
+bolero list example.net/pkgremoved
 stdout 'example.net/pkgremoved'
 
 

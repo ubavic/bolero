@@ -6,7 +6,7 @@
 env GOOS=linux
 env GOARCH=arm
 env GOARM=5
-go install mycmd
+bolero install mycmd
 env GOARM=7
 stale mycmd
 

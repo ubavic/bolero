@@ -1,4 +1,4 @@
-# This test verifies that 'go get' and 'go mod tidy' switch to a newer toolchain
+# This test verifies that 'bolero get' and 'bolero mod tidy' switch to a newer toolchain
 # if needed to process newly-resolved imports.
 
 env TESTGO_VERSION=go1.21.0
@@ -7,69 +7,69 @@ env TESTGO_VERSION_SWITCH=switch
 cp go.mod go.mod.orig
 
 # tidy reports needing 1.22.0 for b1
-env GOTOOLCHAIN=local
-! go mod tidy
-stderr '^go: example imports\n\texample.net/b: module ./b1 requires go >= 1.22.0 \(running go 1.21.0; GOTOOLCHAIN=local\)$'
-env GOTOOLCHAIN=auto
-go mod tidy
+env BOLERO_TOOLCHAIN=local
+! bolero mod tidy
+stderr '^bolero: example imports\n\texample.net/b: module ./b1 requires go >= 1.22.0 \(running go 1.21.0; BOLERO_TOOLCHAIN=local\)$'
+env BOLERO_TOOLCHAIN=auto
+bolero mod tidy
 
 cmp stderr tidy-stderr.want
 cmp go.mod go.mod.tidy
 
 cp go.mod.orig go.mod
-env GOTOOLCHAIN=local
-! go get -v .
-stderr '^go: example.net/b@v0.1.0: module ./b1 requires go >= 1.22.0 \(running go 1.21.0; GOTOOLCHAIN=local\)$'
-env GOTOOLCHAIN=auto
-go get -v .
+env BOLERO_TOOLCHAIN=local
+! bolero get -v .
+stderr '^bolero: example.net/b@v0.1.0: module ./b1 requires go >= 1.22.0 \(running go 1.21.0; BOLERO_TOOLCHAIN=local\)$'
+env BOLERO_TOOLCHAIN=auto
+bolero get -v .
 cmp stderr get-v-stderr.want
 cmp go.mod go.mod.tidy
 
 cp go.mod.orig go.mod
-env GOTOOLCHAIN=local
-! go get -u -v .
-stderr '^go: example.net/a@v0.2.0: module ./a2 requires go >= 1.22.0 \(running go 1.21.0; GOTOOLCHAIN=local\)$'
-env GOTOOLCHAIN=auto
-go get -u -v .
+env BOLERO_TOOLCHAIN=local
+! bolero get -u -v .
+stderr '^bolero: example.net/a@v0.2.0: module ./a2 requires go >= 1.22.0 \(running go 1.21.0; BOLERO_TOOLCHAIN=local\)$'
+env BOLERO_TOOLCHAIN=auto
+bolero get -u -v .
 cmp stderr get-u-v-stderr.want
 cmp go.mod go.mod.upgraded
 
 -- tidy-stderr.want --
-go: found example.net/b in example.net/b v0.1.0
-go: module ./b1 requires go >= 1.22.0; switching to go1.22.9
-go: found example.net/b in example.net/b v0.1.0
-go: found example.net/c in example.net/c v0.1.0
+bolero: found example.net/b in example.net/b v0.1.0
+bolero: module ./b1 requires go >= 1.22.0; switching to go1.22.9
+bolero: found example.net/b in example.net/b v0.1.0
+bolero: found example.net/c in example.net/c v0.1.0
 -- get-v-stderr.want --
-go: trying upgrade to example.net/b@v0.1.0
-go: module ./b1 requires go >= 1.22.0; switching to go1.22.9
-go: trying upgrade to example.net/b@v0.1.0
-go: accepting indirect upgrade from go@1.20 to 1.22.0
-go: trying upgrade to example.net/c@v0.1.0
-go: upgraded go 1.20 => 1.22.0
-go: added example.net/b v0.1.0
-go: added example.net/c v0.1.0
-go: added example.net/d v0.1.0
+bolero: trying upgrade to example.net/b@v0.1.0
+bolero: module ./b1 requires go >= 1.22.0; switching to go1.22.9
+bolero: trying upgrade to example.net/b@v0.1.0
+bolero: accepting indirect upgrade from go@1.20 to 1.22.0
+bolero: trying upgrade to example.net/c@v0.1.0
+bolero: upgraded go 1.20 => 1.22.0
+bolero: added example.net/b v0.1.0
+bolero: added example.net/c v0.1.0
+bolero: added example.net/d v0.1.0
 -- get-u-v-stderr.want --
-go: trying upgrade to example.net/a@v0.2.0
-go: trying upgrade to example.net/b@v0.1.0
-go: module ./a2 requires go >= 1.22.0; switching to go1.22.9
-go: trying upgrade to example.net/a@v0.2.0
-go: trying upgrade to example.net/b@v0.1.0
-go: accepting indirect upgrade from go@1.20 to 1.22.0
-go: trying upgrade to example.net/c@v0.1.0
-go: trying upgrade to example.net/d@v0.2.0
-go: module ./d2 requires go >= 1.23.0; switching to go1.23.9
-go: trying upgrade to example.net/a@v0.2.0
-go: trying upgrade to example.net/b@v0.1.0
-go: accepting indirect upgrade from go@1.20 to 1.22.0
-go: trying upgrade to example.net/c@v0.1.0
-go: trying upgrade to example.net/d@v0.2.0
-go: accepting indirect upgrade from go@1.22.0 to 1.23.0
-go: upgraded go 1.20 => 1.23.0
-go: upgraded example.net/a v0.1.0 => v0.2.0
-go: added example.net/b v0.1.0
-go: added example.net/c v0.1.0
-go: added example.net/d v0.2.0
+bolero: trying upgrade to example.net/a@v0.2.0
+bolero: trying upgrade to example.net/b@v0.1.0
+bolero: module ./a2 requires go >= 1.22.0; switching to go1.22.9
+bolero: trying upgrade to example.net/a@v0.2.0
+bolero: trying upgrade to example.net/b@v0.1.0
+bolero: accepting indirect upgrade from go@1.20 to 1.22.0
+bolero: trying upgrade to example.net/c@v0.1.0
+bolero: trying upgrade to example.net/d@v0.2.0
+bolero: module ./d2 requires go >= 1.23.0; switching to go1.23.9
+bolero: trying upgrade to example.net/a@v0.2.0
+bolero: trying upgrade to example.net/b@v0.1.0
+bolero: accepting indirect upgrade from go@1.20 to 1.22.0
+bolero: trying upgrade to example.net/c@v0.1.0
+bolero: trying upgrade to example.net/d@v0.2.0
+bolero: accepting indirect upgrade from go@1.22.0 to 1.23.0
+bolero: upgraded go 1.20 => 1.23.0
+bolero: upgraded example.net/a v0.1.0 => v0.2.0
+bolero: added example.net/b v0.1.0
+bolero: added example.net/c v0.1.0
+bolero: added example.net/d v0.2.0
 -- go.mod --
 module example
 

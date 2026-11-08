@@ -2664,7 +2664,7 @@ func (pw *pkgWriter) collectDecls(noders []*noder) {
 
 		for _, l := range p.linknames {
 			if !file.importedUnsafe {
-				pw.errorf(l.pos, "//go:linkname only allowed in Go files that import \"unsafe\"")
+				pw.errorf(l.pos, "//go:linkname only allowed in files that import \"unsafe\"")
 				continue
 			}
 			if strings.Contains(l.remote, "[") && strings.Contains(l.remote, "]") {

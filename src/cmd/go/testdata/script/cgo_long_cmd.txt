@@ -5,11 +5,11 @@
 [GOOS:plan9] skip
 
 # Generate a file with a very long #cgo LDFLAGS line.
-# This used to cause "go build" to fail with "argument list too long".
-go generate
+# This used to cause "bolero build" to fail with "argument list too long".
+bolero generate
 
 # Build with the generated file.
-go build
+bolero build
 
 -- go.mod --
 module cgolongcmd
@@ -43,4 +43,4 @@ func main() {
 -- gen.go --
 package p
 
-//go:generate go run generate.go
+//go:generate bolero run generate.go

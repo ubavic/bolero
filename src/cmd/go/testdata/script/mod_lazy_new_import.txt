@@ -18,20 +18,20 @@
 
 cp go.mod go.mod.old
 cp lazy.go lazy.go.old
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.old
 
 # Before adding a new import, the go.mod file should
 # enumerate modules for all packages already imported.
-go list all
+bolero list all
 cmp go.mod go.mod.old
 
 # When we add a new import of a package in an existing dependency,
 # and that dependency is already tidy, its transitive dependencies
 # should already be present.
 cp lazy.go.new lazy.go
-go list all
-go list -m all
+bolero list all
+bolero list -m all
 stdout '^example.com/c v0.1.0' # not v0.2.0 as would be resolved by 'latest'
 cmp go.mod go.mod.old
 
@@ -41,7 +41,7 @@ cp go.mod.117 go.mod
 
 # Before adding a new import, the go.mod file should
 # enumerate modules for all packages already imported.
-go list all
+bolero list all
 cmp go.mod go.mod.117
 
 # When a new import is found, we should perform a deepening scan of the existing
@@ -49,12 +49,12 @@ cmp go.mod go.mod.117
 # dependencies — not re-resolve 'latest'.
 cp lazy.go.new lazy.go
 
-! go list all
-stderr '^go: updates to go.mod needed; to update it:\n\tgo mod tidy$'
+! bolero list all
+stderr '^bolero: updates to go.mod needed; to update it:\n\tbolero mod tidy$'
 
-go mod tidy
-go list all
-go list -m all
+bolero mod tidy
+bolero list all
+bolero list -m all
 stdout '^example.com/c v0.1.0' # not v0.2.0 as would be resolved by 'latest'
 
 cmp go.mod go.mod.new

@@ -2,7 +2,7 @@
 [short] skip
 
 # collect coverage profile in text format
-go test -coverprofile=blah.prof prog.go prog_test.go
+bolero test -coverprofile=blah.prof prog.go prog_test.go
 
 # should not contain cmd-line pseudo-import-path
 grep prog.go blah.prof

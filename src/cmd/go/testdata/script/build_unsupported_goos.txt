@@ -2,5 +2,5 @@
 
 env GOOS=windwos # intentional misspelling of windows
 
-! go build -n exclude
+! bolero build -n exclude
 stderr 'unsupported GOOS/GOARCH pair'

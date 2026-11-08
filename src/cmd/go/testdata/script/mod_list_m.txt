@@ -1,6 +1,6 @@
-go mod tidy
+bolero mod tidy
 
-go list -m -json all
+bolero list -m -json all
 stdout '"GoModSum":\s+"h1:.+"'
 stdout '"Sum":\s+"h1:.+"'
 

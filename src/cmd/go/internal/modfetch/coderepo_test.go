@@ -38,7 +38,7 @@ func TestMain(m *testing.M) {
 func testMain(m *testing.M) (err error) {
 	cfg.GOPROXY = "direct"
 
-	// The sum database is populated using a released version of the go command,
+	// The sum database is populated using a released version of the bolero command,
 	// but this test may include fixes for additional modules that previously
 	// could not be fetched. Since this test isn't executing any of the resolved
 	// code, bypass the sum database.

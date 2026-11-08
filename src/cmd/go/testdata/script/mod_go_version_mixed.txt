@@ -1,9 +1,9 @@
 # Test that dependencies can use Go language features newer than the
 # Go version specified by the main module.
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-go build
+bolero build
 
 -- go.mod --
 module m

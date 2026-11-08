@@ -4,29 +4,29 @@
 
 # vendor directory produced for workspace, workspace mode
 # runs in mod=vendor
-go work vendor
+bolero work vendor
 cmp vendor/modules.txt want_workspace_modules_txt
-go list -f {{.Dir}} example.com/b
-stdout $GOPATH[\\/]src[\\/]vendor[\\/]example.com[\\/]b
+bolero list -f {{.Dir}} example.com/b
+stdout $BOLERO_PATH[\\/]src[\\/]vendor[\\/]example.com[\\/]b
 
 # vendor directory produced for workspace, module mode
 # runs in mod=readonly
-env GOWORK=off
-go list -f {{.Dir}} example.com/b
-stdout $GOPATH[\\/]src[\\/]b
+env BOLERO_WORK=off
+bolero list -f {{.Dir}} example.com/b
+stdout $BOLERO_PATH[\\/]src[\\/]b
 
 # vendor directory produced for module, module mode
 # runs in mod=vendor
-go mod vendor
+bolero mod vendor
 cmp vendor/modules.txt want_module_modules_txt
-go list -f {{.Dir}} example.com/b
-stdout $GOPATH[\\/]src[\\/]vendor[\\/]example.com[\\/]b
+bolero list -f {{.Dir}} example.com/b
+stdout $BOLERO_PATH[\\/]src[\\/]vendor[\\/]example.com[\\/]b
 
 # vendor directory produced for module, workspace mode
 # runs in mod=readonly
-env GOWORK=
-go list -f {{.Dir}} example.com/b
-stdout $GOPATH[\\/]src[\\/]b
+env BOLERO_WORK=
+bolero list -f {{.Dir}} example.com/b
+stdout $BOLERO_PATH[\\/]src[\\/]b
 
 -- want_workspace_modules_txt --
 ## workspace

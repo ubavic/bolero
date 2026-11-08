@@ -48,13 +48,13 @@ func RunToolScriptTest(t *testing.T, repls []ToolReplacement, scriptsdir string,
 	// Locate our Go tool.
 	gotool, err := testenv.GoTool()
 	if err != nil {
-		t.Fatalf("locating go tool: %v", err)
+		t.Fatalf("locating bolero tool: %v", err)
 	}
 
 	goEnv := func(name string) string {
 		out, err := exec.Command(gotool, "env", name).CombinedOutput()
 		if err != nil {
-			t.Fatalf("go env %s: %v\n%s", name, err, out)
+			t.Fatalf("bolero env %s: %v\n%s", name, err, out)
 		}
 		return strings.TrimSpace(string(out))
 	}
@@ -113,7 +113,7 @@ func RunToolScriptTest(t *testing.T, repls []ToolReplacement, scriptsdir string,
 	// Set up an alternate go root for running script tests, since it
 	// is possible that we might want to replace one of the installed
 	// tools with a unit test executable.
-	goroot := goEnv("GOROOT")
+	goroot := goEnv("BOLERO_ROOT")
 	tmpdir := t.TempDir()
 	tgr := SetupTestGoRoot(t, tmpdir, goroot)
 
@@ -122,10 +122,10 @@ func RunToolScriptTest(t *testing.T, repls []ToolReplacement, scriptsdir string,
 		ReplaceGoToolInTestGoRoot(t, tgr, repl.ToolName, repl.ReplacementPath)
 	}
 
-	// Add in commands for "go" and "cc".
-	testgo := filepath.Join(tgr, "bin", "go")
+	// Add in commands for "bolero" and "cc".
+	testgo := filepath.Join(tgr, "bin", "bolero")
 	gocmd := script.Program(testgo, interrupt, gracePeriod)
-	addcmd("go", gocmd)
+	addcmd("bolero", gocmd)
 	cmdExec := cmds["exec"]
 	addcmd("cc", scriptCC(cmdExec, goEnv("CC")))
 
@@ -136,7 +136,7 @@ func RunToolScriptTest(t *testing.T, repls []ToolReplacement, scriptsdir string,
 	// Environment setup.
 	env := os.Environ()
 	prependToPath(env, filepath.Join(tgr, "bin"))
-	env = setenv(env, "GOROOT", tgr)
+	env = setenv(env, "BOLERO_ROOT", tgr)
 	// GOOS and GOARCH are expected to be set by the toolchain script conditions.
 	env = setenv(env, "GOOS", runtime.GOOS)
 	env = setenv(env, "GOARCH", runtime.GOARCH)

@@ -145,7 +145,7 @@ func TestBadSymbol(t *testing.T) {
 	// C linker.
 
 	if err == nil {
-		t.Errorf("go build succeeded unexpectedly")
+		t.Errorf("bolero build succeeded unexpectedly")
 	}
 
 	t.Logf("%s", output)
@@ -174,7 +174,7 @@ func TestBadSymbol(t *testing.T) {
 func cCompilerCmd(t *testing.T) []string {
 	cc, err := quoted.Split(goEnv(t, "CC"))
 	if err != nil {
-		t.Skipf("parsing go env CC: %s", err)
+		t.Skipf("parsing bolero env CC: %s", err)
 	}
 	if len(cc) == 0 {
 		t.Skipf("no C compiler")
@@ -221,9 +221,9 @@ func cCompilerCmd(t *testing.T) []string {
 }
 
 func goEnv(t *testing.T, key string) string {
-	out, err := exec.Command("go", "env", key).CombinedOutput()
+	out, err := exec.Command("bolero", "env", key).CombinedOutput()
 	if err != nil {
-		t.Logf("go env %s\n", key)
+		t.Logf("bolero env %s\n", key)
 		t.Logf("%s", out)
 		t.Fatal(err)
 	}

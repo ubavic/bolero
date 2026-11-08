@@ -5,13 +5,13 @@
 //go:build ignore
 
 // Mkzip creates a FIPS snapshot zip file.
-// See GOROOT/lib/fips140/README.md and GOROOT/lib/fips140/Makefile
+// See BOLERO_ROOT/lib/fips140/README.md and BOLERO_ROOT/lib/fips140/Makefile
 // for more details about when and why to use this.
 //
 // Usage:
 //
-//	cd GOROOT/lib/fips140
-//	go run ../../src/cmd/go/internal/fips140/mkzip.go [-b branch] v1.2.3
+//	cd BOLERO_ROOT/lib/fips140
+//	bolero run ../../src/cmd/go/internal/fips140/mkzip.go [-b branch] v1.2.3
 //
 // Mkzip creates a zip file named for the version on the command line
 // using the sources in the named branch (default origin/master,
@@ -37,7 +37,7 @@ import (
 var flagBranch = flag.String("b", "origin/master", "branch to use")
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: go run mkzip.go [-b branch] vX.Y.Z\n")
+	fmt.Fprintf(os.Stderr, "usage: bolero run mkzip.go [-b branch] vX.Y.Z\n")
 	os.Exit(2)
 }
 
@@ -85,7 +85,7 @@ func main() {
 
 	// Write new zip file with longer paths: fips140/v1.2.3/foo.go instead of foo.go.
 	// That way we can bind the fips140 directory onto the
-	// GOROOT/src/crypto/internal/fips140 directory and get a
+	// BOLERO_ROOT/src/crypto/internal/fips140 directory and get a
 	// crypto/internal/fips140/v1.2.3 with the snapshot code
 	// and an otherwise empty crypto/internal/fips140 directory.
 	zr, err := zip.NewReader(bytes.NewReader(zbuf.Bytes()), int64(zbuf.Len()))

@@ -1,9 +1,9 @@
 [!GOOS:windows] skip
 
-go run .
+bolero run .
 stdout 'ws2_32.dll: not found'
 
-go run -tags net .
+bolero run -tags net .
 stdout 'ws2_32.dll: found'
 
 -- go.mod --

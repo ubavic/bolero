@@ -2,5 +2,5 @@
 
 [!cgo] skip
 
-# go env with CGO flags should not make NUL file
-go env CGO_CFLAGS
+# bolero env with CGO flags should not make NUL file
+bolero env CGO_CFLAGS

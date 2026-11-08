@@ -33,7 +33,7 @@ func main() {
 	defer os.Remove(f.Name())
 
 	// compile and test output
-	cmd := exec.Command("go", "tool", "compile", f.Name())
+	cmd := exec.Command("bolero", "tool", "compile", f.Name())
 	out, err := cmd.CombinedOutput()
 	if err == nil {
 		log.Fatalf("expected cmd/compile to fail")

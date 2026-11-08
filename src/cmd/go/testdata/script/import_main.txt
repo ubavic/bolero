@@ -1,4 +1,4 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
 # Test that you cannot import a main package.
 # See golang.org/issue/4210 and golang.org/issue/17475.
@@ -7,31 +7,31 @@ env GO111MODULE=off
 cd $WORK
 
 # Importing package main from that package main's test should work.
-go build x
-go test -c x
+bolero build x
+bolero test -c x
 
 # Importing package main from another package should fail.
-! go build p1
+! bolero build p1
 stderr 'import "x" is a program, not an importable package'
 
 # ... even in that package's test.
-go build p2
-! go test -c p2
+bolero build p2
+! bolero test -c p2
 stderr 'import "x" is a program, not an importable package'
 
 # ... even if that package's test is an xtest.
-go build p3
-! go test p3
+bolero build p3
+! bolero test p3
 stderr 'import "x" is a program, not an importable package'
 
 # ... even if that package is a package main
-go build p4
-! go test -c p4
+bolero build p4
+! bolero test -c p4
 stderr 'import "x" is a program, not an importable package'
 
 # ... even if that package is a package main using an xtest.
-go build p5
-! go test -c p5
+bolero build p5
+! bolero test -c p5
 stderr 'import "x" is a program, not an importable package'
 
 -- x/main.go --

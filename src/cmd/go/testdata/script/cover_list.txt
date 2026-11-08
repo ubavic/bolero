@@ -1,13 +1,13 @@
 
-# This test is intended to verify that "go list" accepts coverage related
+# This test is intended to verify that "bolero list" accepts coverage related
 # build arguments (such as -cover, -covermode). See issue #57785.
 
 [short] skip
 
-env GOBIN=$WORK/bin
+env BOLERO_BIN=$WORK/bin
 
 # Install a target and then do an ordinary staleness check on it.
-go install m/example
+bolero install m/example
 ! stale m/example
 
 # Run a second staleness check with "-cover" as a build flag. The
@@ -16,14 +16,14 @@ go install m/example
 stale -cover m/example
 
 # Collect build ID from for m/example built with -cover.
-go list -cover -export -f '{{.BuildID}}' m/example
+bolero list -cover -export -f '{{.BuildID}}' m/example
 cp stdout $WORK/listbuildid.txt
 
 # Now build the m/example binary with coverage.
-go build -cover -o $WORK/m.exe m/example
+bolero build -cover -o $WORK/m.exe m/example
 
-# Ask for the binary build ID by running "go tool buildid".
-go tool buildid $WORK/m.exe
+# Ask for the binary build ID by running "bolero tool buildid".
+bolero tool buildid $WORK/m.exe
 cp stdout $WORK/rawtoolbuildid.txt
 
 # Make sure that the two build IDs agree with respect to the
@@ -38,8 +38,8 @@ cp stdout $WORK/toolbuildid.txt
 cmp $WORK/toolbuildid.txt $WORK/listbuildid.txt
 
 # Make sure that the build succeeds regardless of covermode.
-go list -export -covermode=atomic m/example
-go list -export -covermode=count m/example
+bolero list -export -covermode=atomic m/example
+bolero list -export -covermode=count m/example
 
 -- go.mod --
 module m

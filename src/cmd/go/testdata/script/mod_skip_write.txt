@@ -2,53 +2,53 @@
 # or report errors when those files need to be updated.
 
 # Everything's okay initially.
-go list -m all
+bolero list -m all
 
-# Downgrading sampler makes go.mod inconsistent, but 'go mod graph',
-# 'go mod verify', and 'go mod why' still work.
+# Downgrading sampler makes go.mod inconsistent, but 'bolero mod graph',
+# 'bolero mod verify', and 'bolero mod why' still work.
 cp go.mod go.mod.orig
-go mod edit -require=rsc.io/sampler@v1.2.0
+bolero mod edit -require=rsc.io/sampler@v1.2.0
 cp go.mod go.mod.edit
-! go list -m all
+! bolero list -m all
 stderr 'updates to go.mod needed'
 
-go mod graph
+bolero mod graph
 cmp stdout graph.want
 cmp go.mod go.mod.edit
 
-go mod verify
+bolero mod verify
 stdout '^all modules verified$'
 cmp go.mod go.mod.edit
 
-go mod why rsc.io/sampler
+bolero mod why rsc.io/sampler
 cmp stdout why.want
 cmp go.mod go.mod.edit
 
-go mod why -m rsc.io/sampler
+bolero mod why -m rsc.io/sampler
 cmp stdout why.want
 cmp go.mod go.mod.edit
 
 cp go.mod.orig go.mod
 
-# Removing go.sum breaks other commands, but 'go mod graph' and
-# 'go mod why' still work.
+# Removing go.sum breaks other commands, but 'bolero mod graph' and
+# 'bolero mod why' still work.
 rm go.sum
-! go list -m all
+! bolero list -m all
 stderr 'missing go.sum entry'
 
-go mod graph
+bolero mod graph
 cmp stdout graph.want
 ! exists go.sum
 
-go mod verify
+bolero mod verify
 stdout '^all modules verified$'
 ! exists go.sum
 
-go mod why rsc.io/sampler
+bolero mod why rsc.io/sampler
 cmp stdout why.want
 ! exists go.sum
 
-go mod why -m rsc.io/sampler
+bolero mod why -m rsc.io/sampler
 cmp stdout why.want
 ! exists go.sum
 

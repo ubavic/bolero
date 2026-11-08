@@ -1,10 +1,10 @@
 # Regression test for https://go.dev/issue/58767:
-# with an empty go.work file in GOPATH mode, calls to load.defaultGODEBUG for a
+# with an empty go.work file in BOLERO_PATH mode, calls to load.defaultGODEBUG for a
 # package named "main" panicked in modload.MainModules.GoVersion.
 
-env GO111MODULE=off
+env BOLERO_MODULE=off
 cd example
-go list example/m
+bolero list example/m
 
 -- example/go.work --
 go 1.21

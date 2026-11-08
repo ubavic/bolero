@@ -29,9 +29,9 @@ case $(uname -s -m) in
 esac
 
 if [ ! -f make.bash ]; then
-	echo 'race.bash must be run from $GOROOT/src' 1>&2
+	echo 'race.bash must be run from $BOLERO_ROOT/src' 1>&2
 	exit 1
 fi
 . ./make.bash --no-banner
-go install -race std
-go tool dist test -race
+bolero install -race std
+bolero tool dist test -race

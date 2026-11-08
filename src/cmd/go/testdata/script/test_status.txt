@@ -1,6 +1,6 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-! go test x y
+! bolero test x y
 stdout ^FAIL\s+x
 stdout ^ok\s+y
 stdout (?-m)FAIL\n$

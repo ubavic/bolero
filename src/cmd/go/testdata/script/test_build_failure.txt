@@ -1,7 +1,7 @@
 [short] skip
 
-! go test -x coverbad
-! stderr '[\\/]coverbad\.test( |$)' # 'go test' should not claim to have run the test.
+! bolero test -x coverbad
+! stderr '[\\/]coverbad\.test( |$)' # 'bolero test' should not claim to have run the test.
 stderr 'undefined: g'
 [cgo] stderr 'undefined: j'
 

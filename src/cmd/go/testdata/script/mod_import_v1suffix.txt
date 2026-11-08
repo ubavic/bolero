@@ -1,7 +1,7 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-! go get example.com/invalidpath/v1
-! go install .
+! bolero get example.com/invalidpath/v1
+! bolero install .
 
 -- go.mod --
 module example.com

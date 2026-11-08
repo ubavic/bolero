@@ -1,7 +1,7 @@
-# Issue 65406. The testdata directory in GOROOT/src
+# Issue 65406. The testdata directory in BOLERO_ROOT/src
 # shouldn't be treated as a standard package.
 
-go list -f '{{.ImportPath}} {{.Dir}}' testdata
+bolero list -f '{{.ImportPath}} {{.Dir}}' testdata
 ! stderr 'found package testdata in multiple modules'
 stdout 'testdata '$WORK${/}'gopath'${/}'src'
 

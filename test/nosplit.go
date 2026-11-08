@@ -230,7 +230,7 @@ func main() {
 		return
 	}
 	defer os.RemoveAll(dir)
-	os.Setenv("GOPATH", filepath.Join(dir, "_gopath"))
+	os.Setenv("BOLERO_PATH", filepath.Join(dir, "_gopath"))
 
 	if err := ioutil.WriteFile(filepath.Join(dir, "go.mod"), []byte("module go-test-nosplit\n"), 0666); err != nil {
 		log.Panic(err)
@@ -380,7 +380,7 @@ TestCases:
 			log.Fatal(err)
 		}
 
-		cmd := exec.Command("go", "build")
+		cmd := exec.Command("bolero", "build")
 		cmd.Dir = dir
 		output, err := cmd.CombinedOutput()
 		if err == nil {

@@ -30,7 +30,7 @@ echo
 echo "1b) save go build output for all packages"
 for pkg in `go list std`; do
 	echo $pkg
-	DIR=$GOROOT/src/$pkg
+	DIR=$BOLERO_ROOT/src/$pkg
 	go build -gcflags "$FLAGS1 -S" -o /dev/null $pkg &> $DIR/old.txt
 done
 
@@ -44,7 +44,7 @@ echo
 echo "2b) save go build output for all packages"
 for pkg in `go list std`; do
 	echo $pkg
-	DIR=$GOROOT/src/$pkg
+	DIR=$BOLERO_ROOT/src/$pkg
 	go build -gcflags "$FLAGS2 -S" -o /dev/null $pkg &> $DIR/new.txt
 done
 
@@ -52,7 +52,7 @@ echo
 echo
 echo "3) compare assembly files"
 for pkg in `go list std`; do
-	DIR=$GOROOT/src/$pkg
+	DIR=$BOLERO_ROOT/src/$pkg
 
 	if cmp $DIR/old.txt $DIR/new.txt &> /dev/null
 	then rm $DIR/old.txt $DIR/new.txt

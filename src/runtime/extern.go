@@ -264,10 +264,10 @@ The [runtime/debug.SetTraceback] function allows increasing the
 amount of output at run time, but it cannot reduce the amount below that
 specified by the environment variable.
 
-The GOARCH, GOOS, GOPATH, and GOROOT environment variables complete
-the set of Go environment variables. They influence the building of Go programs
+The GOARCH, GOOS, BOLERO_PATH, and BOLERO_ROOT environment variables complete
+the set of environment variables that influence the building of programs
 (see [cmd/go] and [go/build]).
-GOARCH, GOOS, and GOROOT are recorded at compile time and made available by
+GOARCH, GOOS, and BOLERO_ROOT are recorded at compile time and made available by
 constants or functions in this package, but they do not influence the execution
 of the run-time system.
 
@@ -341,16 +341,16 @@ func Callers(skip int, pc []uintptr) int {
 
 var defaultGOROOT string // set by cmd/link
 
-// GOROOT returns the root of the Go tree. It uses the
-// GOROOT environment variable, if set at process start,
-// or else the root used during the Go build.
+// GOROOT returns the root of the Bolero tree. It uses the
+// BOLERO_ROOT environment variable, if set at process start,
+// or else the root used during the build.
 //
-// Deprecated: The root used during the Go build will not be
+// Deprecated: The root used during the build will not be
 // meaningful if the binary is copied to another machine.
-// Use the system path to locate the “go” binary, and use
-// “go env GOROOT” to find its GOROOT.
+// Use the system path to locate the “bolero” binary, and use
+// “bolero env BOLERO_ROOT” to find its root.
 func GOROOT() string {
-	s := gogetenv("GOROOT")
+	s := gogetenv("BOLERO_ROOT")
 	if s != "" {
 		return s
 	}

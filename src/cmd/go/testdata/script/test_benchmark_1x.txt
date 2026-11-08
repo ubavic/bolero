@@ -1,7 +1,7 @@
 # Test that -benchtime 1x only runs a total of 1 loop iteration.
 # See golang.org/issue/32051.
 
-go test -run ^$ -bench . -benchtime 1x
+bolero test -run ^$ -bench . -benchtime 1x
 
 -- go.mod --
 module bench

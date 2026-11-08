@@ -1,9 +1,9 @@
-# Regression test for https://go.dev/issue/60313: 'go mod tidy' did not preserve
+# Regression test for https://go.dev/issue/60313: 'bolero mod tidy' did not preserve
 # dependencies needed to prevent 'ambiguous import' errors in external test
 # dependencies.
 
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.orig
 
 -- go.mod --

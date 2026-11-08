@@ -1,20 +1,20 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 cd $WORK
 
 # An import provided by two different modules should be flagged as an error.
-! go build ./importx
+! bolero build ./importx
 stderr '^importx[/\\]importx.go:2:8: ambiguous import: found package example.com/a/x in multiple modules:\n\texample.com/a v0.1.0 \('$WORK'[/\\]a[/\\]x\)\n\texample.com/a/x v0.1.0 \('$WORK'[/\\]ax\)$'
 
 # However, it should not be an error if that import is unused.
-go build ./importy
+bolero build ./importy
 
 # An import provided by both the main module and the vendor directory
 # should be flagged as an error only when -mod=vendor is set.
 mkdir vendor/example.com/m/importy
 cp $WORK/importy/importy.go vendor/example.com/m/importy/importy.go
-go build example.com/m/importy
-! go build -mod=vendor example.com/m/importy
+bolero build example.com/m/importy
+! bolero build -mod=vendor example.com/m/importy
 stderr '^ambiguous import: found package example.com/m/importy in multiple directories:\n\t'$WORK'[/\\]importy\n\t'$WORK'[/\\]vendor[/\\]example.com[/\\]m[/\\]importy$'
 
 -- $WORK/go.mod --

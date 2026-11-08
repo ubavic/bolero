@@ -1,24 +1,24 @@
-go env GOWORK
-stdout '^'$GOPATH'[\\/]src[\\/]go.work$'
-go env
-stdout '^(set )?GOWORK=''?'$GOPATH'[\\/]src[\\/]go.work''?$'
+bolero env BOLERO_WORK
+stdout '^'$BOLERO_PATH'[\\/]src[\\/]go.work$'
+bolero env
+stdout '^(set )?BOLERO_WORK=''?'$BOLERO_PATH'[\\/]src[\\/]go.work''?$'
 
 cd ..
-go env GOWORK
+bolero env BOLERO_WORK
 ! stdout .
-go env
-stdout 'GOWORK=("")?'
+bolero env
+stdout 'BOLERO_WORK=("")?'
 
 cd src
-go env GOWORK
+bolero env BOLERO_WORK
 stdout 'go.work'
 
-env GOWORK='off'
-go env GOWORK
+env BOLERO_WORK='off'
+bolero env BOLERO_WORK
 stdout 'off'
 
-! go env -w GOWORK=off
-stderr '^go: GOWORK cannot be modified$'
+! bolero env -w BOLERO_WORK=off
+stderr '^bolero: BOLERO_WORK cannot be modified$'
 
 -- go.work --
 go 1.18

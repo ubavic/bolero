@@ -65,7 +65,7 @@ func testDWARF(t *testing.T, buildmode string, expectDWARF bool, env ...string) 
 			cmd.Env = append(cmd.Env, "CGO_CFLAGS=") // ensure CGO_CFLAGS does not contain any flags. Issue #35459
 			out, err := cmd.CombinedOutput()
 			if err != nil {
-				t.Fatalf("go build -o %v %v: %v\n%s", exe, dir, err, out)
+				t.Fatalf("bolero build -o %v %v: %v\n%s", exe, dir, err, out)
 			}
 
 			if buildmode == "c-archive" {
@@ -327,7 +327,7 @@ func TestDWARFLocationList(t *testing.T) {
 	cmd.Env = append(cmd.Env, "CGO_CFLAGS=")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Fatalf("go build -o %v %v: %v\n%s", exe, dir, err, out)
+		t.Fatalf("bolero build -o %v %v: %v\n%s", exe, dir, err, out)
 	}
 
 	f, err := objfile.Open(exe)

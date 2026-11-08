@@ -1,17 +1,17 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-# After 'go get', the go.sum file should contain the sum for the module.
-go get rsc.io/quote@v1.5.0
+# After 'bolero get', the go.sum file should contain the sum for the module.
+bolero get rsc.io/quote@v1.5.0
 grep 'rsc.io/quote v1.5.0' go.sum
 
-# If we replace the module and run 'go mod tidy', we should get a sum for the replacement.
-go mod edit -replace rsc.io/quote@v1.5.0=rsc.io/quote@v1.5.1
-go mod tidy
+# If we replace the module and run 'bolero mod tidy', we should get a sum for the replacement.
+bolero mod edit -replace rsc.io/quote@v1.5.0=rsc.io/quote@v1.5.1
+bolero mod tidy
 grep 'rsc.io/quote v1.5.1' go.sum
 cp go.sum go.sum.tidy
 
-# 'go mod vendor' should preserve that sum, and should not need to add any new entries.
-go mod vendor
+# 'bolero mod vendor' should preserve that sum, and should not need to add any new entries.
+bolero mod vendor
 grep 'rsc.io/quote v1.5.1' go.sum
 cmp go.sum go.sum.tidy
 

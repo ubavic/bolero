@@ -17,7 +17,7 @@
 #   -e: stop at first failure
 
 if [ ! -f run.bash ]; then
-	echo 'buildall.bash must be run from $GOROOT/src' 1>&2
+	echo 'buildall.bash must be run from $BOLERO_ROOT/src' 1>&2
 	exit 1
 fi
 
@@ -37,10 +37,10 @@ if [ "$pattern" = "" ]; then
 fi
 
 ./make.bash || exit 1
-GOROOT="$(cd .. && pwd)"
+BOLERO_ROOT="$(cd .. && pwd)"
 
 gettargets() {
-	../bin/go tool dist list | sed -e 's|/|-|' |
+	../bin/bolero tool dist list | sed -e 's|/|-|' |
 		grep -E -v '^(android|ios)' # need C toolchain even for cross-compiling
 	echo linux-arm-arm5
 }
@@ -77,7 +77,7 @@ do
 	# Build and vet everything.
 	# cmd/go/internal/work/exec.go enables the same vet flags during go test of std cmd
 	# and should be kept in sync with any vet flag changes here.
-	if ! "$GOROOT/bin/go" build std cmd || ! "$GOROOT/bin/go" vet -unsafeptr=false std cmd; then
+	if ! "$BOLERO_ROOT/bin/bolero" build std cmd || ! "$BOLERO_ROOT/bin/bolero" vet -unsafeptr=false std cmd; then
 		failed=true
 		if $sete; then
 			exit 1

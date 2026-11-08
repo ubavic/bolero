@@ -1,7 +1,7 @@
 # Conflicting workspace module replaces can be overridden by a replace in the
 # go.work file.
 
-go list -m example.com/dep
+bolero list -m example.com/dep
 stdout 'example.com/dep v1.0.0 => ./dep3'
 
 -- go.work --

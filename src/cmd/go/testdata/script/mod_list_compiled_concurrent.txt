@@ -1,4 +1,4 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 [short] skip
 [!cgo] skip
@@ -6,11 +6,11 @@ env GO111MODULE=on
 # Regression test for golang.org/issue/29667:
 # spurious 'failed to cache compiled Go files' errors.
 
-env GOCACHE=$WORK/gocache
-mkdir $GOCACHE
+env BOLERO_CACHE=$WORK/gocache
+mkdir $BOLERO_CACHE
 
-go list -json -compiled -test=false -export=false -deps=true -- . &
-go list -json -compiled -test=false -export=false -deps=true -- . &
+bolero list -json -compiled -test=false -export=false -deps=true -- . &
+bolero list -json -compiled -test=false -export=false -deps=true -- . &
 wait
 
 -- go.mod --

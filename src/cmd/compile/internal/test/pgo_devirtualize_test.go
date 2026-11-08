@@ -65,7 +65,7 @@ go 1.21
 	err = cmd.Start()
 	pw.Close()
 	if err != nil {
-		t.Fatalf("error starting go test: %v", err)
+		t.Fatalf("error starting bolero test: %v", err)
 	}
 
 	got := make(map[devirtualization]struct{})
@@ -97,10 +97,10 @@ go 1.21
 		}
 	}
 	if err := cmd.Wait(); err != nil {
-		t.Fatalf("error running go test: %v", err)
+		t.Fatalf("error running bolero test: %v", err)
 	}
 	if err := scanner.Err(); err != nil {
-		t.Fatalf("error reading go test output: %v", err)
+		t.Fatalf("error reading bolero test output: %v", err)
 	}
 
 	if len(got) != len(want) {

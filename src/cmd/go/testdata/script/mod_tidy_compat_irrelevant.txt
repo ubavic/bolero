@@ -1,4 +1,4 @@
-# https://golang.org/issue/46141: 'go mod tidy' for a Go 1.17 module should by
+# https://golang.org/issue/46141: 'bolero mod tidy' for a Go 1.17 module should by
 # default preserve enough checksums for the module to be used by Go 1.16.
 #
 # We don't have a copy of Go 1.16 handy, but we can simulate it by editing the
@@ -24,26 +24,26 @@ env MODFMT='{{with .Module}}{{.Path}} {{.Version}}{{end}}'
 #         + ------------- requireincompatible v0.1.0 ---- incompatible v2.0.0+incompatible
 
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.orig
 
 # Make sure that -diff behaves the same as tidy.
 [exec:patch] mv go.mod go.mod.tidyResult
 [exec:patch] mv go.sum go.sum.tidyResult
 [exec:patch] cp go.mod.orig go.mod
-[exec:patch] ! go mod tidy -diff
+[exec:patch] ! bolero mod tidy -diff
 [exec:patch] cp stdout diff.patch
 [exec:patch] exec patch -p1 -i diff.patch
-[exec:patch] go mod tidy -diff
+[exec:patch] bolero mod tidy -diff
 [exec:patch] ! stdout .
 [exec:patch] cmp go.mod go.mod.tidyResult
 [exec:patch] cmp go.sum go.sum.tidyResult
 
-go list -deps -test -f $MODFMT all
+bolero list -deps -test -f $MODFMT all
 cp stdout out-117.txt
 
-go mod edit -go=1.16
-go list -deps -test -f $MODFMT all
+bolero mod edit -go=1.16
+bolero list -deps -test -f $MODFMT all
 cmp stdout out-117.txt
 
 
@@ -51,21 +51,21 @@ cmp stdout out-117.txt
 # which gives a cleaner go.sum file but causes 1.16 to fail in readonly mode.
 
 cp go.mod.orig go.mod
-go mod tidy -compat=1.17
+bolero mod tidy -compat=1.17
 cmp go.mod go.mod.orig
 
 # Make sure that -diff behaves the same as tidy.
 [exec:patch] cp go.mod.orig go.mod
 [exec:patch] rm go.sum
-[exec:patch] go mod tidy -compat=1.17 -diff
+[exec:patch] bolero mod tidy -compat=1.17 -diff
 [exec:patch] ! stdout .
 
-go list -deps -test -f $MODFMT all
+bolero list -deps -test -f $MODFMT all
 cmp stdout out-117.txt
 
-go mod edit -go=1.16
-! go list -deps -test -f $MODFMT all
-stderr -count=1 '^go: example.net/lazy@v0.1.0 requires\n\texample.com/retract/incompatible@v1.0.0: missing go.sum entry for go.mod file; to add it:\n\tgo mod download example.com/retract/incompatible$'
+bolero mod edit -go=1.16
+! bolero list -deps -test -f $MODFMT all
+stderr -count=1 '^bolero: example.net/lazy@v0.1.0 requires\n\texample.com/retract/incompatible@v1.0.0: missing go.sum entry for go.mod file; to add it:\n\tbolero mod download example.com/retract/incompatible$'
 
 
 -- go.mod --

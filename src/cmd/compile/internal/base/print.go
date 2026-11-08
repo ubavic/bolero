@@ -223,7 +223,7 @@ func FatalfAt(pos src.XPos, format string, args ...any) {
 		if Debug.Panic == 0 && strings.HasPrefix(buildcfg.Version, "go") && !strings.Contains(buildcfg.Version, "devel") {
 			fmt.Printf("\n")
 			fmt.Printf("Please file a bug report including a short program that triggers the error.\n")
-			fmt.Printf("https://go.dev/issue/new\n")
+			fmt.Printf("https://github.com/ubavic/bolero/issues/new\n")
 		} else {
 			// Not a release; dump a stack trace, too.
 			fmt.Println()

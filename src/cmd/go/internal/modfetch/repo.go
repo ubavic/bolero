@@ -107,7 +107,7 @@ type RevInfo struct {
 // it names an importable package, but not a module.
 //
 // As a special case to incorporate code written before modules were
-// introduced, if a path p resolves using the pre-module "go get" lookup
+// introduced, if a path p resolves using the pre-module "bolero get" lookup
 // to the root of a source code repository without a go.mod file,
 // that repository is treated as if it had a go.mod in its root directory
 // declaring module path p.
@@ -119,7 +119,7 @@ type RevInfo struct {
 // pair - often written path@version - to a particular file tree.
 // For example rsc.io/qr@v0.1.0 depends on the "implicit go.mod at root of
 // repository" rule, while rsc.io/qr@v0.2.0 has an explicit go.mod.
-// Because the "go get" import paths rsc.io/qr and github.com/rsc/qr
+// Because the "bolero get" import paths rsc.io/qr and github.com/rsc/qr
 // both redirect to the Git repository https://github.com/rsc/qr,
 // github.com/rsc/qr@v0.1.0 is the same file tree as rsc.io/qr@v0.1.0
 // but a different module (a different name). In contrast, since v0.2.0
@@ -193,7 +193,7 @@ type lookupCacheKey struct {
 //
 // The distinguished proxy "direct" indicates that the path should be fetched
 // from its origin, and "noproxy" indicates that the patch should be fetched
-// directly only if GONOPROXY matches the given path.
+// directly only if BOLERO_NOPROXY matches the given path.
 //
 // For the distinguished proxy "off", Lookup always returns a Repo that returns
 // a non-nil error for every method call.
@@ -291,9 +291,9 @@ func (lookupDisabledError) Error() string {
 var errLookupDisabled error = lookupDisabledError{}
 
 var (
-	errProxyOff       = notExistErrorf("module lookup disabled by GOPROXY=off")
-	errNoproxy  error = notExistErrorf("disabled by GOPRIVATE/GONOPROXY")
-	errUseProxy error = notExistErrorf("path does not match GOPRIVATE/GONOPROXY")
+	errProxyOff       = notExistErrorf("module lookup disabled by BOLERO_PROXY=off")
+	errNoproxy  error = notExistErrorf("disabled by BOLERO_PRIVATE/BOLERO_NOPROXY")
+	errUseProxy error = notExistErrorf("path does not match BOLERO_PRIVATE/BOLERO_NOPROXY")
 )
 
 func lookupDirect(ctx context.Context, path string) (Repo, error) {

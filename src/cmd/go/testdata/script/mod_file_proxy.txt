@@ -1,24 +1,24 @@
 [short] skip
 
 # Allow (cached) downloads for -mod=readonly.
-env GO111MODULE=on
-env GOPATH=$WORK/gopath1
+env BOLERO_MODULE=on
+env BOLERO_PATH=$WORK/gopath1
 cd $WORK/x
-go mod edit -fmt
-go list -mod=readonly
-env GOPROXY=file:///nonexist
-go list
-grep v1.5.1 $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/list
+bolero mod edit -fmt
+bolero list -mod=readonly
+env BOLERO_PROXY=file:///nonexist
+bolero list
+grep v1.5.1 $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/list
 
 # Use download cache as file:/// proxy.
-env GOPATH=$WORK/gopath2
-[GOOS:windows] env GOPROXY=file:///C:/nonexist
-[!GOOS:windows] env GOPROXY=file:///nonexist
-! go list
-[GOOS:windows] env GOPROXY=file:///$WORK/gopath1/pkg/mod/cache/download
-[!GOOS:windows] env GOPROXY=file://$WORK/gopath1/pkg/mod/cache/download
-go list
-grep v1.5.1 $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/list
+env BOLERO_PATH=$WORK/gopath2
+[GOOS:windows] env BOLERO_PROXY=file:///C:/nonexist
+[!GOOS:windows] env BOLERO_PROXY=file:///nonexist
+! bolero list
+[GOOS:windows] env BOLERO_PROXY=file:///$WORK/gopath1/pkg/mod/cache/download
+[!GOOS:windows] env BOLERO_PROXY=file://$WORK/gopath1/pkg/mod/cache/download
+bolero list
+grep v1.5.1 $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/list
 
 -- $WORK/x/go.mod --
 module x

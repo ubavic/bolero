@@ -1,13 +1,13 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
 # Issue 23150
 
 [short] skip
 
-go test -o=$WORK/x.test -cpuprofile=$WORK/cpu_profile_twice.out x
+bolero test -o=$WORK/x.test -cpuprofile=$WORK/cpu_profile_twice.out x
 rm $WORK/cpu_profile_twice.out
 
-go test -o=$WORK/x.test -cpuprofile=$WORK/cpu_profile_twice.out x
+bolero test -o=$WORK/x.test -cpuprofile=$WORK/cpu_profile_twice.out x
 exists $WORK/cpu_profile_twice.out
 
 

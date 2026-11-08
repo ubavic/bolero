@@ -1,8 +1,8 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
 # smoke test for complex build configuration
-go build -o complex.exe complex
-[!cross] [exec:gccgo] go build -compiler=gccgo -o complex.exe complex
+bolero build -o complex.exe complex
+[!cross] [exec:gccgo] bolero build -compiler=gccgo -o complex.exe complex
 
 -- complex/main.go --
 package main

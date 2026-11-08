@@ -95,9 +95,9 @@ type CmdFlags struct {
 	ClobberDead        bool         "help:\"clobber dead stack slots (for debugging)\""
 	ClobberDeadReg     bool         "help:\"clobber dead registers (for debugging)\""
 	Dwarf              bool         "help:\"generate DWARF symbols\""
-	DwarfBASEntries    *bool        "help:\"use base address selection entries in DWARF\""                        // &Ctxt.UseBASEntries, set below
-	DwarfLocationLists *bool        "help:\"add location lists to DWARF in optimized mode\""                      // &Ctxt.Flag_locationlists, set below
-	Dynlink            *bool        "help:\"support references to Go symbols defined in other shared libraries\"" // &Ctxt.Flag_dynlink, set below
+	DwarfBASEntries    *bool        "help:\"use base address selection entries in DWARF\""                     // &Ctxt.UseBASEntries, set below
+	DwarfLocationLists *bool        "help:\"add location lists to DWARF in optimized mode\""                   // &Ctxt.Flag_locationlists, set below
+	Dynlink            *bool        "help:\"support references to symbols defined in other shared libraries\"" // &Ctxt.Flag_dynlink, set below
 	EmbedCfg           func(string) "help:\"read go:embed configuration from `file`\""
 	Env                func(string) "help:\"add `definition` of the form key=value to environment\""
 	GenDwarfInl        int          "help:\"generate DWARF inline info records\"" // 0=disabled, 1=funcs, 2=funcs+formals/locals
@@ -105,9 +105,9 @@ type CmdFlags struct {
 	ImportCfg          func(string) "help:\"read import configuration from `file`\""
 	InstallSuffix      string       "help:\"set pkg directory `suffix`\""
 	JSON               string       "help:\"version,file for JSON compiler/optimizer detail output\""
-	Lang               string       "help:\"Go language version source code expects\""
+	Lang               string       "help:\"language version source code expects\""
 	LinkObj            string       "help:\"write linker-specific object to `file`\""
-	LinkShared         *bool        "help:\"generate code that will be linked against Go shared libraries\"" // &Ctxt.Flag_linkshared, set below
+	LinkShared         *bool        "help:\"generate code that will be linked against shared libraries\"" // &Ctxt.Flag_linkshared, set below
 	Live               CountFlag    "help:\"debug liveness analysis\""
 	MSan               bool         "help:\"build code compatible with C/C++ memory sanitizer\""
 	MemProfile         string       "help:\"write memory profile to `file`\""
@@ -313,7 +313,7 @@ func ParseFlags() {
 	}
 
 	if Flag.GoVersion != "" && Flag.GoVersion != runtime.Version() {
-		fmt.Printf("compile: version %q does not match go tool version %q\n", runtime.Version(), Flag.GoVersion)
+		fmt.Printf("compile: version %q does not match bolero tool version %q\n", runtime.Version(), Flag.GoVersion)
 		Exit(2)
 	}
 

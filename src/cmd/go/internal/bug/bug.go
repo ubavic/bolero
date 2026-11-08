@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package bug implements the “go bug” command.
+// Package bug implements the “bolero bug” command.
 package bug
 
 import (
@@ -28,7 +28,7 @@ import (
 
 var CmdBug = &base.Command{
 	Run:       runBug,
-	UsageLine: "go bug",
+	UsageLine: "bolero bug",
 	Short:     "start a bug report",
 	Long: `
 Bug opens the default browser and starts a new bug report.
@@ -44,7 +44,7 @@ func init() {
 func runBug(ctx context.Context, cmd *base.Command, args []string) {
 	moduleLoaderState := modload.NewState()
 	if len(args) > 0 {
-		base.Fatalf("go: bug takes no arguments")
+		base.Fatalf("bolero: bug takes no arguments")
 	}
 	work.BuildInit(moduleLoaderState)
 
@@ -56,9 +56,9 @@ func runBug(ctx context.Context, cmd *base.Command, args []string) {
 	buf.WriteString(bugFooter)
 
 	body := buf.String()
-	url := "https://github.com/golang/go/issues/new?body=" + urlpkg.QueryEscape(body)
+	url := "https://github.com/ubavic/bolero/issues/new?body=" + urlpkg.QueryEscape(body)
 	if !web.OpenBrowser(url) {
-		fmt.Print("Please file a new issue at golang.org/issue/new using this template:\n\n")
+		fmt.Print("Please file a new issue at github.com/ubavic/bolero/issues/new using this template:\n\n")
 		fmt.Print(body)
 	}
 }
@@ -71,7 +71,6 @@ const bugFooter = `### What did you do?
 <!--
 If possible, provide a recipe for reproducing the error.
 A complete runnable program is good.
-A link on go.dev/play is best.
 -->
 
 
@@ -85,18 +84,18 @@ A link on go.dev/play is best.
 `
 
 func printGoVersion(w io.Writer) {
-	fmt.Fprintf(w, "### What version of Go are you using (`go version`)?\n\n")
+	fmt.Fprintf(w, "### What version of Bolero are you using (`bolero version`)?\n\n")
 	fmt.Fprintf(w, "<pre>\n")
-	fmt.Fprintf(w, "$ go version\n")
-	fmt.Fprintf(w, "go version %s %s/%s\n", runtime.Version(), runtime.GOOS, runtime.GOARCH)
+	fmt.Fprintf(w, "$ bolero version\n")
+	fmt.Fprintf(w, "bolero version %s %s/%s\n", runtime.Version(), runtime.GOOS, runtime.GOARCH)
 	fmt.Fprintf(w, "</pre>\n")
 	fmt.Fprintf(w, "\n")
 }
 
 func printEnvDetails(loaderstate *modload.State, w io.Writer) {
-	fmt.Fprintf(w, "### What operating system and processor architecture are you using (`go env`)?\n\n")
-	fmt.Fprintf(w, "<details><summary><code>go env</code> Output</summary><br><pre>\n")
-	fmt.Fprintf(w, "$ go env\n")
+	fmt.Fprintf(w, "### What operating system and processor architecture are you using (`bolero env`)?\n\n")
+	fmt.Fprintf(w, "<details><summary><code>bolero env</code> Output</summary><br><pre>\n")
+	fmt.Fprintf(w, "$ bolero env\n")
 	printGoEnv(loaderstate, w)
 	printGoDetails(w)
 	printOSDetails(w)
@@ -112,9 +111,9 @@ func printGoEnv(loaderstate *modload.State, w io.Writer) {
 }
 
 func printGoDetails(w io.Writer) {
-	gocmd := filepath.Join(runtime.GOROOT(), "bin/go")
-	printCmdOut(w, "GOROOT/bin/go version: ", gocmd, "version")
-	printCmdOut(w, "GOROOT/bin/go tool compile -V: ", gocmd, "tool", "compile", "-V")
+	gocmd := filepath.Join(runtime.GOROOT(), "bin/bolero")
+	printCmdOut(w, "BOLERO_ROOT/bin/bolero version: ", gocmd, "version")
+	printCmdOut(w, "BOLERO_ROOT/bin/bolero tool compile -V: ", gocmd, "tool", "compile", "-V")
 }
 
 func printOSDetails(w io.Writer) {
@@ -159,7 +158,7 @@ func printCDetails(w io.Writer) {
 }
 
 // printCmdOut prints the output of running the given command.
-// It ignores failures; 'go bug' is best effort.
+// It ignores failures; 'bolero bug' is best effort.
 func printCmdOut(w io.Writer, prefix, path string, args ...string) {
 	cmd := exec.Command(path, args...)
 	out, err := cmd.Output()

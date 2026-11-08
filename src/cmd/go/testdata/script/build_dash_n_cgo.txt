@@ -2,7 +2,7 @@
 
 [!cgo] skip
 
-go build -n foo.go
+bolero build -n foo.go
 ! stderr 'os.Stat .* no such file or directory' # there shouldn't be a stat of the archive file
 
 -- foo.go --

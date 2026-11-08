@@ -1,10 +1,10 @@
-env GO111MODULE=on
-env GOPROXY=direct
-env GOSUMDB=off
+env BOLERO_MODULE=on
+env BOLERO_PROXY=direct
+env BOLERO_SUMDB=off
 
 # Testing that a pseudo-version is based on the semantically-latest
 # tag that appears in any commit that is a (transitive) parent of the commit
-# supplied to 'go get', regardless of branches
+# supplied to 'bolero get', regardless of branches
 
 [short] skip
 [!git] skip
@@ -17,8 +17,8 @@ env GOSUMDB=off
 # The pseudo-version hence sorts immediately after v0.2.2 rather
 # than v0.2.1, even though the v0.2.2 tag is not on master.
 
-go get vcs-test.golang.org/git/tagtests.git@master
-go list -m all
+bolero get vcs-test.golang.org/git/tagtests.git@master
+bolero list -m all
 stdout '^vcs-test.golang.org/git/tagtests.git v0.2.3-0\.'
 
 -- go.mod --

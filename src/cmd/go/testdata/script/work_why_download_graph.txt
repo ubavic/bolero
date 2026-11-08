@@ -1,30 +1,30 @@
-# Test go mod download, why, and graph work in workspace mode.
+# Test bolero mod download, why, and graph work in workspace mode.
 # TODO(bcmills): clarify the interaction with #44435
 
-go mod download rsc.io/quote
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.info
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.mod
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.zip
-! exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.info
-! exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.mod
+bolero mod download rsc.io/quote
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.info
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.mod
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.zip
+! exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.info
+! exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.mod
 grep '^rsc\.io/quote v1\.5\.2/go\.mod h1:' go.work.sum
 grep '^rsc\.io/quote v1\.5\.2 h1:' go.work.sum
 
-go clean -modcache
+bolero clean -modcache
 rm go.work.sum
-go mod download
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.info
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.mod
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.zip
-! exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.info
-! exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.mod
+bolero mod download
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.info
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.mod
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.zip
+! exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.info
+! exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.0.mod
 grep '^rsc\.io/quote v1\.5\.2/go\.mod h1:' go.work.sum
 grep '^rsc\.io/quote v1\.5\.2 h1:' go.work.sum
 
-go mod why rsc.io/quote
+bolero mod why rsc.io/quote
 stdout '# rsc.io/quote\nexample.com/a\nrsc.io/quote'
 
-go mod graph
+bolero mod graph
 stdout 'example.com/a rsc.io/quote@v1.5.2\nexample.com/b example.com/c@v1.0.0\nrsc.io/quote@v1.5.2 rsc.io/sampler@v1.3.0\nrsc.io/sampler@v1.3.0 golang.org/x/text@v0.0.0-20170915032832-14c0d48ead0c'
 
 -- go.work --

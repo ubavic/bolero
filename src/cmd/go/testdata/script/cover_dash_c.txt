@@ -3,7 +3,7 @@
 
 # Test for issue 24588
 
-go test -c -o $WORK/coverdep -coverprofile=$WORK/no/such/dir/cover.out coverdep
+bolero test -c -o $WORK/coverdep -coverprofile=$WORK/no/such/dir/cover.out coverdep
 exists -exec $WORK/coverdep
 
 -- go.mod --

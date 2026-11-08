@@ -1,7 +1,7 @@
 [short] skip
 
 # Check that it's okay for test pattern to match only examples.
-go test -run Example example1_test.go
+bolero test -run Example example1_test.go
 ! stderr '^ok.*\[no tests to run\]'
 stdout '^ok'
 
@@ -10,7 +10,7 @@ stdout '^ok'
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Make sure that go test runs Example_z before Example_a, preserving source order.
+// Make sure that bolero test runs Example_z before Example_a, preserving source order.
 
 package p
 

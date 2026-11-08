@@ -25,10 +25,10 @@ var initDefaultCacheOnce = sync.OnceValue(initDefaultCache)
 // cacheREADME is a message stored in a README in the cache directory.
 // Because the cache lives outside the normal Go trees, we leave the
 // README as a courtesy to explain where it came from.
-const cacheREADME = `This directory holds cached build artifacts from the Go build system.
-Run "go clean -cache" if the directory is getting too large.
-Run "go clean -fuzzcache" to delete the fuzz cache.
-See go.dev to learn more about Go.
+const cacheREADME = `This directory holds cached build artifacts from the Bolero build system.
+Run "bolero clean -cache" if the directory is getting too large.
+Run "bolero clean -fuzzcache" to delete the fuzz cache.
+See https://bolero-lang.github.io to learn more about Bolero.
 `
 
 // initDefaultCache does the work of finding the default cache
@@ -39,7 +39,7 @@ func initDefaultCache() Cache {
 		base.Fatalf("build cache is required, but could not be located: %v", err)
 	}
 	if dir == "off" {
-		base.Fatalf("build cache is disabled by GOCACHE=off, but required as of Go 1.12")
+		base.Fatalf("build cache is disabled by BOLERO_CACHE=off, but required as of Go 1.12")
 	}
 	if err := os.MkdirAll(dir, 0o777); err != nil {
 		base.Fatalf("failed to initialize build cache at %s: %s\n", dir, err)
@@ -64,16 +64,16 @@ func initDefaultCache() Cache {
 var (
 	defaultDirOnce    sync.Once
 	defaultDir        string
-	defaultDirChanged bool // effective value differs from $GOCACHE
+	defaultDirChanged bool // effective value differs from $BOLERO_CACHE
 	defaultDirErr     error
 )
 
-// DefaultDir returns the effective GOCACHE setting.
+// DefaultDir returns the effective BOLERO_CACHE setting.
 // It returns "off" if the cache is disabled,
-// and reports whether the effective value differs from GOCACHE.
+// and reports whether the effective value differs from BOLERO_CACHE.
 func DefaultDir() (string, bool, error) {
 	// Save the result of the first call to DefaultDir for later use in
-	// initDefaultCache. cmd/go/main.go explicitly sets GOCACHE so that
+	// initDefaultCache. cmd/go/main.go explicitly sets BOLERO_CACHE so that
 	// subprocesses will inherit it, but that means initDefaultCache can't
 	// otherwise distinguish between an explicit "off" and a UserCacheDir error.
 
@@ -82,12 +82,12 @@ func DefaultDir() (string, bool, error) {
 		dir, err := os.UserCacheDir()
 		if err != nil {
 			defaultDir = "off"
-			defaultDirErr = fmt.Errorf("GOCACHE is not defined and %v", err)
+			defaultDirErr = fmt.Errorf("BOLERO_CACHE is not defined and %v", err)
 		} else {
-			defaultDir = filepath.Join(dir, "go-build")
+			defaultDir = filepath.Join(dir, "bolero-build")
 		}
 
-		newDir := cfg.Getenv("GOCACHE")
+		newDir := cfg.Getenv("BOLERO_CACHE")
 		if newDir != "" {
 			defaultDirErr = nil
 			defaultDirChanged = newDir != defaultDir
@@ -96,7 +96,7 @@ func DefaultDir() (string, bool, error) {
 				return
 			}
 			defaultDir = "off"
-			defaultDirErr = fmt.Errorf("GOCACHE is not an absolute path")
+			defaultDirErr = fmt.Errorf("BOLERO_CACHE is not an absolute path")
 			return
 		}
 	})

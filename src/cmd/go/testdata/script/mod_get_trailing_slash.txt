@@ -1,19 +1,19 @@
-# go list should succeed to load a package ending with ".go" if the path does
+# bolero list should succeed to load a package ending with ".go" if the path does
 # not correspond to an existing local file. Listing a pattern ending with
 # ".go/" should try to list a package regardless of whether a file exists at the
 # path without the suffixed "/" or not.
-go list example.com/dotgo.go
+bolero list example.com/dotgo.go
 stdout ^example.com/dotgo.go$
-go list example.com/dotgo.go/
+bolero list example.com/dotgo.go/
 stdout ^example.com/dotgo.go$
 
-# go get should succeed in either case, with or without a version.
+# bolero get should succeed in either case, with or without a version.
 # Arguments are interpreted as packages or package patterns with versions,
 # not source files.
-go get example.com/dotgo.go
-go get example.com/dotgo.go/
-go get example.com/dotgo.go@v1.0.0
-go get example.com/dotgo.go/@v1.0.0
+bolero get example.com/dotgo.go
+bolero get example.com/dotgo.go/
+bolero get example.com/dotgo.go@v1.0.0
+bolero get example.com/dotgo.go/@v1.0.0
 
 -- go.mod --
 module m

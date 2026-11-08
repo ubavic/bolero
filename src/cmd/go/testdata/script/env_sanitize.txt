@@ -1,5 +1,5 @@
-env GOFLAGS='$(echo ''cc"''; echo ''OOPS="oops'')'
-go env
-[GOOS:darwin] stdout 'GOFLAGS=''\$\(echo ''\\''''cc"''\\''''; echo ''\\''''OOPS="oops''\\''''\)'''
-[GOOS:linux] stdout 'GOFLAGS=''\$\(echo ''\\''''cc"''\\''''; echo ''\\''''OOPS="oops''\\''''\)'''
-[GOOS:windows] stdout 'set GOFLAGS=\$\(echo ''cc"''; echo ''OOPS="oops''\)'
+env BOLERO_FLAGS='$(echo ''cc"''; echo ''OOPS="oops'')'
+bolero env
+[GOOS:darwin] stdout 'BOLERO_FLAGS=''\$\(echo ''\\''''cc"''\\''''; echo ''\\''''OOPS="oops''\\''''\)'''
+[GOOS:linux] stdout 'BOLERO_FLAGS=''\$\(echo ''\\''''cc"''\\''''; echo ''\\''''OOPS="oops''\\''''\)'''
+[GOOS:windows] stdout 'set BOLERO_FLAGS=\$\(echo ''cc"''; echo ''OOPS="oops''\)'

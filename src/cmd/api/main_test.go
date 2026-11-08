@@ -39,11 +39,11 @@ func goCmd() string {
 	if runtime.GOOS == "windows" {
 		exeSuffix = ".exe"
 	}
-	path := filepath.Join(testenv.GOROOT(nil), "bin", "go"+exeSuffix)
+	path := filepath.Join(testenv.GOROOT(nil), "bin", "bolero"+exeSuffix)
 	if _, err := os.Stat(path); err == nil {
 		return path
 	}
-	return "go"
+	return "bolero"
 }
 
 // contexts are the default contexts which are scanned.
@@ -512,7 +512,7 @@ func (w *Walker) loadImports() {
 				break
 			}
 			if err != nil {
-				log.Fatalf("go list: invalid output: %v", err)
+				log.Fatalf("bolero list: invalid output: %v", err)
 			}
 
 			// - Package "unsafe" contains special signatures requiring

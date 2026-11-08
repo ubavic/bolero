@@ -1,12 +1,12 @@
-# Tests that go test -bench prints out goos, goarch, and pkg.
+# Tests that bolero test -bench prints out goos, goarch, and pkg.
 
 # Check for goos, goarch, and pkg.
-go test -run ^$ -bench . bench
+bolero test -run ^$ -bench . bench
 stdout '^goos: '$GOOS
 stdout '^goarch: '$GOARCH
 stdout '^pkg: bench'
 
-# Check go test does not print pkg multiple times
+# Check bolero test does not print pkg multiple times
 ! stdout 'pkg:.*pkg: '
 ! stderr 'pkg:.*pkg:'
 

@@ -1,17 +1,17 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # Establish baseline behavior, before mucking with file permissions.
 
-go list ./noread/...
+bolero list ./noread/...
 stdout '^example.com/noread$'
 
-go list example.com/noread/...
+bolero list example.com/noread/...
 stdout '^example.com/noread$'
 
-go list ./empty/...
+bolero list ./empty/...
 stderr 'matched no packages'
 
-# Make the directory ./noread unreadable, and verify that 'go list' reports an
+# Make the directory ./noread unreadable, and verify that 'bolero list' reports an
 # explicit error for a pattern that should match it (rather than treating it as
 # equivalent to an empty directory).
 
@@ -23,22 +23,22 @@ chmod 000 noread
 
 # Check explicit paths.
 
-! go list ./noread
+! bolero list ./noread
 ! stdout '^example.com/noread$'
 ! stderr 'matched no packages'
 
-! go list example.com/noread
+! bolero list example.com/noread
 ! stdout '^example.com/noread$'
 ! stderr 'matched no packages'
 
 # Check filesystem-relative patterns.
 
-! go list ./...
+! bolero list ./...
 ! stdout '^example.com/noread$'
 ! stderr 'matched no packages'
 stderr '^pattern ./...: '
 
-! go list ./noread/...
+! bolero list ./noread/...
 ! stdout '^example.com/noread$'
 ! stderr 'matched no packages'
 stderr '^pattern ./noread/...: '
@@ -46,12 +46,12 @@ stderr '^pattern ./noread/...: '
 
 # Check module-prefix patterns.
 
-! go list example.com/...
+! bolero list example.com/...
 ! stdout '^example.com/noread$'
 ! stderr 'matched no packages'
 stderr '^pattern example.com/...: '
 
-! go list example.com/noread/...
+! bolero list example.com/noread/...
 ! stdout '^example.com/noread$'
 ! stderr 'matched no packages'
 stderr '^pattern example.com/noread/...: '
@@ -62,12 +62,12 @@ stderr '^pattern example.com/noread/...: '
 # Check global patterns, which should still
 # fail due to errors in the local module.
 
-! go list all
+! bolero list all
 ! stdout '^example.com/noread$'
 ! stderr 'matched no packages'
 stderr '^pattern all: '
 
-! go list ...
+! bolero list ...
 ! stdout '^example.com/noread$'
 ! stderr 'matched no packages'
 stderr '^pattern ...: '

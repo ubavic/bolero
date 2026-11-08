@@ -1,12 +1,12 @@
 # Check that mod tidy does not introduce repeated
 # require statements when input go.mod has quoted requirements.
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-go mod tidy
+bolero mod tidy
 grep -count=1 rsc.io/quote go.mod
 
 cp go.mod2 go.mod
-go mod tidy
+bolero mod tidy
 grep -count=1 rsc.io/quote go.mod
 
 

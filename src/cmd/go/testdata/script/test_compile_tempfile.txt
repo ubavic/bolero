@@ -1,9 +1,9 @@
 [short] skip
 
-# Ensure that the target of 'go build -o' can be an existing, empty file so that
+# Ensure that the target of 'bolero build -o' can be an existing, empty file so that
 # its name can be reserved using os.CreateTemp or the 'mktemp` command.
 
-go build -o empty-file$GOEXE main.go
+bolero build -o empty-file$GOEXE main.go
 
 -- main.go --
 package main

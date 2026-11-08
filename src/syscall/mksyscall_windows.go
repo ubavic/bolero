@@ -16,10 +16,10 @@ import (
 )
 
 func main() {
-	goTool := filepath.Join(runtime.GOROOT(), "bin", "go")
+	goTool := filepath.Join(runtime.GOROOT(), "bin", "bolero")
 
 	listCmd := exec.Command(goTool, "list", "-m")
-	listCmd.Env = append(os.Environ(), "GO111MODULE=on")
+	listCmd.Env = append(os.Environ(), "BOLERO_MODULE=on")
 
 	var (
 		cmdEnv  []string
@@ -28,7 +28,7 @@ func main() {
 	if out, err := listCmd.Output(); err == nil && string(bytes.TrimSpace(out)) == "std" {
 		// Force module mode to use mkwinsyscall at the same version as the x/sys
 		// module vendored into the standard library.
-		cmdEnv = append(os.Environ(), "GO111MODULE=on")
+		cmdEnv = append(os.Environ(), "BOLERO_MODULE=on")
 
 		// Force -mod=readonly instead of the default -mod=vendor.
 		//
@@ -43,7 +43,7 @@ func main() {
 		// modules can vendor in the mkwinsyscall tool directly (as described in
 		// https://golang.org/issue/25922), so they don't need this wrapper to
 		// set module mode and -mod=readonly explicitly.
-		os.Stderr.WriteString("WARNING: Please switch from using:\n    go run $GOROOT/src/syscall/mksyscall_windows.go\nto using:\n    go run golang.org/x/sys/windows/mkwinsyscall\n")
+		os.Stderr.WriteString("WARNING: Please switch from using:\n    bolero run $BOLERO_ROOT/src/syscall/mksyscall_windows.go\nto using:\n    bolero run golang.org/x/sys/windows/mkwinsyscall\n")
 	}
 
 	args := append([]string{"run"}, modArgs...)

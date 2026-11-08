@@ -6,7 +6,7 @@
 # can be trimmed like subdirectory paths are.
 
 env GOEXPERIMENT=loopvar
-go build -gcflags=inlines/a=-d=loopvar=2 .
+bolero build -gcflags=inlines/a=-d=loopvar=2 .
 stderr ^\.[\\/]b[\\/]b\.go:12:6:.*loop.inlined.into.a[\\/]a\.go
 stderr ^\.[\\/]b[\\/]b\.go:12:9:.*loop.inlined.into.a[\\/]a\.go
 

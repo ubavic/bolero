@@ -88,7 +88,7 @@ type Repo interface {
 }
 
 // An Origin describes the provenance of a given repo method result.
-// It can be passed to CheckReuse (usually in a different go command invocation)
+// It can be passed to CheckReuse (usually in a different bolero command invocation)
 // to see whether the result remains up-to-date.
 type Origin struct {
 	VCS    string `json:",omitempty"` // "git" etc
@@ -216,7 +216,7 @@ func ShortenSHA1(rev string) string {
 // given repository type and name.
 func WorkDir(ctx context.Context, typ, name string) (dir, lockfile string, err error) {
 	if cfg.GOMODCACHE == "" {
-		return "", "", fmt.Errorf("neither GOPATH nor GOMODCACHE are set")
+		return "", "", fmt.Errorf("neither BOLERO_PATH nor BOLERO_MODCACHE are set")
 	}
 
 	// We name the work directory for the SHA256 hash of the type and name.

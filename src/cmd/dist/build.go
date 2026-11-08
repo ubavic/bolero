@@ -107,18 +107,18 @@ var okgoos = []string{
 
 // xinit handles initialization of the various global state, like goroot and goarch.
 func xinit() {
-	b := os.Getenv("GOROOT")
+	b := os.Getenv("BOLERO_ROOT")
 	if b == "" {
-		fatalf("$GOROOT must be set")
+		fatalf("$BOLERO_ROOT must be set")
 	}
 	goroot = filepath.Clean(b)
 	gorootBin = pathf("%s/bin", goroot)
 
-	// Don't run just 'go' because the build infrastructure
-	// runs cmd/dist inside go/bin often, and on Windows
+	// Don't run just 'bolero' because the build infrastructure
+	// runs cmd/dist inside bolero/bin often, and on Windows
 	// it will be found in the current directory and refuse to exec.
-	// All exec calls rewrite "go" into gorootBinGo.
-	gorootBinGo = pathf("%s/bin/go", goroot)
+	// All exec calls rewrite "bolero" into gorootBinGo.
+	gorootBinGo = pathf("%s/bin/bolero", goroot)
 
 	b = os.Getenv("GOOS")
 	if b == "" {
@@ -184,7 +184,7 @@ func xinit() {
 	gofips140 = b
 
 	if p := pathf("%s/src/all.bash", goroot); !isfile(p) {
-		fatalf("$GOROOT is not set correctly or not exported\n"+
+		fatalf("$BOLERO_ROOT is not set correctly or not exported\n"+
 			"\tGOROOT=%s\n"+
 			"\t%s does not exist", goroot, p)
 	}
@@ -244,18 +244,25 @@ func xinit() {
 	os.Setenv("GOMIPS64", gomips64)
 	os.Setenv("GOPPC64", goppc64)
 	os.Setenv("GORISCV64", goriscv64)
-	os.Setenv("GOROOT", goroot)
+	os.Setenv("BOLERO_ROOT", goroot)
 	os.Setenv("GOFIPS140", gofips140)
 
-	// Set GOBIN to GOROOT/bin. The meaning of GOBIN has drifted over time
+	// Set BOLERO_BIN to BOLERO_ROOT/bin. The meaning of BOLERO_BIN has drifted over time
 	// (see https://go.dev/issue/3269, https://go.dev/cl/183058,
 	// https://go.dev/issue/31576). Since we want binaries installed by 'dist' to
-	// always go to GOROOT/bin anyway.
-	os.Setenv("GOBIN", gorootBin)
+	// always go to BOLERO_ROOT/bin anyway.
+	os.Setenv("BOLERO_BIN", gorootBin)
 
 	// Make the environment more predictable.
 	os.Setenv("LANG", "C")
 	os.Setenv("LANGUAGE", "en_US.UTF8")
+	os.Unsetenv("BOLERO_MODULE")
+	os.Setenv("BOLERO_ENV", "off")
+	os.Unsetenv("BOLERO_FLAGS")
+	os.Setenv("BOLERO_WORK", "off")
+
+	// The bootstrap toolchain is an upstream Go toolchain, which reads
+	// its own variables.
 	os.Unsetenv("GO111MODULE")
 	os.Setenv("GOENV", "off")
 	os.Unsetenv("GOFLAGS")
@@ -368,7 +375,7 @@ func chomp(s string) string {
 // findgoversion determines the Go version to use in the version string.
 // It also parses any other metadata found in the version file.
 func findgoversion() string {
-	// The $GOROOT/VERSION file takes priority, for distributions
+	// The $BOLERO_ROOT/VERSION file takes priority, for distributions
 	// without the source repo.
 	path := pathf("%s/VERSION", goroot)
 	if isfile(path) {
@@ -410,7 +417,7 @@ func findgoversion() string {
 		}
 	}
 
-	// The $GOROOT/VERSION.cache file is a cache to avoid invoking
+	// The $BOLERO_ROOT/VERSION.cache file is a cache to avoid invoking
 	// git every time we run this command. Unlike VERSION, it gets
 	// deleted by the clean command.
 	path = pathf("%s/VERSION.cache", goroot)
@@ -420,7 +427,7 @@ func findgoversion() string {
 
 	// Show a nicer error message if this isn't a Git repo.
 	if !isGitRepo() {
-		fatalf("FAILED: not a Git repo; must put a VERSION file in $GOROOT")
+		fatalf("FAILED: not a Git repo; must put a VERSION file in $BOLERO_ROOT")
 	}
 
 	// Otherwise, use Git.
@@ -433,7 +440,7 @@ func findgoversion() string {
 	//
 	// Note that we lightly parse internal/goversion/goversion.go to
 	// obtain the base version. We can't just import the package,
-	// because cmd/dist is built with a bootstrap GOROOT which could
+	// because cmd/dist is built with a bootstrap BOLERO_ROOT which could
 	// be an entirely different version of Go. We assume
 	// that the file contains "const Version = <Integer>".
 	goversionSource := readfile(pathf("%s/src/internal/goversion/goversion.go", goroot))
@@ -493,7 +500,7 @@ func isGitRepo() bool {
  * Initial tree setup.
  */
 
-// The old tools that no longer live in $GOBIN or $GOROOT/bin.
+// The old tools that no longer live in $BOLERO_BIN or $BOLERO_ROOT/bin.
 var oldtool = []string{
 	"5a", "5c", "5g", "5l",
 	"6a", "6c", "6g", "6l",
@@ -517,7 +524,7 @@ var oldtool = []string{
 	"quietgcc",
 }
 
-// Unreleased directories (relative to $GOROOT) that should
+// Unreleased directories (relative to $BOLERO_ROOT) that should
 // not be in release branches.
 var unreleased = []string{
 	"src/cmd/newlink",
@@ -664,7 +671,7 @@ var depsuffix = []string{
 // gentab records how to generate some trivial files.
 // Files listed here should also be listed in ../distpack/pack.go's srcArch.Remove list.
 var gentab = []struct {
-	pkg  string // Relative to $GOROOT/src
+	pkg  string // Relative to $BOLERO_ROOT/src
 	file string
 	gen  func(dir, file string)
 }{
@@ -695,7 +702,7 @@ func startInstall(dir string) chan struct{} {
 }
 
 // runInstall installs the library, package, or binary associated with pkg,
-// which is relative to $GOROOT/src.
+// which is relative to $BOLERO_ROOT/src.
 func runInstall(pkg string, ch chan struct{}) {
 	if pkg == "net" || pkg == "os/user" || pkg == "crypto/x509" {
 		fatalf("go_bootstrap cannot depend on cgo package %s", pkg)
@@ -1262,19 +1269,19 @@ func cmdenv() {
 		format = "set %s=%s\r\n"
 	}
 
-	xprintf(format, "GO111MODULE", "")
+	xprintf(format, "BOLERO_MODULE", "")
 	xprintf(format, "GOARCH", goarch)
-	xprintf(format, "GOBIN", gorootBin)
+	xprintf(format, "BOLERO_BIN", gorootBin)
 	xprintf(format, "GODEBUG", os.Getenv("GODEBUG"))
-	xprintf(format, "GOENV", "off")
-	xprintf(format, "GOFLAGS", "")
+	xprintf(format, "BOLERO_ENV", "off")
+	xprintf(format, "BOLERO_FLAGS", "")
 	xprintf(format, "GOHOSTARCH", gohostarch)
 	xprintf(format, "GOHOSTOS", gohostos)
 	xprintf(format, "GOOS", goos)
-	xprintf(format, "GOPROXY", os.Getenv("GOPROXY"))
-	xprintf(format, "GOROOT", goroot)
-	xprintf(format, "GOTMPDIR", os.Getenv("GOTMPDIR"))
-	xprintf(format, "GOTOOLDIR", tooldir)
+	xprintf(format, "BOLERO_PROXY", os.Getenv("BOLERO_PROXY"))
+	xprintf(format, "BOLERO_ROOT", goroot)
+	xprintf(format, "BOLERO_TMPDIR", os.Getenv("BOLERO_TMPDIR"))
+	xprintf(format, "BOLERO_TOOLDIR", tooldir)
 	if goarch == "arm" {
 		xprintf(format, "GOARM", goarm)
 	}
@@ -1299,7 +1306,7 @@ func cmdenv() {
 	if goarch == "riscv64" {
 		xprintf(format, "GORISCV64", goriscv64)
 	}
-	xprintf(format, "GOWORK", "off")
+	xprintf(format, "BOLERO_WORK", "off")
 
 	if *path {
 		sep := ":"
@@ -1380,7 +1387,7 @@ func toolenv() []string {
 		// Do not include local development, so that people working in the
 		// main branch for day-to-day work on the Go toolchain itself can
 		// still have full paths for stack traces for compiler crashes and the like.
-		env = append(env, "GOFLAGS=-trimpath -ldflags=-w -gcflags=cmd/...=-dwarf=false")
+		env = append(env, "BOLERO_FLAGS=-trimpath -ldflags=-w -gcflags=cmd/...=-dwarf=false")
 	}
 	return env
 }
@@ -1423,7 +1430,7 @@ func cmdbootstrap() {
 	xflagparse(0)
 
 	if noClean {
-		xprintf("warning: --no-clean is deprecated and has no effect; use 'go install std cmd' instead\n")
+		xprintf("warning: --no-clean is deprecated and has no effect; use 'bolero install std cmd' instead\n")
 	}
 
 	// Don't build broken ports by default.
@@ -1432,24 +1439,24 @@ func cmdbootstrap() {
 			"Use the -force flag to build anyway.\n", goos, goarch)
 	}
 
-	// Set GOPATH to an internal directory. We shouldn't actually
+	// Set BOLERO_PATH to an internal directory. We shouldn't actually
 	// need to store files here, since the toolchain won't
 	// depend on modules outside of vendor directories, but if
-	// GOPATH points somewhere else (e.g., to GOROOT), the
+	// BOLERO_PATH points somewhere else (e.g., to BOLERO_ROOT), the
 	// go tool may complain.
-	os.Setenv("GOPATH", pathf("%s/pkg/obj/gopath", goroot))
+	os.Setenv("BOLERO_PATH", pathf("%s/pkg/obj/gopath", goroot))
 
-	// Set GOPROXY=off to avoid downloading modules to the modcache in
-	// the GOPATH set above to be inside GOROOT. The modcache is read
+	// Set BOLERO_PROXY=off to avoid downloading modules to the modcache in
+	// the BOLERO_PATH set above to be inside BOLERO_ROOT. The modcache is read
 	// only so if we downloaded to the modcache, we'd create readonly
-	// files in GOROOT, which is undesirable. See #67463)
-	os.Setenv("GOPROXY", "off")
+	// files in BOLERO_ROOT, which is undesirable. See #67463)
+	os.Setenv("BOLERO_PROXY", "off")
 
 	// Use a build cache separate from the default user one.
 	// Also one that will be wiped out during startup, so that
 	// make.bash really does start from a clean slate.
-	oldgocache = os.Getenv("GOCACHE")
-	os.Setenv("GOCACHE", pathf("%s/pkg/obj/go-build", goroot))
+	oldgocache = os.Getenv("BOLERO_CACHE")
+	os.Setenv("BOLERO_CACHE", pathf("%s/pkg/obj/go-build", goroot))
 
 	// Disable GOEXPERIMENT when building toolchain1 and
 	// go_bootstrap. We don't need any experiments for the
@@ -1467,7 +1474,7 @@ func cmdbootstrap() {
 
 	if isdir(pathf("%s/src/pkg", goroot)) {
 		fatalf("\n\n"+
-			"The Go package sources have moved to $GOROOT/src.\n"+
+			"The package sources have moved to $BOLERO_ROOT/src.\n"+
 			"*** %s still exists. ***\n"+
 			"It probably contains stale files that may confuse the build.\n"+
 			"Please (check what's there and) remove it and try again.\n"+
@@ -1485,7 +1492,7 @@ func cmdbootstrap() {
 	checkCC()
 	bootstrapBuildTools()
 
-	// Remember old content of $GOROOT/bin for comparison below.
+	// Remember old content of $BOLERO_ROOT/bin for comparison below.
 	oldBinFiles, err := filepath.Glob(pathf("%s/bin/*", goroot))
 	if err != nil {
 		fatalf("glob: %v", err)
@@ -1502,7 +1509,7 @@ func cmdbootstrap() {
 	os.Setenv("GOOS", goos)
 
 	timelog("build", "go_bootstrap")
-	xprintf("Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1.\n")
+	xprintf("Building bootstrap cmd/go (go_bootstrap) using toolchain1.\n")
 	install("runtime")     // dependency not visible in sources; also sets up textflag.h
 	install("time/tzdata") // no dependency in sources; creates generated file
 	install("cmd/go")
@@ -1539,7 +1546,7 @@ func cmdbootstrap() {
 	if vflag > 0 {
 		xprintf("\n")
 	}
-	xprintf("Building Go toolchain2 using go_bootstrap and Go toolchain1.\n")
+	xprintf("Building toolchain2 using go_bootstrap and toolchain1.\n")
 	os.Setenv("CC", compilerEnvLookup("CC", defaultcc, goos, goarch))
 	// Now that cmd/go is in charge of the build process, enable GOEXPERIMENT.
 	os.Setenv("GOEXPERIMENT", goexperiment)
@@ -1570,7 +1577,7 @@ func cmdbootstrap() {
 	if vflag > 0 {
 		xprintf("\n")
 	}
-	xprintf("Building Go toolchain3 using go_bootstrap and Go toolchain2.\n")
+	xprintf("Building toolchain3 using go_bootstrap and toolchain2.\n")
 	goInstall(toolenv(), goBootstrap, append([]string{"-a"}, toolchain...)...)
 	if debug {
 		run("", ShowOutput|CheckExit, pathf("%s/compile", tooldir), "-V=full")
@@ -1588,9 +1595,9 @@ func cmdbootstrap() {
 		// that code hasn't changed since the last time we ran a build
 		// with this exact VERSION file (especially if someone is working
 		// on a release branch). We must not fall back to the shared build cache
-		// in this case. Leave $GOCACHE alone.
+		// in this case. Leave $BOLERO_CACHE alone.
 	} else {
-		os.Setenv("GOCACHE", oldgocache)
+		os.Setenv("BOLERO_CACHE", oldgocache)
 	}
 
 	if goos == oldgoos && goarch == oldgoarch {
@@ -1637,8 +1644,8 @@ func cmdbootstrap() {
 		copyfile(pathf("%s/compile4", tooldir), pathf("%s/compile", tooldir), writeExec)
 	}
 
-	// Check that there are no new files in $GOROOT/bin other than
-	// go and gofmt and $GOOS_$GOARCH (target bin when cross-compiling).
+	// Check that there are no new files in $BOLERO_ROOT/bin other than
+	// bolero and bolerofmt and $GOOS_$GOARCH (target bin when cross-compiling).
 	binFiles, err := filepath.Glob(pathf("%s/bin/*", goroot))
 	if err != nil {
 		fatalf("glob: %v", err)
@@ -1653,8 +1660,8 @@ func cmdbootstrap() {
 			continue // unfortunate but not unexpected
 		}
 		elem := strings.TrimSuffix(filepath.Base(f), ".exe")
-		if !ok[f] && elem != "go" && elem != "gofmt" && elem != goos+"_"+goarch {
-			fatalf("unexpected new file in $GOROOT/bin: %s", elem)
+		if !ok[f] && elem != "bolero" && elem != "bolerofmt" && elem != goos+"_"+goarch {
+			fatalf("unexpected new file in $BOLERO_ROOT/bin: %s", elem)
 		}
 	}
 
@@ -1662,7 +1669,7 @@ func cmdbootstrap() {
 	xremove(pathf("%s/go_bootstrap"+exe, tooldir))
 
 	if goos == "android" {
-		// Make sure the exec wrapper will sync a fresh $GOROOT to the device.
+		// Make sure the exec wrapper will sync a fresh $BOLERO_ROOT to the device.
 		xremove(pathf("%s/go_android_exec-adb-sync-status", os.TempDir()))
 	}
 
@@ -1871,7 +1878,7 @@ func checkCC() {
 			outputHdr = "\nCommand output:\n\n"
 		}
 		fatalf("cannot invoke C compiler %q: %v\n\n"+
-			"Go needs a system C compiler for use with cgo.\n"+
+			"A system C compiler is needed for use with cgo.\n"+
 			"To set a C compiler, set CC=the-compiler.\n"+
 			"To disable cgo, set CGO_ENABLED=0.\n%s%s", cc, err, outputHdr, output)
 	}
@@ -1925,18 +1932,18 @@ func banner() {
 		xprintf("\n")
 	}
 	xprintf("---\n")
-	xprintf("Installed Go for %s/%s in %s\n", goos, goarch, goroot)
+	xprintf("Installed Bolero for %s/%s in %s\n", goos, goarch, goroot)
 	xprintf("Installed commands in %s\n", gorootBin)
 
 	if gohostos == "plan9" {
-		// Check that GOROOT/bin is bound before /bin.
+		// Check that BOLERO_ROOT/bin is bound before /bin.
 		pid := strings.ReplaceAll(readfile("#c/pid"), " ", "")
 		ns := fmt.Sprintf("/proc/%s/ns", pid)
 		if !strings.Contains(readfile(ns), fmt.Sprintf("bind -b %s /bin", gorootBin)) {
 			xprintf("*** You need to bind %s before /bin.\n", gorootBin)
 		}
 	} else {
-		// Check that GOROOT/bin appears in $PATH.
+		// Check that BOLERO_ROOT/bin appears in $PATH.
 		pathsep := ":"
 		if gohostos == "windows" {
 			pathsep = ";"

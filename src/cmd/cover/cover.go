@@ -31,26 +31,26 @@ import (
 )
 
 const usageMessage = "" +
-	`Usage of 'go tool cover':
-Given a coverage profile produced by 'go test':
-	go test -coverprofile=c.out
+	`Usage of 'bolero tool cover':
+Given a coverage profile produced by 'bolero test':
+	bolero test -coverprofile=c.out
 
 Open a web browser displaying annotated source code:
-	go tool cover -html=c.out
+	bolero tool cover -html=c.out
 
 Write out an HTML file instead of launching a web browser:
-	go tool cover -html=c.out -o coverage.html
+	bolero tool cover -html=c.out -o coverage.html
 
 Display coverage percentages to stdout for each function:
-	go tool cover -func=c.out
+	bolero tool cover -func=c.out
 
 Finally, to generate modified source code with coverage annotations
-for a package (what go test -cover does):
-	go tool cover -mode=set -var=CoverageVariableName \
+for a package (what bolero test -cover does):
+	bolero tool cover -mode=set -var=CoverageVariableName \
 		-pkgcfg=<config> -outfilelist=<file> file1.go ... fileN.go
 
 where -pkgcfg points to a file containing the package path,
-package name, module path, and related info from "go build",
+package name, module path, and related info from "bolero build",
 and -outfilelist points to a file containing the filenames
 of the instrumented output files (one per input file).
 See https://pkg.go.dev/cmd/internal/cov/covcmd#CoverPkgConfig for
@@ -104,7 +104,7 @@ func main() {
 	err := parseFlags()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		fmt.Fprintln(os.Stderr, `For usage information, run "go tool cover -help"`)
+		fmt.Fprintln(os.Stderr, `For usage information, run "bolero tool cover -help"`)
 		os.Exit(2)
 	}
 

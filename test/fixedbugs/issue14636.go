@@ -34,7 +34,7 @@ func main() {
 }
 
 func checkLinkOutput(buildid string, message string) {
-	cmd := exec.Command("go", "tool", "link", "-B", buildid, "nonexistent.o")
+	cmd := exec.Command("bolero", "tool", "link", "-B", buildid, "nonexistent.o")
 	out, err := cmd.CombinedOutput()
 	if err == nil {
 		log.Fatalf("expected cmd/link to fail")

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package envcmd implements the “go env” command.
+// Package envcmd implements the “bolero env” command.
 package envcmd
 
 import (
@@ -34,10 +34,10 @@ import (
 )
 
 var CmdEnv = &base.Command{
-	UsageLine: "go env [-json] [-changed] [-u] [-w] [var ...]",
-	Short:     "print Go environment information",
+	UsageLine: "bolero env [-json] [-changed] [-u] [-w] [var ...]",
+	Short:     "print Bolero environment information",
 	Long: `
-Env prints Go environment information.
+Env prints Bolero environment information.
 
 By default env prints information as a shell script
 (on Windows, a batch file). If one or more variable
@@ -49,7 +49,7 @@ instead of as a shell script.
 
 The -u flag requires one or more arguments and unsets
 the default setting for the named environment variables,
-if one has been set with 'go env -w'.
+if one has been set with 'bolero env -w'.
 
 The -w flag requires one or more arguments of the
 form NAME=VALUE and changes the default settings
@@ -59,7 +59,7 @@ The -changed flag prints only those settings whose effective
 value differs from the default value that would be obtained in
 an empty environment with no prior uses of the -w flag.
 
-For more about environment variables, see 'go help environment'.
+For more about environment variables, see 'bolero help environment'.
 	`,
 }
 
@@ -80,14 +80,14 @@ func MkEnv() []cfg.EnvVar {
 	envFile, envFileChanged, _ := cfg.EnvFile()
 	env := []cfg.EnvVar{
 		// NOTE: Keep this list (and in general, all lists in source code) sorted by name.
-		{Name: "GO111MODULE", Value: cfg.Getenv("GO111MODULE")},
+		{Name: "BOLERO_MODULE", Value: cfg.Getenv("BOLERO_MODULE")},
 		{Name: "GOARCH", Value: cfg.Goarch, Changed: cfg.Goarch != runtime.GOARCH},
-		{Name: "GOAUTH", Value: cfg.GOAUTH, Changed: cfg.GOAUTHChanged},
-		{Name: "GOBIN", Value: cfg.GOBIN},
-		{Name: "GOCACHE"},
-		{Name: "GOCACHEPROG", Value: cfg.GOCACHEPROG, Changed: cfg.GOCACHEPROGChanged},
+		{Name: "BOLERO_AUTH", Value: cfg.GOAUTH, Changed: cfg.GOAUTHChanged},
+		{Name: "BOLERO_BIN", Value: cfg.GOBIN},
+		{Name: "BOLERO_CACHE"},
+		{Name: "BOLERO_CACHEPROG", Value: cfg.GOCACHEPROG, Changed: cfg.GOCACHEPROGChanged},
 		{Name: "GODEBUG", Value: os.Getenv("GODEBUG")},
-		{Name: "GOENV", Value: envFile, Changed: envFileChanged},
+		{Name: "BOLERO_ENV", Value: envFile, Changed: envFileChanged},
 		{Name: "GOEXE", Value: cfg.ExeSuffix},
 
 		// List the raw value of GOEXPERIMENT, not the cleaned one.
@@ -98,42 +98,42 @@ func MkEnv() []cfg.EnvVar {
 		{Name: "GOEXPERIMENT", Value: cfg.RawGOEXPERIMENT},
 
 		{Name: "GOFIPS140", Value: cfg.GOFIPS140, Changed: cfg.GOFIPS140Changed},
-		{Name: "GOFLAGS", Value: cfg.Getenv("GOFLAGS")},
+		{Name: "BOLERO_FLAGS", Value: cfg.Getenv("BOLERO_FLAGS")},
 		{Name: "GOHOSTARCH", Value: runtime.GOARCH},
 		{Name: "GOHOSTOS", Value: runtime.GOOS},
-		{Name: "GOINSECURE", Value: cfg.GOINSECURE},
-		{Name: "GOMODCACHE", Value: cfg.GOMODCACHE, Changed: cfg.GOMODCACHEChanged},
-		{Name: "GONOPROXY", Value: cfg.GONOPROXY, Changed: cfg.GONOPROXYChanged},
-		{Name: "GONOSUMDB", Value: cfg.GONOSUMDB, Changed: cfg.GONOSUMDBChanged},
+		{Name: "BOLERO_INSECURE", Value: cfg.GOINSECURE},
+		{Name: "BOLERO_MODCACHE", Value: cfg.GOMODCACHE, Changed: cfg.GOMODCACHEChanged},
+		{Name: "BOLERO_NOPROXY", Value: cfg.GONOPROXY, Changed: cfg.GONOPROXYChanged},
+		{Name: "BOLERO_NOSUMDB", Value: cfg.GONOSUMDB, Changed: cfg.GONOSUMDBChanged},
 		{Name: "GOOS", Value: cfg.Goos, Changed: cfg.Goos != runtime.GOOS},
-		{Name: "GOPATH", Value: cfg.BuildContext.GOPATH, Changed: cfg.GOPATHChanged},
-		{Name: "GOPRIVATE", Value: cfg.GOPRIVATE},
-		{Name: "GOPROXY", Value: cfg.GOPROXY, Changed: cfg.GOPROXYChanged},
-		{Name: "GOROOT", Value: cfg.GOROOT},
-		{Name: "GOSUMDB", Value: cfg.GOSUMDB, Changed: cfg.GOSUMDBChanged},
-		{Name: "GOTELEMETRY", Value: telemetry.Mode()},
-		{Name: "GOTELEMETRYDIR", Value: telemetry.Dir()},
-		{Name: "GOTMPDIR", Value: cfg.Getenv("GOTMPDIR")},
-		{Name: "GOTOOLCHAIN"},
-		{Name: "GOTOOLDIR", Value: build.ToolDir},
-		{Name: "GOVCS", Value: cfg.GOVCS},
-		{Name: "GOVERSION", Value: runtime.Version()},
+		{Name: "BOLERO_PATH", Value: cfg.BuildContext.GOPATH, Changed: cfg.GOPATHChanged},
+		{Name: "BOLERO_PRIVATE", Value: cfg.GOPRIVATE},
+		{Name: "BOLERO_PROXY", Value: cfg.GOPROXY, Changed: cfg.GOPROXYChanged},
+		{Name: "BOLERO_ROOT", Value: cfg.GOROOT},
+		{Name: "BOLERO_SUMDB", Value: cfg.GOSUMDB, Changed: cfg.GOSUMDBChanged},
+		{Name: "BOLERO_TELEMETRY", Value: telemetry.Mode()},
+		{Name: "BOLERO_TELEMETRYDIR", Value: telemetry.Dir()},
+		{Name: "BOLERO_TMPDIR", Value: cfg.Getenv("BOLERO_TMPDIR")},
+		{Name: "BOLERO_TOOLCHAIN"},
+		{Name: "BOLERO_TOOLDIR", Value: build.ToolDir},
+		{Name: "BOLERO_VCS", Value: cfg.GOVCS},
+		{Name: "BOLERO_VERSION", Value: runtime.Version()},
 	}
 
 	for i := range env {
 		switch env[i].Name {
-		case "GO111MODULE":
+		case "BOLERO_MODULE":
 			if env[i].Value != "on" && env[i].Value != "" {
 				env[i].Changed = true
 			}
-		case "GOBIN", "GOEXPERIMENT", "GOFLAGS", "GOINSECURE", "GOPRIVATE", "GOTMPDIR", "GOVCS":
+		case "BOLERO_BIN", "GOEXPERIMENT", "BOLERO_FLAGS", "BOLERO_INSECURE", "BOLERO_PRIVATE", "BOLERO_TMPDIR", "BOLERO_VCS":
 			if env[i].Value != "" {
 				env[i].Changed = true
 			}
-		case "GOCACHE":
+		case "BOLERO_CACHE":
 			env[i].Value, env[i].Changed, _ = cache.DefaultDir()
-		case "GOTOOLCHAIN":
-			env[i].Value, env[i].Changed = cfg.EnvOrAndChanged("GOTOOLCHAIN", "")
+		case "BOLERO_TOOLCHAIN":
+			env[i].Value, env[i].Changed = cfg.EnvOrAndChanged("BOLERO_TOOLCHAIN", "")
 		case "GODEBUG":
 			env[i].Changed = env[i].Value != ""
 		}
@@ -199,13 +199,13 @@ func ExtraEnvVars(loaderstate *modload.State) []cfg.EnvVar {
 	}
 	loaderstate.InitWorkfile()
 	gowork := modload.WorkFilePath(loaderstate)
-	// As a special case, if a user set off explicitly, report that in GOWORK.
-	if cfg.Getenv("GOWORK") == "off" {
+	// As a special case, if a user set off explicitly, report that in BOLERO_WORK.
+	if cfg.Getenv("BOLERO_WORK") == "off" {
 		gowork = "off"
 	}
 	return []cfg.EnvVar{
-		{Name: "GOMOD", Value: gomod},
-		{Name: "GOWORK", Value: gowork},
+		{Name: "BOLERO_MOD", Value: gomod},
+		{Name: "BOLERO_WORK", Value: gowork},
 	}
 }
 
@@ -222,7 +222,7 @@ func ExtraEnvVarsCostly(loaderstate *modload.State) []cfg.EnvVar {
 	cppflags, cflags, cxxflags, fflags, ldflags, err := b.CFlags(&load.Package{})
 	if err != nil {
 		// Should not happen - b.CFlags was given an empty package.
-		fmt.Fprintf(os.Stderr, "go: invalid cflags: %v\n", err)
+		fmt.Fprintf(os.Stderr, "bolero: invalid cflags: %v\n", err)
 		return nil
 	}
 	cmd := b.GccCmd(".", "")
@@ -274,16 +274,16 @@ func argKey(arg string) string {
 func runEnv(ctx context.Context, cmd *base.Command, args []string) {
 	moduleLoaderState := modload.NewState()
 	if *envJson && *envU {
-		base.Fatalf("go: cannot use -json with -u")
+		base.Fatalf("bolero: cannot use -json with -u")
 	}
 	if *envJson && *envW {
-		base.Fatalf("go: cannot use -json with -w")
+		base.Fatalf("bolero: cannot use -json with -w")
 	}
 	if *envU && *envW {
-		base.Fatalf("go: cannot use -u with -w")
+		base.Fatalf("bolero: cannot use -u with -w")
 	}
 
-	// Handle 'go env -w' and 'go env -u' before calling buildcfg.Check,
+	// Handle 'bolero env -w' and 'bolero env -u' before calling buildcfg.Check,
 	// so they can be used to recover from an invalid configuration.
 	if *envW {
 		runEnvW(args)
@@ -302,7 +302,7 @@ func runEnv(ctx context.Context, cmd *base.Command, args []string) {
 
 	for _, arg := range args {
 		if strings.Contains(arg, "=") {
-			base.Fatalf("go: invalid variable name %q (use -w to set variable)", arg)
+			base.Fatalf("bolero: invalid variable name %q (use -w to set variable)", arg)
 		}
 	}
 
@@ -316,7 +316,7 @@ func runEnv(ctx context.Context, cmd *base.Command, args []string) {
 	// Do we need to call ExtraEnvVarsCostly, which is a bit expensive?
 	needCostly := false
 	if len(args) == 0 {
-		// We're listing all environment variables ("go env"),
+		// We're listing all environment variables ("bolero env"),
 		// including the expensive ones.
 		needCostly = true
 	} else {
@@ -384,7 +384,7 @@ func runEnv(ctx context.Context, cmd *base.Command, args []string) {
 func runEnvW(args []string) {
 	// Process and sanity-check command line.
 	if len(args) == 0 {
-		base.Fatalf("go: no KEY=VALUE arguments given")
+		base.Fatalf("bolero: no KEY=VALUE arguments given")
 	}
 	osEnv := make(map[string]string)
 	for _, e := range cfg.OrigEnv {
@@ -396,17 +396,17 @@ func runEnvW(args []string) {
 	for _, arg := range args {
 		key, val, found := strings.Cut(arg, "=")
 		if !found {
-			base.Fatalf("go: arguments must be KEY=VALUE: invalid argument: %s", arg)
+			base.Fatalf("bolero: arguments must be KEY=VALUE: invalid argument: %s", arg)
 		}
 		if err := checkEnvWrite(key, val); err != nil {
 			base.Fatal(err)
 		}
 		if _, ok := add[key]; ok {
-			base.Fatalf("go: multiple values for key: %s", key)
+			base.Fatalf("bolero: multiple values for key: %s", key)
 		}
 		add[key] = val
 		if osVal := osEnv[key]; osVal != "" && osVal != val {
-			fmt.Fprintf(os.Stderr, "warning: go env -w %s=... does not override conflicting OS environment variable\n", key)
+			fmt.Fprintf(os.Stderr, "warning: bolero env -w %s=... does not override conflicting OS environment variable\n", key)
 		}
 	}
 
@@ -414,10 +414,10 @@ func runEnvW(args []string) {
 		base.Fatal(err)
 	}
 
-	gotmp, okGOTMP := add["GOTMPDIR"]
+	gotmp, okGOTMP := add["BOLERO_TMPDIR"]
 	if okGOTMP {
 		if !filepath.IsAbs(gotmp) && gotmp != "" {
-			base.Fatalf("go: GOTMPDIR must be an absolute path")
+			base.Fatalf("bolero: BOLERO_TMPDIR must be an absolute path")
 		}
 	}
 
@@ -427,7 +427,7 @@ func runEnvW(args []string) {
 func runEnvU(args []string) {
 	// Process and sanity-check command line.
 	if len(args) == 0 {
-		base.Fatalf("go: 'go env -u' requires an argument")
+		base.Fatalf("bolero: 'bolero env -u' requires an argument")
 	}
 	del := make(map[string]bool)
 	for _, arg := range args {
@@ -491,7 +491,7 @@ func PrintEnv(w io.Writer, env []cfg.EnvVar, onlyChanged bool) {
 	for _, e := range env {
 		if e.Name != "TERM" {
 			if runtime.GOOS != "plan9" && bytes.Contains([]byte(e.Value), []byte{0}) {
-				base.Fatalf("go: internal error: encountered null byte in environment variable %s on non-plan9 platform", e.Name)
+				base.Fatalf("bolero: internal error: encountered null byte in environment variable %s on non-plan9 platform", e.Name)
 			}
 			if onlyChanged && !e.Changed {
 				continue
@@ -515,7 +515,7 @@ func PrintEnv(w io.Writer, env []cfg.EnvVar, onlyChanged bool) {
 				}
 			case "windows":
 				if hasNonGraphic(e.Value) {
-					base.Errorf("go: stripping unprintable or unescapable characters from %%%q%%", e.Name)
+					base.Errorf("bolero: stripping unprintable or unescapable characters from %%%q%%", e.Name)
 				}
 				fmt.Fprintf(w, "set %s=%s\n", e.Name, batchEscape(e.Value))
 			}
@@ -589,7 +589,7 @@ func printEnvAsJSON(env []cfg.EnvVar, onlyChanged bool) {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "\t")
 	if err := enc.Encode(m); err != nil {
-		base.Fatalf("go: %s", err)
+		base.Fatalf("bolero: %s", err)
 	}
 }
 
@@ -604,38 +604,38 @@ func getOrigEnv(key string) string {
 
 func checkEnvWrite(key, val string) error {
 	switch key {
-	case "GOEXE", "GOGCCFLAGS", "GOHOSTARCH", "GOHOSTOS", "GOMOD", "GOWORK", "GOTOOLDIR", "GOVERSION", "GOTELEMETRY", "GOTELEMETRYDIR":
+	case "GOEXE", "GOGCCFLAGS", "GOHOSTARCH", "GOHOSTOS", "BOLERO_MOD", "BOLERO_WORK", "BOLERO_TOOLDIR", "BOLERO_VERSION", "BOLERO_TELEMETRY", "BOLERO_TELEMETRYDIR":
 		return fmt.Errorf("%s cannot be modified", key)
-	case "GOENV", "GODEBUG":
+	case "BOLERO_ENV", "GODEBUG":
 		return fmt.Errorf("%s can only be set using the OS environment", key)
 	}
 
 	// To catch typos and the like, check that we know the variable.
 	// If it's already in the env file, we assume it's known.
 	if !cfg.CanGetenv(key) {
-		return fmt.Errorf("unknown go command variable %s", key)
+		return fmt.Errorf("unknown bolero command variable %s", key)
 	}
 
 	// Some variables can only have one of a few valid values. If set to an
 	// invalid value, the next cmd/go invocation might fail immediately,
-	// even 'go env -w' itself.
+	// even 'bolero env -w' itself.
 	switch key {
-	case "GO111MODULE":
+	case "BOLERO_MODULE":
 		switch val {
 		case "", "auto", "on", "off":
 		default:
 			return fmt.Errorf("invalid %s value %q", key, val)
 		}
-	case "GOPATH":
+	case "BOLERO_PATH":
 		if strings.HasPrefix(val, "~") {
-			return fmt.Errorf("GOPATH entry cannot start with shell metacharacter '~': %q", val)
+			return fmt.Errorf("BOLERO_PATH entry cannot start with shell metacharacter '~': %q", val)
 		}
 		if !filepath.IsAbs(val) && val != "" {
-			return fmt.Errorf("GOPATH entry is relative; must be absolute path: %q", val)
+			return fmt.Errorf("BOLERO_PATH entry is relative; must be absolute path: %q", val)
 		}
-	case "GOMODCACHE":
+	case "BOLERO_MODCACHE":
 		if !filepath.IsAbs(val) && val != "" {
-			return fmt.Errorf("GOMODCACHE entry is relative; must be absolute path: %q", val)
+			return fmt.Errorf("BOLERO_MODCACHE entry is relative; must be absolute path: %q", val)
 		}
 	case "CC", "CXX":
 		if val == "" {
@@ -669,13 +669,13 @@ func readEnvFileLines(mustExist bool) []string {
 	file, _, err := cfg.EnvFile()
 	if file == "" {
 		if mustExist {
-			base.Fatalf("go: cannot find go env config: %v", err)
+			base.Fatalf("bolero: cannot find bolero env config: %v", err)
 		}
 		return nil
 	}
 	data, err := os.ReadFile(file)
 	if err != nil && (!os.IsNotExist(err) || mustExist) {
-		base.Fatalf("go: reading go env config: %v", err)
+		base.Fatalf("bolero: reading bolero env config: %v", err)
 	}
 	lines := strings.SplitAfter(string(data), "\n")
 	if lines[len(lines)-1] == "" {
@@ -701,7 +701,7 @@ func updateEnvFile(add map[string]string, del map[string]bool) {
 		}
 	}
 
-	// Add variables (go env -w). Update existing lines in file if present, add to end otherwise.
+	// Add variables (bolero env -w). Update existing lines in file if present, add to end otherwise.
 	for key, val := range add {
 		if p, ok := prev[key]; ok {
 			lines[p] = key + "=" + val + "\n"
@@ -712,7 +712,7 @@ func updateEnvFile(add map[string]string, del map[string]bool) {
 		lines = append(lines, key+"="+val+"\n")
 	}
 
-	// Delete requested variables (go env -u).
+	// Delete requested variables (bolero env -u).
 	for key := range del {
 		if p, ok := prev[key]; ok {
 			lines[p] = ""
@@ -732,7 +732,7 @@ func updateEnvFile(add map[string]string, del map[string]bool) {
 
 	file, _, err := cfg.EnvFile()
 	if file == "" {
-		base.Fatalf("go: cannot find go env config: %v", err)
+		base.Fatalf("bolero: cannot find bolero env config: %v", err)
 	}
 	data := []byte(strings.Join(lines, ""))
 	err = os.WriteFile(file, data, 0666)
@@ -741,7 +741,7 @@ func updateEnvFile(add map[string]string, del map[string]bool) {
 		os.MkdirAll(filepath.Dir(file), 0777)
 		err = os.WriteFile(file, data, 0666)
 		if err != nil {
-			base.Fatalf("go: writing go env config: %v", err)
+			base.Fatalf("bolero: writing bolero env config: %v", err)
 		}
 	}
 }

@@ -13,32 +13,32 @@
 # length of 1, but this isn't always possible when new coverage is found in
 # functions called by testing or internal/fuzz in the background.
 
-go test -c -fuzz=.  # Build using shared build cache for speed.
-env GOCACHE=$WORK/gocache
-exec ./fuzz.test$GOEXE -test.fuzzcachedir=$GOCACHE/fuzz -test.fuzz=FuzzMinCache -test.fuzztime=1000x
-go run check_cache/check_cache.go $GOCACHE/fuzz/FuzzMinCache
+bolero test -c -fuzz=.  # Build using shared build cache for speed.
+env BOLERO_CACHE=$WORK/gocache
+exec ./fuzz.test$GOEXE -test.fuzzcachedir=$BOLERO_CACHE/fuzz -test.fuzz=FuzzMinCache -test.fuzztime=1000x
+bolero run check_cache/check_cache.go $BOLERO_CACHE/fuzz/FuzzMinCache
 
 # Test that minimization occurs for a crash that appears while minimizing a
 # newly found interesting input. There must be only one worker for this test to
 # be flaky like we want.
-! exec ./fuzz.test$GOEXE -test.fuzzcachedir=$GOCACHE/fuzz -test.fuzz=FuzzMinimizerCrashInMinimization -test.run=^$ -test.fuzztime=10000x -test.parallel=1
+! exec ./fuzz.test$GOEXE -test.fuzzcachedir=$BOLERO_CACHE/fuzz -test.fuzz=FuzzMinimizerCrashInMinimization -test.run=^$ -test.fuzztime=10000x -test.parallel=1
 ! stdout '^ok'
 stdout -count=1 'got the minimum size!'
 stdout -count=1 'bad input'
 stdout FAIL
 # Check that the input written to testdata will reproduce the error, and is the
 # smallest possible.
-go run check_testdata/check_testdata.go FuzzMinimizerCrashInMinimization 1
+bolero run check_testdata/check_testdata.go FuzzMinimizerCrashInMinimization 1
 
 # Test that a nonrecoverable error that occurs while minimizing an interesting
 # input is reported correctly.
-! exec ./fuzz.test$GOEXE -test.fuzzcachedir=$GOCACHE/fuzz -test.fuzz=FuzzMinimizerNonrecoverableCrashInMinimization -test.run=^$ -test.fuzztime=10000x -test.parallel=1
+! exec ./fuzz.test$GOEXE -test.fuzzcachedir=$BOLERO_CACHE/fuzz -test.fuzz=FuzzMinimizerNonrecoverableCrashInMinimization -test.run=^$ -test.fuzztime=10000x -test.parallel=1
 ! stdout '^ok'
 stdout -count=1 'fuzzing process hung or terminated unexpectedly while minimizing'
 stdout -count=1 'EOF'
 stdout FAIL
 # Check that the input written to testdata will reproduce the error.
-go run check_testdata/check_testdata.go FuzzMinimizerNonrecoverableCrashInMinimization 1
+bolero run check_testdata/check_testdata.go FuzzMinimizerNonrecoverableCrashInMinimization 1
 
 -- go.mod --
 module fuzz

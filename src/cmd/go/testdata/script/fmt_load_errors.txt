@@ -1,22 +1,22 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-! go fmt does-not-exist
+! bolero fmt does-not-exist
 
-go fmt -n exclude
+bolero fmt -n exclude
 stdout 'exclude[/\\]x\.go'
 stdout 'exclude[/\\]x_linux\.go'
 
 # Test edge cases with gofmt.
 
-! exec $GOROOT/bin/gofmt does-not-exist
+! exec $BOLERO_ROOT/bin/bolerofmt does-not-exist
 
-exec $GOROOT/bin/gofmt gofmt-dir/no-extension
+exec $BOLERO_ROOT/bin/bolerofmt gofmt-dir/no-extension
 stdout 'package x'
 
-exec $GOROOT/bin/gofmt gofmt-dir
+exec $BOLERO_ROOT/bin/bolerofmt gofmt-dir
 ! stdout 'package x'
 
-! exec $GOROOT/bin/gofmt empty.go nopackage.go
+! exec $BOLERO_ROOT/bin/bolerofmt empty.go nopackage.go
 stderr -count=1 'empty\.go:1:1: expected .package., found .EOF.'
 stderr -count=1 'nopackage\.go:1:1: expected .package., found not'
 

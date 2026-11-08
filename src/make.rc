@@ -28,7 +28,7 @@
 
 rfork e
 if(! test -f run.rc){
-	echo 'make.rc must be run from $GOROOT/src' >[1=2]
+	echo 'make.rc must be run from $BOLERO_ROOT/src' >[1=2]
 	exit wrongdir
 }
 
@@ -49,7 +49,7 @@ fn bootstrapenv {
 }
 
 bootgo = 1.24.6
-GOROOT = `{cd .. && pwd}
+BOLERO_ROOT = `{cd .. && pwd}
 goroot_bootstrap_set = 'true'
 if(~ $"GOROOT_BOOTSTRAP ''){
 	goroot_bootstrap_set = 'false'
@@ -65,7 +65,7 @@ for(p in $path){
 			GOROOT_BOOTSTRAP = ()
 			goroot = `{bootstrapenv $go_exe env GOROOT}
 			GOROOT_BOOTSTRAP = $goroot_bootstrap
-			if(! ~ $goroot $GOROOT){
+			if(! ~ $goroot $BOLERO_ROOT){
 				if(~ $goroot_bootstrap_set 'true'){
 					echo 'WARNING: '$GOROOT_BOOTSTRAP'/bin/go does not exist, found '$go_exe' from env' >[1=2]
 					echo 'WARNING: set '$goroot' as GOROOT_BOOTSTRAP' >[1=2]
@@ -80,8 +80,8 @@ if(! test -x $GOROOT_BOOTSTRAP/bin/go){
 	echo 'Set $GOROOT_BOOTSTRAP to a working Go tree >= Go '$bootgo'.' >[1=2]
 	exit bootstrap
 }
-if(~ $GOROOT_BOOTSTRAP $GOROOT){
-	echo 'ERROR: $GOROOT_BOOTSTRAP must not be set to $GOROOT' >[1=2]
+if(~ $GOROOT_BOOTSTRAP $BOLERO_ROOT){
+	echo 'ERROR: $GOROOT_BOOTSTRAP must not be set to $BOLERO_ROOT' >[1=2]
 	echo 'Set $GOROOT_BOOTSTRAP to a working Go tree >= Go '$bootgo'.' >[1=2]
 	exit bootstrap
 }
@@ -90,7 +90,7 @@ if(~ $GOROOT_BOOTSTRAP $GOROOT){
 # We clear GOOS and GOARCH to avoid an ominous but harmless warning if
 # the bootstrap doesn't support them.
 GOROOT_BOOTSTRAP_VERSION=`{bootstrapenv $GOROOT_BOOTSTRAP/bin/go version | sed 's/go version //'}
-echo 'Building Go cmd/dist using '$GOROOT_BOOTSTRAP'. ('$"GOROOT_BOOTSTRAP_VERSION')'
+echo 'Building cmd/dist using '$GOROOT_BOOTSTRAP'. ('$"GOROOT_BOOTSTRAP_VERSION')'
 if(~ $#vflag 1)
 	echo cmd/dist
 bootstrapenv $GOROOT_BOOTSTRAP/bin/go build -o cmd/dist/dist ./cmd/dist
@@ -101,10 +101,10 @@ if(~ $#vflag 1)
 
 if(~ $1 --dist-tool){
 	# Stop after building dist tool.
-	mkdir -p $GOTOOLDIR
+	mkdir -p $BOLERO_TOOLDIR
 	if(! ~ $2 '')
 		cp cmd/dist/dist $2
-	mv cmd/dist/dist $GOTOOLDIR/dist
+	mv cmd/dist/dist $BOLERO_TOOLDIR/dist
 	exit
 }
 

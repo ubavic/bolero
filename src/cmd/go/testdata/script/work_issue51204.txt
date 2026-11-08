@@ -1,6 +1,6 @@
-go work sync
+bolero work sync
 
-go list -f '{{.Dir}}' example.com/test
+bolero list -f '{{.Dir}}' example.com/test
 stdout '^'$PWD${/}test'$'
 
 -- go.work --

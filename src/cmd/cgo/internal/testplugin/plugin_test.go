@@ -94,7 +94,7 @@ func testMain(m *testing.M) int {
 		prettyPrintf("echo 'module testplugin' > %s/go.mod\n", dstRoot)
 	}
 
-	os.Setenv("GOPATH", filepath.Join(GOPATH, "alt"))
+	os.Setenv("BOLERO_PATH", filepath.Join(GOPATH, "alt"))
 	if err := os.Chdir(altRoot); err != nil {
 		log.Panic(err)
 	} else {
@@ -103,7 +103,7 @@ func testMain(m *testing.M) int {
 	os.Setenv("PWD", altRoot)
 	goCmd(nil, "build", "-buildmode=plugin", "-o", filepath.Join(modRoot, "plugin-mismatch.so"), "./plugin-mismatch")
 
-	os.Setenv("GOPATH", GOPATH)
+	os.Setenv("BOLERO_PATH", GOPATH)
 	if err := os.Chdir(modRoot); err != nil {
 		log.Panic(err)
 	} else {
@@ -140,7 +140,7 @@ func goCmd(t *testing.T, op string, args ...string) string {
 	if op != "tool" {
 		flags = []string{"-gcflags", gcflags}
 	}
-	return run(t, filepath.Join(goroot, "bin", "go"), append(append([]string{op}, flags...), args...)...)
+	return run(t, filepath.Join(goroot, "bin", "bolero"), append(append([]string{op}, flags...), args...)...)
 }
 
 // escape converts a string to something suitable for a shell command line.
@@ -172,7 +172,7 @@ func asCommandLine(cwd string, cmd *exec.Cmd) string {
 	// These EVs are relevant to this test.
 	for _, e := range os.Environ() {
 		if strings.HasPrefix(e, "PWD=") ||
-			strings.HasPrefix(e, "GOPATH=") ||
+			strings.HasPrefix(e, "BOLERO_PATH=") ||
 			strings.HasPrefix(e, "LD_LIBRARY_PATH=") {
 			s += " "
 			s += escape(e)

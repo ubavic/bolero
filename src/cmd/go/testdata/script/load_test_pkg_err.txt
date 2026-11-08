@@ -1,9 +1,9 @@
 # Tests issue 37971. Check that tests are still loaded even when the package has an error.
 
-go list -e -test d
+bolero list -e -test d
 cmp stdout want_stdout
 
-go list -e -test -deps d
+bolero list -e -test -deps d
 stdout golang.org/fake/d
 
 -- want_stdout --

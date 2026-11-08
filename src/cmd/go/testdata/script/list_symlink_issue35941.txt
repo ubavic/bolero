@@ -1,14 +1,14 @@
 [!symlink] skip
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-# Issue 35941: suppress symlink warnings when running 'go list all'.
-symlink goproj/css -> $GOPATH/src/css
+# Issue 35941: suppress symlink warnings when running 'bolero list all'.
+symlink goproj/css -> $BOLERO_PATH/src/css
 
-go list all
+bolero list all
 ! stderr 'warning: ignoring symlink'
 
 # Show symlink warnings when patterns contain '...'.
-go list goproj/...
+bolero list goproj/...
 stderr 'warning: ignoring symlink'
 
 -- goproj/a.go --

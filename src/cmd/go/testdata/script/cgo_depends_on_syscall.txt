@@ -1,7 +1,7 @@
 [!cgo] skip
 [!race] skip
 
-go list -race -deps foo
+bolero list -race -deps foo
 stdout syscall
 
 -- go.mod --

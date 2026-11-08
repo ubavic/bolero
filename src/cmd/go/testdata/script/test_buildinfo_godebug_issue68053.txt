@@ -1,10 +1,10 @@
 [short] skip 'builds test binary'
 
-go list -test -f '{{.ImportPath}} {{.DefaultGODEBUG}}'
+bolero list -test -f '{{.ImportPath}} {{.DefaultGODEBUG}}'
 stdout 'example.com/foo\.test.*panicnil=1.*'
 
-go test -c
-go version -m ./foo.test$GOEXE
+bolero test -c
+bolero version -m ./foo.test$GOEXE
 stdout 'build\tDefaultGODEBUG=.*panicnil=1.*'
 
 -- go.mod --

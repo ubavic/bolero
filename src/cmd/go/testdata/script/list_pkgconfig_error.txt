@@ -1,7 +1,7 @@
 [!cgo] skip 'test verifies cgo pkg-config errors'
 [!exec:pkg-config] skip 'test requires pkg-config tool'
 
-! go list -export .
+! bolero list -export .
 stderr '^# example\n# \[pkg-config .*\]\n(.*\n)*(Package .* not found)|(could not find package .*)'
 
 -- go.mod --

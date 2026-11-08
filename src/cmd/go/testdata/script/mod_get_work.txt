@@ -1,18 +1,18 @@
-# Test go get with the work pattern.
+# Test bolero get with the work pattern.
 
-# go get work gets dependencies to satisfy missing imports in the
+# bolero get work gets dependencies to satisfy missing imports in the
 # main modules' package graph. Before the 'work' pattern existed, users
 # would have to run './...' in the root of the work (main) module.
 cp go.mod go.mod.orig
-go get work
+bolero get work
 cmp go.mod go.mod.want
 
-# 'go get work' and 'go get all' behave very differently. Because
+# 'bolero get work' and 'bolero get all' behave very differently. Because
 # 'all' evaluates to work packages but also to their dependencies,
-# 'go get all' will run the 'get' logic on all the dependency module
+# 'bolero get all' will run the 'get' logic on all the dependency module
 # packages, bumping all their modules to the latest versions.
 cp go.mod.orig go.mod
-go get all
+bolero get all
 cmp go.mod go.mod.all.want
 -- go.mod --
 module example.com/a

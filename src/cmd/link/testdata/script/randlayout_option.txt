@@ -5,19 +5,19 @@
 [short] skip
 
 # Build with random layout using one seed, then run ...
-go build -o prog123.exe -ldflags=-randlayout=123
+bolero build -o prog123.exe -ldflags=-randlayout=123
 exec ./prog123.exe
 
 # ... now build with a different seed and run.
-go build -x -o prog456.exe -ldflags=-randlayout=456
+bolero build -x -o prog456.exe -ldflags=-randlayout=456
 exec ./prog456.exe
 
 # Capture symbols (sorted by address)
-go tool nm prog123.exe
+bolero tool nm prog123.exe
 cp stdout syms123.txt
 
 # Capture symbols (sorted by address)
-go tool nm prog456.exe
+bolero tool nm prog456.exe
 cp stdout syms456.txt
 
 # Output should be different.

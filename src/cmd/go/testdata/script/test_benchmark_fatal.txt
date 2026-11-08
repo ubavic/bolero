@@ -1,6 +1,6 @@
 # Test that calling t.Fatal in a benchmark causes a non-zero exit status.
 
-! go test -run '^$' -bench . benchfatal
+! bolero test -run '^$' -bench . benchfatal
 ! stdout ^ok
 ! stderr ^ok
 stdout FAIL.*benchfatal

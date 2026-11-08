@@ -5,7 +5,7 @@
 // Script-driven tests.
 // See testdata/script/README for an overview.
 
-//go:generate go test cmd/go -v -run=TestScript/README --fixreadme
+//go:generate bolero test cmd/go -v -run=TestScript/README --fixreadme
 
 package main_test
 
@@ -141,7 +141,7 @@ func TestScript(t *testing.T) {
 			t.Logf("$WORK=%s", work)
 
 			// With -testsum, if a go.mod file is present in the test's initial
-			// working directory, run 'go mod tidy'.
+			// working directory, run 'bolero mod tidy'.
 			if *testSum != "" {
 				if updateSum(t, engine, s, a) {
 					defer func() {
@@ -159,7 +159,7 @@ func TestScript(t *testing.T) {
 			// Note: Do not use filepath.Base(file) here:
 			// editors that can jump to file:line references in the output
 			// will work better seeing the full path relative to cmd/go
-			// (where the "go test" command is usually run).
+			// (where the "bolero test" command is usually run).
 			scripttest.Run(t, engine, s, file, bytes.NewReader(a.Comment))
 			checkCounters(t, telemetryDir)
 		})
@@ -204,7 +204,7 @@ func initScriptDirs(t testing.TB, s *script.State) (telemetryDir string) {
 	must(s.Setenv(tempEnvName(), filepath.Join(work, "tmp")))
 
 	gopath := filepath.Join(work, "gopath")
-	must(s.Setenv("GOPATH", gopath))
+	must(s.Setenv("BOLERO_PATH", gopath))
 	gopathSrc := filepath.Join(gopath, "src")
 	must(os.MkdirAll(gopathSrc, 0777))
 	must(s.Chdir(gopathSrc))
@@ -226,16 +226,16 @@ func scriptEnv(srv *vcstest.Server, srvCertFile string) ([]string, error) {
 		"CCACHE_DISABLE=1", // ccache breaks with non-existent HOME
 		"GOARCH=" + runtime.GOARCH,
 		"TESTGO_GOHOSTARCH=" + goHostArch,
-		"GOCACHE=" + testGOCACHE,
+		"BOLERO_CACHE=" + testGOCACHE,
 		"GOCOVERDIR=" + os.Getenv("GOCOVERDIR"),
 		"GODEBUG=" + os.Getenv("GODEBUG"),
 		"GOEXE=" + cfg.ExeSuffix,
 		"GOEXPERIMENT=" + os.Getenv("GOEXPERIMENT"),
 		"GOOS=" + runtime.GOOS,
 		"TESTGO_GOHOSTOS=" + goHostOS,
-		"GOPROXY=" + proxyURL,
-		"GOPRIVATE=",
-		"GOROOT=" + testGOROOT,
+		"BOLERO_PROXY=" + proxyURL,
+		"BOLERO_PRIVATE=",
+		"BOLERO_ROOT=" + testGOROOT,
 		"GOTRACEBACK=system",
 		"TESTGONETWORK=panic", // allow only local connections by default; the [net] condition resets this
 		"TESTGO_GOROOT=" + testGOROOT,
@@ -244,15 +244,15 @@ func scriptEnv(srv *vcstest.Server, srvCertFile string) ([]string, error) {
 		"TESTGO_VCSTEST_TLS_HOST=" + httpsURL.Host,
 		"TESTGO_VCSTEST_CERT=" + srvCertFile,
 		"TESTGONETWORK=panic", // cleared by the [net] condition
-		"GOSUMDB=" + testSumDBVerifierKey,
-		"GONOPROXY=",
-		"GONOSUMDB=",
-		"GOVCS=*:all",
+		"BOLERO_SUMDB=" + testSumDBVerifierKey,
+		"BOLERO_NOPROXY=",
+		"BOLERO_NOSUMDB=",
+		"BOLERO_VCS=*:all",
 		"devnull=" + os.DevNull,
 		"goversion=" + gover.Local(),
 		"CMDGO_TEST_RUN_MAIN=true",
 		"HGRCPATH=",
-		"GOTOOLCHAIN=auto",
+		"BOLERO_TOOLCHAIN=auto",
 		"newline=\n",
 	}
 
@@ -299,8 +299,8 @@ var extraEnvKeys = []string{
 	"GCCGOTOOLDIR",       // for gccgo testing
 }
 
-// updateSum runs 'go mod tidy', 'go list -mod=mod -m all', or
-// 'go list -mod=mod all' in the test's current directory if a file named
+// updateSum runs 'bolero mod tidy', 'bolero list -mod=mod -m all', or
+// 'bolero list -mod=mod all' in the test's current directory if a file named
 // "go.mod" is present after the archive has been extracted. updateSum modifies
 // archive and returns true if go.mod or go.sum were changed.
 func updateSum(t testing.TB, e *script.Engine, s *script.State, archive *txtar.Archive) (rewrite bool) {
@@ -320,11 +320,11 @@ func updateSum(t testing.TB, e *script.Engine, s *script.State, archive *txtar.A
 	var cmd string
 	switch *testSum {
 	case "tidy":
-		cmd = "go mod tidy"
+		cmd = "bolero mod tidy"
 	case "listm":
-		cmd = "go list -m -mod=mod all"
+		cmd = "bolero list -m -mod=mod all"
 	case "listall":
-		cmd = "go list -mod=mod all"
+		cmd = "bolero list -mod=mod all"
 	default:
 		t.Fatalf(`unknown value for -testsum %q; may be "tidy", "listm", or "listall"`, *testSum)
 	}
@@ -376,7 +376,7 @@ func readCounters(t *testing.T, telemetryDir string) map[string]uint64 {
 	dirents, err := os.ReadDir(localDir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil // The Go command didn't ever run so the local dir wasn't created
+			return nil // The Bolero command didn't ever run so the local dir wasn't created
 		}
 		t.Fatalf("reading telemetry local dir: %v", err)
 	}

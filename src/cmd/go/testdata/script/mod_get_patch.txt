@@ -1,14 +1,14 @@
-# This test examines the behavior of 'go get …@patch'
+# This test examines the behavior of 'bolero get …@patch'
 # See also mod_upgrade_patch.txt (focused on "-u=patch" specifically)
 # and mod_get_patchmod.txt (focused on module/package ambiguities).
 
 cp go.mod go.mod.orig
 
 # example.net/b@patch refers to the patch for the version of b that was selected
-# at the start of 'go get', not the version after applying other changes.
+# at the start of 'bolero get', not the version after applying other changes.
 
-! go get example.net/a@v0.2.0 example.net/b@patch
-stderr '^go: example.net/a@v0.2.0 requires example.net/b@v0.2.0, not example.net/b@patch \(v0.1.1\)$'
+! bolero get example.net/a@v0.2.0 example.net/b@patch
+stderr '^bolero: example.net/a@v0.2.0 requires example.net/b@v0.2.0, not example.net/b@patch \(v0.1.1\)$'
 cmp go.mod go.mod.orig
 
 
@@ -18,8 +18,8 @@ cmp go.mod go.mod.orig
 #
 # TODO(#42360): Reconsider the change in defaults.
 
-! go get -u=patch example.net/a@v0.2.0 example.net/b
-stderr '^go: example.net/a@v0.2.0 requires example.net/b@v0.2.0, not example.net/b@patch \(v0.1.1\)$'
+! bolero get -u=patch example.net/a@v0.2.0 example.net/b
+stderr '^bolero: example.net/a@v0.2.0 requires example.net/b@v0.2.0, not example.net/b@patch \(v0.1.1\)$'
 cmp go.mod go.mod.orig
 
 
@@ -27,8 +27,8 @@ cmp go.mod go.mod.orig
 # applying other version changes, not the versions that were selected at the start.
 # However, it should not patch versions determined by explicit arguments.
 
-go get -u=patch example.net/a@v0.2.0
-go list -m all
+bolero get -u=patch example.net/a@v0.2.0
+bolero list -m all
 stdout '^example.net/a v0.2.0 '
 stdout '^example.net/b v0.2.1 '
 
@@ -37,16 +37,16 @@ stdout '^example.net/b v0.2.1 '
 # patched versions result in a higher-than-patch upgrade.
 
 cp go.mod.orig go.mod
-! go get -u=patch all
-stderr '^go: example.net/a@v0.1.1 \(matching all@patch\) requires example.net/b@v0.2.0, not example.net/b@v0.1.1 \(matching all@patch\)$'
+! bolero get -u=patch all
+stderr '^bolero: example.net/a@v0.1.1 \(matching all@patch\) requires example.net/b@v0.2.0, not example.net/b@v0.1.1 \(matching all@patch\)$'
 cmp go.mod go.mod.orig
 
 
 # On the other hand, "-u=patch ./..." should patch-upgrade dependencies until
 # they reach a fixed point, even if that results in higher-than-patch upgrades.
 
-go get -u=patch ./...
-go list -m all
+bolero get -u=patch ./...
+bolero list -m all
 stdout '^example.net/a v0.1.1 '
 stdout '^example.net/b v0.2.1 '
 

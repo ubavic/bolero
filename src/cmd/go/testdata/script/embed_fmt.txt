@@ -1,7 +1,7 @@
-# go fmt ignores file not found
-go fmt xnofmt.go
+# bolero fmt ignores file not found
+bolero fmt xnofmt.go
 cmp xnofmt.go xfmt.ref
-! go build xnofmt.go
+! bolero build xnofmt.go
 stderr 'xnofmt.go:5:12: pattern missing.txt: no matching files found'
 
 -- xnofmt.go --

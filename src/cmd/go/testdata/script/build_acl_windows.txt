@@ -12,9 +12,9 @@ env TEMP=$WORK\guest
 
 # Build a binary using the guest directory as an intermediate
 cd TestACL
-go build -o main.exe main.go
+bolero build -o main.exe main.go
 # Build the same binary, but write it to the guest directory.
-go build -o $TMP\main.exe main.go
+bolero build -o $TMP\main.exe main.go
 
 # Read ACLs for the files.
 exec powershell -Command 'Get-Acl main.exe | Select -expand AccessToString'

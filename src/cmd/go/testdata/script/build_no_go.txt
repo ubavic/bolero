@@ -1,20 +1,20 @@
-! go build ./empty/test
-stderr 'no non-test Go files in '
+! bolero build ./empty/test
+stderr 'no non-test Bolero files in '
 
-! go build ./empty/xtest
-stderr 'no non-test Go files in '
+! bolero build ./empty/xtest
+stderr 'no non-test Bolero files in '
 
-! go build ./empty/testxtest
-stderr 'no non-test Go files in '
+! bolero build ./empty/testxtest
+stderr 'no non-test Bolero files in '
 
-! go build ./exclude
-stderr 'build constraints exclude all Go files in '
+! bolero build ./exclude
+stderr 'build constraints exclude all Bolero files in '
 
-! go build ./exclude/ignore
-stderr 'no Go files in '
+! bolero build ./exclude/ignore
+stderr 'no Bolero files in '
 
-! go build ./exclude/empty
-stderr 'no Go files in '
+! bolero build ./exclude/empty
+stderr 'no Bolero files in '
 
 -- go.mod --
 module m

@@ -16,7 +16,7 @@ import (
 	"cmd/internal/telemetry/counter"
 )
 
-const helpText = `usage: go tool nm [options] file...
+const helpText = `usage: bolero tool nm [options] file...
   -n
       an alias for -sort address (numeric),
       for compatibility with other nm commands

@@ -1,13 +1,13 @@
 [short] skip
 
-go mod download example.com/printversion@v0.1.0 example.com/printversion@v1.0.0
-go get example.com/printversion@v0.1.0
-go install example.com/printversion
+bolero mod download example.com/printversion@v0.1.0 example.com/printversion@v1.0.0
+bolero get example.com/printversion@v0.1.0
+bolero install example.com/printversion
 
-go run example.com/printversion
+bolero run example.com/printversion
 cmp stdout out.txt
 
-go version -m $GOPATH/bin/printversion$GOEXE
+bolero version -m $BOLERO_PATH/bin/printversion$GOEXE
 stdout '^.*[/\\]bin[/\\]printversion'$GOEXE': .*$'
 stdout '^	path	example.com/printversion$'
 stdout '^	mod	example.com/printversion	v0.1.0$'

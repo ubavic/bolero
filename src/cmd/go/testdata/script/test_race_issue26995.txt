@@ -1,7 +1,7 @@
 [short] skip
 [!race] skip
 
-go test -v -race
+bolero test -v -race
 stdout 'testing_test.go:26: directCall'
 stdout 'testing_test.go:27: interfaceTBCall'
 stdout 'testing_test.go:28: interfaceCall'

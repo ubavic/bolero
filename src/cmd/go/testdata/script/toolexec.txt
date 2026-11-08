@@ -1,13 +1,13 @@
 [short] skip
 
 # Build our simple toolexec program.
-go build ./cmd/mytool
+bolero build ./cmd/mytool
 
 # Use an ephemeral build cache so that our toolexec output is not cached
 # for any stale standard-library dependencies.
 #
 # TODO(#27628): This should not be necessary.
-env GOCACHE=$WORK/gocache
+env BOLERO_CACHE=$WORK/gocache
 
 # Build the main package with our toolexec program. For each action, it will
 # print the tool's name and the TOOLEXEC_IMPORTPATH value. We expect to compile
@@ -16,7 +16,7 @@ env GOCACHE=$WORK/gocache
 # are run is irrelevant here.
 # Finally, note that asm and cgo are run twice.
 
-go build -toolexec=$PWD/mytool
+bolero build -toolexec=$PWD/mytool
 [GOARCH:amd64] stderr -count=2 '^asm'${GOEXE}' TOOLEXEC_IMPORTPATH="test/main/withasm"$'
 stderr -count=1 '^compile'${GOEXE}' TOOLEXEC_IMPORTPATH="test/main/withasm"$'
 [cgo] stderr -count=2 '^cgo'${GOEXE}' TOOLEXEC_IMPORTPATH="test/main/withcgo"$'
@@ -25,7 +25,7 @@ stderr -count=1 '^compile'${GOEXE}' TOOLEXEC_IMPORTPATH="test/main"$'
 stderr -count=1 '^link'${GOEXE}' TOOLEXEC_IMPORTPATH="test/main"$'
 
 # Test packages are a little bit trickier.
-# We have four variants of test/main, as reported by 'go list -test':
+# We have four variants of test/main, as reported by 'bolero list -test':
 #
 #    test/main                        - the regular non-test package
 #    test/main.test                   - the generated test program
@@ -33,11 +33,11 @@ stderr -count=1 '^link'${GOEXE}' TOOLEXEC_IMPORTPATH="test/main"$'
 #    test/main_test [test/main.test]  - the test package for foo_separate_test.go
 #
 # As such, TOOLEXEC_IMPORTPATH must see the same strings, to be able to uniquely
-# identify each package being built as reported by 'go list -f {{.ImportPath}}'.
+# identify each package being built as reported by 'bolero list -f {{.ImportPath}}'.
 # Note that these are not really "import paths" anymore, but that naming is
-# consistent with 'go list -json' at least.
+# consistent with 'bolero list -json' at least.
 
-go test -toolexec=$PWD/mytool
+bolero test -toolexec=$PWD/mytool
 
 stderr -count=2 '^# test/main\.test$'
 stderr -count=1 '^compile'${GOEXE}' TOOLEXEC_IMPORTPATH="test/main\.test"$'

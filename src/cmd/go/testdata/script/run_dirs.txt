@@ -1,12 +1,12 @@
 cd rundir
 
-! go run x.go sub/sub.go
+! bolero run x.go sub/sub.go
 stderr 'named files must all be in one directory; have . and sub'
-! go run sub/sub.go x.go
+! bolero run sub/sub.go x.go
 stderr 'named files must all be in one directory; have sub and .'
 
 cd ../
-go run rundir/foo.go ./rundir/bar.go
+bolero run rundir/foo.go ./rundir/bar.go
 stderr 'hello world'
 
 -- rundir/sub/sub.go --

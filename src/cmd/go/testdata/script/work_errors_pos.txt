@@ -3,23 +3,23 @@
 # can be easily parsed by tools.
 
 cp go.work.repeated.txt go.work
-! go list
+! bolero list
 stderr '^go.work:4: path .* appears multiple times in workspace$'
 
 cp go.work.badgodebug.txt go.work
-! go list
+! bolero list
 stderr '^go.work:3: unknown godebug "foo"$'
 
 cp go.work.unparsable.txt go.work
-! go list
+! bolero list
 stderr '^go.work:5: unknown directive: notadirective'
 
 cp go.work.firstlineerr.txt go.work
-! go list
+! bolero list
 stderr '^go.work:1: unknown godebug "bar"$'
 
 cp go.work.firsterrlisted.txt go.work
-! go list
+! bolero list
 stderr '^go.work:1: unknown godebug "baz"$'
 
 -- foo/go.mod --

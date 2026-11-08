@@ -11,7 +11,7 @@ cp go.mod go.mod.orig
 # If we load package x from x.1, we only check the requirements of x,
 # which are fine: loading succeeds.
 
-go list -deps ./usex
+bolero list -deps ./usex
 stdout '^example.net/x$'
 cmp go.mod go.mod.orig
 
@@ -20,22 +20,22 @@ cmp go.mod go.mod.orig
 # Those requirements indicate x.2, not x.1, so the module graph is
 # inconsistent and needs to be fixed.
 
-! go list -deps ./useneedx2
-stderr '^go: updates to go.mod needed; to update it:\n\tgo mod tidy$'
+! bolero list -deps ./useneedx2
+stderr '^bolero: updates to go.mod needed; to update it:\n\tbolero mod tidy$'
 
-! go list -deps example.net/needx2
-stderr '^go: updates to go.mod needed; to update it:\n\tgo mod tidy$'
+! bolero list -deps example.net/needx2
+stderr '^bolero: updates to go.mod needed; to update it:\n\tbolero mod tidy$'
 
 
 # The command printed in the error message should fix the problem.
 
-go mod tidy
-go list -deps ./useneedx2
+bolero mod tidy
+bolero list -deps ./useneedx2
 stdout '^example.net/m/useneedx2$'
 stdout '^example.net/needx2$'
 stdout '^example.net/x$'
 
-go list -m all
+bolero list -m all
 stdout '^example.net/needx2 v0\.1\.0 '
 stdout '^example.net/x v0\.2\.0 '
 

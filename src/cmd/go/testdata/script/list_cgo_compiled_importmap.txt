@@ -12,13 +12,13 @@
 [GOOS:plan9] skip # net package does not import "C" on Plan 9
 
 env CGO_ENABLED=1
-env GOFLAGS=-tags=netcgo  # Force net to use cgo
+env BOLERO_FLAGS=-tags=netcgo  # Force net to use cgo
 
 
 # "runtime/cgo [runtime.test]" appears in the test dependencies of "runtime",
 # because "runtime/cgo" itself depends on "runtime"
 
-go list -deps -test -compiled -f '{{if eq .ImportPath "net [runtime.test]"}}{{printf "%q" .Imports}}{{end}}' runtime
+bolero list -deps -test -compiled -f '{{if eq .ImportPath "net [runtime.test]"}}{{printf "%q" .Imports}}{{end}}' runtime
 
 	# Control case: the explicitly-imported package "sync" is a test variant,
 	# because "sync" depends on "runtime".
@@ -35,7 +35,7 @@ stdout '"runtime/cgo \[runtime\.test\]"'
 # to "runtime/cgo [runtime.test]", the latter should be listed in the ImportMap.
 # BUG(#46462): Today, it is not.
 
-go list -deps -test -compiled -f '{{if eq .ImportPath "net [runtime.test]"}}{{printf "%q" .ImportMap}}{{end}}' runtime
+bolero list -deps -test -compiled -f '{{if eq .ImportPath "net [runtime.test]"}}{{printf "%q" .ImportMap}}{{end}}' runtime
 
 stdout '"sync":"sync \[runtime\.test\]"'                # control
 stdout '"runtime/cgo":"runtime/cgo \[runtime\.test\]"'  # experiment

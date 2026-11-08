@@ -1,12 +1,12 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-# 'go list all' should fail with a reasonable error message
-! go list all
+# 'bolero list all' should fail with a reasonable error message
+! bolero list all
 stderr '^package m\n\timports m/a from m.go\n\timports m/b from a.go\n\timports m/a from b.go: import cycle not allowed'
 
-# 'go list -e' should not print to stderr, but should mark all three
+# 'bolero list -e' should not print to stderr, but should mark all three
 # packages (m, m/a, and m/b) as Incomplete.
-go list -e -json all
+bolero list -e -json all
 ! stderr .
 stdout -count=3 '"Incomplete": true,'
 

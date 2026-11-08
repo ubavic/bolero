@@ -1,6 +1,6 @@
 [short] skip
 
-go test ./...
+bolero test ./...
 stdout 'pkg1(.|\n)*pkg2'
 
 -- go.mod --

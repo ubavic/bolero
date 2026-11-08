@@ -1,7 +1,7 @@
 env CGO_ENABLED=0
 
-! go install cgotest
-stderr 'build constraints exclude all Go files'
+! bolero install cgotest
+stderr 'build constraints exclude all Bolero files'
 
 -- go.mod --
 module cgotest

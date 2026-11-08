@@ -1,4 +1,4 @@
-! go test -json .
+! bolero test -json .
 
 	# We should see only JSON output on stdout, no non-JSON.
 	# To simplify the check, we just look for non-curly-braces, since

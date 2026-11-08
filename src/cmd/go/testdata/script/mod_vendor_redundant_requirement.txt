@@ -1,6 +1,6 @@
-# 'go list -mod=vendor' should succeed even when go.mod contains redundant
+# 'bolero list -mod=vendor' should succeed even when go.mod contains redundant
 # requirements. Verifies #47565.
-go list -mod=vendor
+bolero list -mod=vendor
 
 -- go.mod --
 module m

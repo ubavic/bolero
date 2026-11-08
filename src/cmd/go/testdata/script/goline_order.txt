@@ -6,47 +6,47 @@ env TESTGO_VERSION_SWITCH=switch
 cp go.mod go.mod.orig
 
 # If the offending module is not imported, it's not detected.
-go list
+bolero list
 cmp go.mod go.mod.orig
 
 # Adding the import produces the error.
 # Maybe this should auto-switch, but it requires more plumbing to get this error through,
 # and it's a misconfigured system that should not arise in practice, so not switching is fine.
-! go list -deps -tags usem1
+! bolero list -deps -tags usem1
 cmp go.mod go.mod.orig
-stderr '^go: module ./m1 requires go >= 1.21.2 \(running go 1.21.1\)$'
+stderr '^bolero: module ./m1 requires go >= 1.21.2 \(running go 1.21.1\)$'
 
-# go get go@1.21.2 fixes the error.
+# bolero get go@1.21.2 fixes the error.
 cp go.mod.orig go.mod
-go get go@1.21.2
-go list -deps -tags usem1
+bolero get go@1.21.2
+bolero list -deps -tags usem1
 
-# go get -tags usem1 fixes the error.
+# bolero get -tags usem1 fixes the error.
 cp go.mod.orig go.mod
-go get -tags usem1
-go list -deps -tags usem1
+bolero get -tags usem1
+bolero list -deps -tags usem1
 
-# go get fixes the error.
+# bolero get fixes the error.
 cp go.mod.orig go.mod
-go get
-go list -deps -tags usem1
+bolero get
+bolero list -deps -tags usem1
 
-# Using a new enough release reports the error after module load and suggests 'go mod tidy'
+# Using a new enough release reports the error after module load and suggests 'bolero mod tidy'
 env TESTGO_VERSION=go1.21.2
 cp go.mod.orig go.mod
-! go list -deps -tags usem1
+! bolero list -deps -tags usem1
 stderr 'updates to go.mod needed'
-stderr 'go mod tidy'
-go mod tidy
-go list -deps -tags usem1
+stderr 'bolero mod tidy'
+bolero mod tidy
+bolero list -deps -tags usem1
 
-# go get also works
+# bolero get also works
 cp go.mod.orig go.mod
-! go list -deps -tags usem1
+! bolero list -deps -tags usem1
 stderr 'updates to go.mod needed'
-stderr 'go mod tidy'
-go get go@1.21.2
-go list -deps -tags usem1
+stderr 'bolero mod tidy'
+bolero get go@1.21.2
+bolero list -deps -tags usem1
 
 
 -- go.mod --

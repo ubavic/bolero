@@ -1,5 +1,5 @@
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.orig
 
 -- go.mod --

@@ -1,17 +1,17 @@
-go list tool
+bolero list tool
 stdout example.com/foo/cmd
 stdout example.com/dependency/cmd/bar
-go list all
+bolero list all
 stdout example.com/foo/cmd
 stdout example.com/foo/lib
 stdout example.com/dependency/cmd/bar
 
 cd workspace
-go list tool
+bolero list tool
 stdout example.com/foo/cmd
 stdout example.com/dependency/cmd/bar
 stdout example.com/dependency/cmd/baz
-go list all
+bolero list all
 stdout example.com/foo/cmd
 stdout example.com/foo/lib
 stdout example.com/other
@@ -19,7 +19,7 @@ stdout example.com/dependency/cmd/bar
 stdout example.com/dependency/cmd/baz
 
 cd ../invalid_path
-! go list all
+! bolero list all
 stderr 'malformed tool path'
 
 -- go.mod --

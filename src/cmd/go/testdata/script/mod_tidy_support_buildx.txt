@@ -1,14 +1,14 @@
-# This test checks that "go mod tidy -x" print
+# This test checks that "bolero mod tidy -x" print
 # commands tidy executes.
 # Verifies golang.org/issue/35849
 
-rm $GOPATH/pkg/mod/cache/download/rsc.io/quote
-go mod tidy
-! stderr 'get '$GOPROXY
+rm $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote
+bolero mod tidy
+! stderr 'get '$BOLERO_PROXY
 
-rm $GOPATH/pkg/mod/cache/download/rsc.io/quote
-go mod tidy -x
-stderr 'get '$GOPROXY
+rm $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote
+bolero mod tidy -x
+stderr 'get '$BOLERO_PROXY
 
 -- go.mod --
 module example.com/mod

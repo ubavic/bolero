@@ -37,10 +37,10 @@ env PKGFMT='{{if .Module}}{{.ImportPath}}{{end}}'
 env MODFMT='{{.Path}}'
 
 
-# 'go list -deps' lists packages and tests in the main module,
+# 'bolero list -deps' lists packages and tests in the main module,
 # along with their transitive dependencies.
 
-go list -f $PKGFMT -deps ./...
+bolero list -f $PKGFMT -deps ./...
 stdout -count=4 '^.'
 stdout '^example.com/a$'
 stdout '^example.com/b$'
@@ -48,10 +48,10 @@ stdout '^example.com/main$'
 stdout '^example.com/main/testonly'
 
 
-# 'go list -deps -test' lists transitive imports of tests and non-tests in the
+# 'bolero list -deps -test' lists transitive imports of tests and non-tests in the
 # main module.
 
-go list -f $PKGFMT -deps -test ./...
+bolero list -f $PKGFMT -deps -test ./...
 stdout -count=13 '^.'
 stdout '^example.com/a$'
 stdout '^example.com/b$'
@@ -68,11 +68,11 @@ stdout '^example.com/t$'
 stdout '^example.com/u$'
 
 
-# 'go list all' lists the fixpoint of iterating 'go list -deps -test' starting
+# 'bolero list all' lists the fixpoint of iterating 'bolero list -deps -test' starting
 # with the packages in the main module, then reducing to only the non-test
 # variants of those packages.
 
-go list -f $PKGFMT all
+bolero list -f $PKGFMT all
 stdout -count=13 '^.'
 stdout '^example.com/a$'
 stdout '^example.com/b$'
@@ -89,13 +89,13 @@ stdout '^example.com/w$'
 stdout '^example.com/x$'
 
 
-# 'go list -test all' is equivalent to 'go list -test $(go list all)'
+# 'bolero list -test all' is equivalent to 'bolero list -test $(bolero list all)'
 # and both should include tests for every package in 'all'.
 
-go list -test -f $PKGFMT example.com/a example.com/b example.com/c example.com/d example.com/main example.com/main/testonly example.com/q example.com/r example.com/s example.com/t example.com/u example.com/w example.com/x
+bolero list -test -f $PKGFMT example.com/a example.com/b example.com/c example.com/d example.com/main example.com/main/testonly example.com/q example.com/r example.com/s example.com/t example.com/u example.com/w example.com/x
 cp stdout list-test-explicit.txt
 
-go list -test -f $PKGFMT all
+bolero list -test -f $PKGFMT all
 cmp stdout list-test-explicit.txt
 stdout -count=36 '^.'
 stdout '^example.com/a$'
@@ -136,9 +136,9 @@ stdout '^example.com/w.test$'
 stdout '^example.com/w_test \[example.com/w.test\]$'
 
 
-# 'go list -m all' covers the packages in 'go list -test -deps all'.
+# 'bolero list -m all' covers the packages in 'bolero list -test -deps all'.
 
-go list -m -f $MODFMT all
+bolero list -m -f $MODFMT all
 stdout -count=12 '^.'
 stdout '^example.com/a$'
 stdout '^example.com/b$'
@@ -154,13 +154,13 @@ stdout '^example.com/w$'
 stdout '^example.com/x$'
 
 
-# 'go mod vendor' copies in only the packages transitively imported by the main
+# 'bolero mod vendor' copies in only the packages transitively imported by the main
 # module, and omits their tests. As a result, the 'all' and '...' patterns
 # report fewer packages when using '-mod=vendor'.
 
-go mod vendor
+bolero mod vendor
 
-go list -f $PKGFMT -mod=vendor all
+bolero list -f $PKGFMT -mod=vendor all
 stdout -count=8 '^.'
 stdout '^example.com/a$'
 stdout '^example.com/b$'
@@ -171,7 +171,7 @@ stdout '^example.com/r$'
 stdout '^example.com/t$'
 stdout '^example.com/u$'
 
-go list -test -f $PKGFMT -mod=vendor all
+bolero list -test -f $PKGFMT -mod=vendor all
 stdout -count=13 '^.'
 stdout '^example.com/a$'
 stdout '^example.com/b$'
@@ -190,26 +190,26 @@ stdout '^example.com/main/testonly_test \[example.com/main/testonly.test\]$'
 rm vendor
 
 # Convert all modules to go 1.17 to enable lazy loading.
-go mod edit -go=1.17 a/go.mod
-go mod edit -go=1.17 b/go.mod
-go mod edit -go=1.17 c/go.mod
-go mod edit -go=1.17 d/go.mod
-go mod edit -go=1.17 q/go.mod
-go mod edit -go=1.17 r/go.mod
-go mod edit -go=1.17 s/go.mod
-go mod edit -go=1.17 t/go.mod
-go mod edit -go=1.17 u/go.mod
-go mod edit -go=1.17 w/go.mod
-go mod edit -go=1.17 x/go.mod
-go mod edit -go=1.17
+bolero mod edit -go=1.17 a/go.mod
+bolero mod edit -go=1.17 b/go.mod
+bolero mod edit -go=1.17 c/go.mod
+bolero mod edit -go=1.17 d/go.mod
+bolero mod edit -go=1.17 q/go.mod
+bolero mod edit -go=1.17 r/go.mod
+bolero mod edit -go=1.17 s/go.mod
+bolero mod edit -go=1.17 t/go.mod
+bolero mod edit -go=1.17 u/go.mod
+bolero mod edit -go=1.17 w/go.mod
+bolero mod edit -go=1.17 x/go.mod
+bolero mod edit -go=1.17
 cmp go.mod go.mod.beforetidy
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.aftertidy
 
-# With lazy loading, 'go list all' with neither -mod=vendor nor -test should
+# With lazy loading, 'bolero list all' with neither -mod=vendor nor -test should
 # match -mod=vendor without -test in 1.15.
 
-go list -f $PKGFMT all
+bolero list -f $PKGFMT all
 stdout -count=8 '^.'
 stdout '^example.com/a$'
 stdout '^example.com/b$'
@@ -220,10 +220,10 @@ stdout '^example.com/r$'
 stdout '^example.com/t$'
 stdout '^example.com/u$'
 
-# 'go list -test all' should expand that to include the test variants of the
+# 'bolero list -test all' should expand that to include the test variants of the
 # packages in 'all', but not the dependencies of outside tests.
 
-go list -test -f $PKGFMT all
+bolero list -test -f $PKGFMT all
 stdout -count=25 '^.'
 stdout '^example.com/a$'
 stdout '^example.com/b$'
@@ -251,10 +251,10 @@ stdout '^example.com/t_test \[example.com/t.test\]$'
 stdout '^example.com/u.test$'
 stdout '^example.com/u_test \[example.com/u.test\]$'
 
-# 'go list -test -deps all' should include the dependencies of those tests,
+# 'bolero list -test -deps all' should include the dependencies of those tests,
 # but not the tests of the dependencies of outside tests.
 
-go list -test -deps -f $PKGFMT all
+bolero list -test -deps -f $PKGFMT all
 stdout -count=28 '^.'
 stdout '^example.com/a$'
 stdout '^example.com/b$'
@@ -285,12 +285,12 @@ stdout '^example.com/t_test \[example.com/t.test\]$'
 stdout '^example.com/u.test$'
 stdout '^example.com/u_test \[example.com/u.test\]$'
 
-# 'go list -m all' should cover all of the modules providing packages in
-# 'go list -test -deps all', but should exclude modules d and x,
+# 'bolero list -m all' should cover all of the modules providing packages in
+# 'bolero list -test -deps all', but should exclude modules d and x,
 # which are not relevant to the main module and are outside of the
 # lazy-loading horizon.
 
-go list -m -f $MODFMT all
+bolero list -m -f $MODFMT all
 stdout -count=10 '^.'
 stdout '^example.com/a$'
 stdout '^example.com/b$'

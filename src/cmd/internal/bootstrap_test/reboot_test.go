@@ -56,7 +56,7 @@ func TestRepeatBootstrap(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Logf("GOROOT overlay set up in %s", time.Since(overlayStart))
+	t.Logf("BOLERO_ROOT overlay set up in %s", time.Since(overlayStart))
 
 	if err := os.WriteFile(filepath.Join(goroot, "VERSION"), []byte(runtime.Version()), 0666); err != nil {
 		t.Fatal(err)
@@ -75,7 +75,7 @@ func TestRepeatBootstrap(t *testing.T) {
 	var stdout strings.Builder
 	cmd := exec.Command(filepath.Join(goroot, "src", makeScript))
 	cmd.Dir = gorootSrc
-	cmd.Env = append(cmd.Environ(), "GOROOT=", "GOROOT_BOOTSTRAP="+realGoroot)
+	cmd.Env = append(cmd.Environ(), "BOLERO_ROOT=", "GOROOT_BOOTSTRAP="+realGoroot)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = io.MultiWriter(os.Stdout, &stdout)
 	if err := cmd.Run(); err != nil {

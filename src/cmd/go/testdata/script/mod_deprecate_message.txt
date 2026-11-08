@@ -1,27 +1,27 @@
-# When there is a short single-line message, 'go get' should print it all.
-go get short
-stderr '^go: module short is deprecated: short$'
-go list -m -u -f '{{.Deprecated}}' short
+# When there is a short single-line message, 'bolero get' should print it all.
+bolero get short
+stderr '^bolero: module short is deprecated: short$'
+bolero list -m -u -f '{{.Deprecated}}' short
 stdout '^short$'
 
-# When there is a multi-line message, 'go get' should print the first line.
-go get multiline
-stderr '^go: module multiline is deprecated: first line$'
+# When there is a multi-line message, 'bolero get' should print the first line.
+bolero get multiline
+stderr '^bolero: module multiline is deprecated: first line$'
 ! stderr 'second line'
-go list -m -u -f '{{.Deprecated}}' multiline
+bolero list -m -u -f '{{.Deprecated}}' multiline
 stdout '^first line\nsecond line.$'
 
-# When there is a long message, 'go get' should print a placeholder.
-go get long
-stderr '^go: module long is deprecated: \(message omitted: too long\)$'
-go list -m -u -f '{{.Deprecated}}' long
+# When there is a long message, 'bolero get' should print a placeholder.
+bolero get long
+stderr '^bolero: module long is deprecated: \(message omitted: too long\)$'
+bolero list -m -u -f '{{.Deprecated}}' long
 stdout '^aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa$'
 
-# When a message contains unprintable characters, 'go get' should say that
+# When a message contains unprintable characters, 'bolero get' should say that
 # without printing the message.
-go get unprintable
-stderr '^go: module unprintable is deprecated: \(message omitted: contains non-printable characters\)$'
-go list -m -u -f '{{.Deprecated}}' unprintable
+bolero get unprintable
+stderr '^bolero: module unprintable is deprecated: \(message omitted: contains non-printable characters\)$'
+bolero list -m -u -f '{{.Deprecated}}' unprintable
 stdout '^message contains ASCII BEL\x07$'
 
 -- go.mod --

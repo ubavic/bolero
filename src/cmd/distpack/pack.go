@@ -81,7 +81,7 @@ func main() {
 	// Load context.
 	goroot = runtime.GOROOT()
 	if goroot == "" {
-		log.Fatalf("missing $GOROOT")
+		log.Fatalf("missing $BOLERO_ROOT")
 	}
 	gohostos = runtime.GOOS
 	gohostarch = runtime.GOARCH
@@ -182,8 +182,8 @@ func main() {
 	// if this is a cross-compiled distribution.
 	// Keep in sync with binExesIncludedInDistpack in cmd/dist/build.go.
 	binExes := []string{
-		"go",
-		"gofmt",
+		"bolero",
+		"bolerofmt",
 	}
 	crossBin := "bin"
 	if goos != gohostos || goarch != gohostarch {

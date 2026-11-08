@@ -17,7 +17,7 @@ import (
 
 func init() {
 	isTest = true
-	enabled = true // to allow GODEBUG=goindex=0 go test, when things are very broken
+	enabled = true // to allow GODEBUG=goindex=0 bolero test, when things are very broken
 }
 
 func TestIndex(t *testing.T) {

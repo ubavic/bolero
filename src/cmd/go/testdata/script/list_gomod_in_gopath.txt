@@ -1,17 +1,17 @@
 # Issue 46119
 
-# When a module is inside a GOPATH workspace, Package.Root should be set to
-# Module.Dir instead of $GOPATH/src.
+# When a module is inside a BOLERO_PATH workspace, Package.Root should be set to
+# Module.Dir instead of $BOLERO_PATH/src.
 
-env GOPATH=$WORK/tmp
+env BOLERO_PATH=$WORK/tmp
 cd $WORK/tmp/src/test
 
-go list -f {{.Root}}
+bolero list -f {{.Root}}
 stdout ^$PWD$
 
-# Were we really inside a GOPATH workspace?
-env GO111MODULE=off
-go list -f {{.Root}}
+# Were we really inside a BOLERO_PATH workspace?
+env BOLERO_MODULE=off
+bolero list -f {{.Root}}
 stdout ^$WORK/tmp$
 
 -- $WORK/tmp/src/test/go.mod --

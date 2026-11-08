@@ -1,32 +1,32 @@
-# golang.org/issue/29591: 'go get' was following plain-HTTP redirects even without -insecure (now replaced by GOINSECURE).
+# golang.org/issue/29591: 'bolero get' was following plain-HTTP redirects even without -insecure (now replaced by BOLERO_INSECURE).
 
 [short] skip
 [!git] skip
 
-env GO111MODULE=on
-env GOPROXY=direct
-env GOSUMDB=off
+env BOLERO_MODULE=on
+env BOLERO_PROXY=direct
+env BOLERO_SUMDB=off
 
-! go mod download vcs-test.golang.org/insecure/go/insecure@latest
+! bolero mod download vcs-test.golang.org/insecure/go/insecure@latest
 stderr 'redirected .* to insecure URL'
 
 # insecure host
-env GOINSECURE=vcs-test.golang.org
-go clean -modcache
-go mod download vcs-test.golang.org/insecure/go/insecure@latest
+env BOLERO_INSECURE=vcs-test.golang.org
+bolero clean -modcache
+bolero mod download vcs-test.golang.org/insecure/go/insecure@latest
 
 # insecure glob host
-env GOINSECURE=*.golang.org
-go clean -modcache
-go mod download vcs-test.golang.org/insecure/go/insecure@latest
+env BOLERO_INSECURE=*.golang.org
+bolero clean -modcache
+bolero mod download vcs-test.golang.org/insecure/go/insecure@latest
 
 # insecure multiple host
-env GOINSECURE=somewhere-else.com,*.golang.org
-go clean -modcache
-go mod download vcs-test.golang.org/insecure/go/insecure@latest
+env BOLERO_INSECURE=somewhere-else.com,*.golang.org
+bolero clean -modcache
+bolero mod download vcs-test.golang.org/insecure/go/insecure@latest
 
 # different insecure host does not fetch
-env GOINSECURE=somewhere-else.com
-go clean -modcache
-! go mod download vcs-test.golang.org/insecure/go/insecure@latest
+env BOLERO_INSECURE=somewhere-else.com
+bolero clean -modcache
+! bolero mod download vcs-test.golang.org/insecure/go/insecure@latest
 stderr 'redirected .* to insecure URL'

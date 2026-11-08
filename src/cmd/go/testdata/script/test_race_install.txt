@@ -2,7 +2,7 @@
 [short] skip
 
 mkdir $WORKDIR/tmp/pkg
-go install -race -pkgdir=$WORKDIR/tmp/pkg std
+bolero install -race -pkgdir=$WORKDIR/tmp/pkg std
 
 -- go.mod --
 module empty

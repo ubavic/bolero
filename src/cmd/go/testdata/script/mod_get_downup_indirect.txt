@@ -21,29 +21,29 @@
 # If that downgrade selects b version 1, we will upgrade module c to version 2.
 
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod.orig go.mod
 
 # Downgrading d to version 1 downgrades b, which upgrades c.
-go get example.com/d@v0.1.0
-go list -m all
+bolero get example.com/d@v0.1.0
+bolero list -m all
 stdout '^example.com/b v0.1.0 '
 stdout '^example.com/c v0.2.0 '
 stdout '^example.com/d v0.1.0 '
 cmp go.mod go.mod.down1
 
 # Restoring c to version 1 upgrades d to meet c's requirements.
-go get example.com/c@v0.1.0
-go list -m all
+bolero get example.com/c@v0.1.0
+bolero list -m all
 ! stdout '^example.com/b '
 stdout '^example.com/c v0.1.0 '
 stdout '^example.com/d v0.2.0 '
 cmp go.mod go.mod.down2
 
 # If a user explicitly requests the incompatible versions together,
-# 'go get' should explain why they are not compatible.
-! go get example.com/c@v0.1.0 example.com/d@v0.1.0
-stderr '^go: example\.com/c@v0\.1\.0 requires example\.com/d@v0\.2\.0, not example\.com/d@v0\.1\.0'
+# 'bolero get' should explain why they are not compatible.
+! bolero get example.com/c@v0.1.0 example.com/d@v0.1.0
+stderr '^bolero: example\.com/c@v0\.1\.0 requires example\.com/d@v0\.2\.0, not example\.com/d@v0\.1\.0'
 
 -- go.mod --
 module example.com/a

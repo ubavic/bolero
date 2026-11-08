@@ -1,8 +1,8 @@
-# This test checks that 'go mod download' produces no output for
+# This test checks that 'bolero mod download' produces no output for
 # the main module (when specified implicitly) and for a module replaced
 # with a file path.
 # Verifies golang.org/issue/35505.
-go mod download -json all
+bolero mod download -json all
 cmp stdout no-output
 
 -- go.mod --

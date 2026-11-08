@@ -4,16 +4,16 @@
 [!GOOS:windows] skip
 [short] skip
 
-env GOPROXY=direct
-env GOSUMDB=off
+env BOLERO_PROXY=direct
+env BOLERO_SUMDB=off
 mkdir $WORK\home
 env USERPROFILE=$WORK\home
 
 # Make sure _netrc works.
 cp netrc_file $WORK\home\_netrc
 cp go.mod.orig go.mod
-go mod tidy
-go list all
+bolero mod tidy
+bolero list all
 stdout vcs-test.golang.org/auth/or401
 stdout vcs-test.golang.org/auth/or404
 rm $WORK\home\_netrc
@@ -21,15 +21,15 @@ rm $WORK\home\_netrc
 # Without credentials, downloading a module from a path that requires HTTPS
 # basic auth should fail.
 cp go.mod.orig go.mod
-! go mod tidy
+! bolero mod tidy
 stderr '^\tserver response: ACCESS DENIED, buddy$'
 stderr '^\tserver response: File\? What file\?$'
 
 # Make sure .netrc works as a fallback.
 cp netrc_file $WORK\home\.netrc
 cp go.mod.orig go.mod
-go mod tidy
-go list all
+bolero mod tidy
+bolero list all
 stdout vcs-test.golang.org/auth/or401
 stdout vcs-test.golang.org/auth/or404
 

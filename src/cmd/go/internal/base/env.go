@@ -26,7 +26,7 @@ func AppendPWD(base []string, dir string) []string {
 	return append(base, "PWD="+dir)
 }
 
-// AppendPATH returns the result of appending PATH=$GOROOT/bin:$PATH
+// AppendPATH returns the result of appending PATH=$BOLERO_ROOT/bin:$PATH
 // (or the platform equivalent) to the environment base.
 func AppendPATH(base []string) []string {
 	if cfg.GOROOTbin == "" {

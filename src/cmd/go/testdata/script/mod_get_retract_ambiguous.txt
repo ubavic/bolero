@@ -1,6 +1,6 @@
-! go get example.com/retract/ambiguous/other
+! bolero get example.com/retract/ambiguous/other
 stderr 'ambiguous import: found package example.com/retract/ambiguous/nested in multiple modules:'
-stderr '^go: warning: example.com/retract/ambiguous/nested@v1.9.0-bad: retracted by module author: nested modules are bad$'
+stderr '^bolero: warning: example.com/retract/ambiguous/nested@v1.9.0-bad: retracted by module author: nested modules are bad$'
 
 -- go.mod --
 module example.com/use

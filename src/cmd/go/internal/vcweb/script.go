@@ -305,7 +305,7 @@ func scriptHandle() script.Cmd {
 func scriptModzip() script.Cmd {
 	return script.Command(
 		script.CmdUsage{
-			Summary: "create a Go module zip file from a directory",
+			Summary: "create a Bolero module zip file from a directory",
 			Args:    "zipfile path@version dir",
 		},
 		func(st *script.State, args ...string) (wait script.WaitFunc, err error) {

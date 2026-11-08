@@ -1,6 +1,6 @@
 # Tests issue #26242
 
-go test testnorun
+bolero test testnorun
 stdout 'testnorun\t\[no test files\]'
 
 -- go.mod --
@@ -11,5 +11,5 @@ go 1.16
 package p
 
 func init() {
-	panic("go test must not link and run test binaries without tests")
+	panic("bolero test must not link and run test binaries without tests")
 }

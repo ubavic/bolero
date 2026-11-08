@@ -1,12 +1,12 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-! go build selfimport
+! bolero build selfimport
 stderr -count=1 'import cycle not allowed'
 
-# 'go list' shouldn't hang forever.
-go list -e -json selfimport
+# 'bolero list' shouldn't hang forever.
+bolero list -e -json selfimport
 
--- $GOPATH/src/selfimport/selfimport.go --
+-- $BOLERO_PATH/src/selfimport/selfimport.go --
 package selfimport
 
 import "selfimport"

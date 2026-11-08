@@ -1,10 +1,10 @@
 # Test that local replacements work even with dummy module names.
 # golang.org/issue/24100.
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 cd x/y
-go list -f '{{.Dir}}' zz
+bolero list -f '{{.Dir}}' zz
 stdout x[/\\]z$
 
 -- x/y/go.mod --

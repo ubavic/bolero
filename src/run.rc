@@ -5,13 +5,13 @@
 
 rfork e
 
-if(! test -f ../bin/go){
-	echo 'run.rc must be run from $GOROOT/src after installing cmd/go' >[1=2]
+if(! test -f ../bin/bolero){
+	echo 'run.rc must be run from $BOLERO_ROOT/src after installing cmd/go' >[1=2]
 	exit wrongdir
 }
 
-GOENV=off
-eval `{../bin/go tool dist env}
+BOLERO_ENV=off
+eval `{../bin/bolero tool dist env}
 
-GOPATH=/nonexist-gopath
-exec ../bin/go tool dist test -rebuild $*
+BOLERO_PATH=/nonexist-gopath
+exec ../bin/bolero tool dist test -rebuild $*

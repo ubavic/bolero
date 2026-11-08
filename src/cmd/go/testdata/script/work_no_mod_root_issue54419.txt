@@ -1,8 +1,8 @@
 cd m
-! go mod download
+! bolero mod download
 stderr 'no modules were found in the current workspace'
 
-! go list -m all
+! bolero list -m all
 stderr 'no modules were found in the current workspace'
 
 -- go.work --

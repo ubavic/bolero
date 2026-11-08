@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package cfg holds configuration shared by multiple parts
-// of the go command.
+// of the bolero command.
 package cfg
 
 import (
@@ -34,8 +34,8 @@ var (
 
 	ExeSuffix = exeSuffix()
 
-	// ModulesEnabled specifies whether the go command is running
-	// in module-aware mode (as opposed to GOPATH mode).
+	// ModulesEnabled specifies whether the bolero command is running
+	// in module-aware mode (as opposed to BOLERO_PATH mode).
 	// It is equal to modload.Enabled, but not all packages can import modload.
 	ModulesEnabled bool
 )
@@ -47,7 +47,7 @@ func exeSuffix() string {
 	return ""
 }
 
-// Configuration for tools installed to GOROOT/bin.
+// Configuration for tools installed to BOLERO_ROOT/bin.
 // Normally these match runtime.GOOS and runtime.GOARCH,
 // but when testing a cross-compiled cmd/go they will
 // indicate the GOOS and GOARCH of the installed cmd/go
@@ -106,8 +106,8 @@ var (
 	DebugTrace        string // -debug-trace flag
 	DebugRuntimeTrace string // -debug-runtime-trace flag (undocumented, unstable)
 
-	// GoPathError is set when GOPATH is not set. it contains an
-	// explanation why GOPATH is unset.
+	// GoPathError is set when BOLERO_PATH is not set. it contains an
+	// explanation why BOLERO_PATH is unset.
 	GoPathError   string
 	GOPATHChanged bool
 	CGOChanged    bool
@@ -116,11 +116,11 @@ var (
 func defaultContext() build.Context {
 	ctxt := build.Default
 
-	ctxt.JoinPath = filepath.Join // back door to say "do not use go command"
+	ctxt.JoinPath = filepath.Join // back door to say "do not use bolero command"
 
 	// Override defaults computed in go/build with defaults
 	// from go environment configuration file, if known.
-	ctxt.GOPATH, GOPATHChanged = EnvOrAndChanged("GOPATH", gopath(ctxt))
+	ctxt.GOPATH, GOPATHChanged = EnvOrAndChanged("BOLERO_PATH", gopath(ctxt))
 	ctxt.GOOS = Goos
 	ctxt.GOARCH = Goarch
 
@@ -149,7 +149,7 @@ func defaultContext() build.Context {
 		defaultCgoEnabled = platform.CgoSupported(ctxt.GOOS, ctxt.GOARCH)
 		// Use built-in default cgo setting for GOOS/GOARCH.
 		// Note that ctxt.GOOS/GOARCH are derived from the preference list
-		// (1) environment, (2) go/env file, (3) runtime constants,
+		// (1) environment, (2) bolero/env file, (3) runtime constants,
 		// while go/build.Default.GOOS/GOARCH are derived from the preference list
 		// (1) environment, (2) runtime constants.
 		//
@@ -204,11 +204,11 @@ func defaultContext() build.Context {
 }
 
 func init() {
-	SetGOROOT(Getenv("GOROOT"), false)
+	SetGOROOT(Getenv("BOLERO_ROOT"), false)
 }
 
 // ForceHost forces GOOS and GOARCH to runtime.GOOS and runtime.GOARCH.
-// This is used by go tool to build tools for the go command's own
+// This is used by bolero tool to build tools for the bolero command's own
 // GOOS and GOARCH.
 func ForceHost() {
 	Goos = runtime.GOOS
@@ -227,15 +227,15 @@ func ForceHost() {
 	// Recompute the build context using Goos and Goarch to
 	// set the correct value for ctx.CgoEnabled.
 	BuildContext = defaultContext()
-	// Call SetGOROOT to properly set the GOROOT on the new context.
-	SetGOROOT(Getenv("GOROOT"), false)
+	// Call SetGOROOT to properly set the BOLERO_ROOT on the new context.
+	SetGOROOT(Getenv("BOLERO_ROOT"), false)
 	// Recompute experiments: the settings determined depend on GOOS and GOARCH.
 	// This will also update the BuildContext's tool tags to include the new
 	// experiment tags.
 	computeExperiment()
 }
 
-// SetGOROOT sets GOROOT and associated variables to the given values.
+// SetGOROOT sets BOLERO_ROOT and associated variables to the given values.
 //
 // If isTestGo is true, build.ToolDir is set based on the TESTGO_GOHOSTOS and
 // TESTGO_GOHOSTARCH environment variables instead of runtime.GOOS and
@@ -278,7 +278,7 @@ func SetGOROOT(goroot string, isTestGo bool) {
 			//
 			// This matches the initialization of ToolDir in go/build, except for
 			// using ctxt.GOROOT and the installed GOOS and GOARCH rather than the
-			// GOROOT, GOOS, and GOARCH reported by the runtime package.
+			// BOLERO_ROOT, GOOS, and GOARCH reported by the runtime package.
 			build.ToolDir = filepath.Join(GOROOTpkg, "tool", installedGOOS+"_"+installedGOARCH)
 		}
 	}
@@ -328,8 +328,8 @@ type EnvVar struct {
 // OrigEnv is the original environment of the program at startup.
 var OrigEnv []string
 
-// CmdEnv is the new environment for running go tool commands.
-// User binaries (during go test or go run) are run with OrigEnv,
+// CmdEnv is the new environment for running bolero tool commands.
+// User binaries (during bolero test or bolero run) are run with OrigEnv,
 // not CmdEnv.
 var CmdEnv []EnvVar
 
@@ -342,9 +342,9 @@ var envCache struct {
 // EnvFile returns the name of the Go environment configuration file,
 // and reports whether the effective value differs from the default.
 func EnvFile() (string, bool, error) {
-	if file := os.Getenv("GOENV"); file != "" {
+	if file := os.Getenv("BOLERO_ENV"); file != "" {
 		if file == "off" {
-			return "", false, fmt.Errorf("GOENV=off")
+			return "", false, fmt.Errorf("BOLERO_ENV=off")
 		}
 		return file, true, nil
 	}
@@ -355,7 +355,7 @@ func EnvFile() (string, bool, error) {
 	if dir == "" {
 		return "", false, fmt.Errorf("missing user-config dir")
 	}
-	return filepath.Join(dir, "go/env"), false, nil
+	return filepath.Join(dir, "bolero/env"), false, nil
 }
 
 func initEnvCache() {
@@ -364,16 +364,16 @@ func initEnvCache() {
 	if file, _, _ := EnvFile(); file != "" {
 		readEnvFile(file, "user")
 	}
-	goroot := findGOROOT(envCache.m["GOROOT"])
+	goroot := findGOROOT(envCache.m["BOLERO_ROOT"])
 	if goroot != "" {
-		readEnvFile(filepath.Join(goroot, "go.env"), "GOROOT")
+		readEnvFile(filepath.Join(goroot, "bolero.env"), "BOLERO_ROOT")
 	}
 
 	// Save the goroot for func init calling SetGOROOT,
-	// and also overwrite anything that might have been in go.env.
-	// It makes no sense for GOROOT/go.env to specify
-	// a different GOROOT.
-	envCache.m["GOROOT"] = goroot
+	// and also overwrite anything that might have been in bolero.env.
+	// It makes no sense for BOLERO_ROOT/bolero.env to specify
+	// a different BOLERO_ROOT.
+	envCache.m["BOLERO_ROOT"] = goroot
 }
 
 func readEnvFile(file string, source string) {
@@ -399,17 +399,17 @@ func readEnvFile(file string, source string) {
 		if i < 0 || line[0] < 'A' || 'Z' < line[0] {
 			// Line is missing = (or empty) or a comment or not a valid env name. Ignore.
 			// This should not happen in the user file, since the file should be maintained almost
-			// exclusively by "go env -w", but better to silently ignore than to make
-			// the go command unusable just because somehow the env file has
+			// exclusively by "bolero env -w", but better to silently ignore than to make
+			// the bolero command unusable just because somehow the env file has
 			// gotten corrupted.
-			// In the GOROOT/go.env file, we expect comments.
+			// In the BOLERO_ROOT/bolero.env file, we expect comments.
 			continue
 		}
 		key, val := line[:i], line[i+1:]
 
-		if source == "GOROOT" {
+		if source == "BOLERO_ROOT" {
 			envCache.goroot[string(key)] = string(val)
-			// In the GOROOT/go.env file, do not overwrite fields loaded from the user's go/env file.
+			// In the BOLERO_ROOT/bolero.env file, do not overwrite fields loaded from the user's bolero/env file.
 			if _, ok := envCache.m[string(key)]; ok {
 				continue
 			}
@@ -420,11 +420,11 @@ func readEnvFile(file string, source string) {
 
 // Getenv gets the value for the configuration key.
 // It consults the operating system environment
-// and then the go/env file.
+// and then the bolero/env file.
 // If Getenv is called for a key that cannot be set
-// in the go/env file (for example GODEBUG), it panics.
+// in the bolero/env file (for example GODEBUG), it panics.
 // This ensures that CanGetenv is accurate, so that
-// 'go env -w' stays in sync with what Getenv can retrieve.
+// 'bolero env -w' stays in sync with what Getenv can retrieve.
 func Getenv(key string) string {
 	if !CanGetenv(key) {
 		switch key {
@@ -442,11 +442,11 @@ func Getenv(key string) string {
 	return envCache.m[key]
 }
 
-// CanGetenv reports whether key is a valid go/env configuration key.
+// CanGetenv reports whether key is a valid bolero/env configuration key.
 func CanGetenv(key string) bool {
 	envCache.once.Do(initEnvCache)
 	if _, ok := envCache.m[key]; ok {
-		// Assume anything in the user file or go.env file is valid.
+		// Assume anything in the user file or bolero.env file is valid.
 		return true
 	}
 	return strings.Contains(cfg.KnownEnv, "\t"+key+"\n")
@@ -455,14 +455,14 @@ func CanGetenv(key string) bool {
 var (
 	GOROOT string
 
-	// Either empty or produced by filepath.Join(GOROOT, …).
+	// Either empty or produced by filepath.Join(BOLERO_ROOT, …).
 	GOROOTbin string
 	GOROOTpkg string
 	GOROOTsrc string
 
-	GOBIN                           = Getenv("GOBIN")
-	GOCACHEPROG, GOCACHEPROGChanged = EnvOrAndChanged("GOCACHEPROG", "")
-	GOMODCACHE, GOMODCACHEChanged   = EnvOrAndChanged("GOMODCACHE", gopathDir("pkg/mod"))
+	GOBIN                           = Getenv("BOLERO_BIN")
+	GOCACHEPROG, GOCACHEPROGChanged = EnvOrAndChanged("BOLERO_CACHEPROG", "")
+	GOMODCACHE, GOMODCACHEChanged   = EnvOrAndChanged("BOLERO_MODCACHE", gopathDir("pkg/mod"))
 
 	// Used in envcmd.MkEnv and build ID computations.
 	GOARM64, goARM64Changed     = EnvOrAndChanged("GOARM64", buildcfg.DefaultGOARM64)
@@ -476,14 +476,14 @@ var (
 	GOWASM, goWASMChanged       = EnvOrAndChanged("GOWASM", fmt.Sprint(buildcfg.GOWASM))
 
 	GOFIPS140, GOFIPS140Changed = EnvOrAndChanged("GOFIPS140", buildcfg.DefaultGOFIPS140)
-	GOPROXY, GOPROXYChanged     = EnvOrAndChanged("GOPROXY", "")
-	GOSUMDB, GOSUMDBChanged     = EnvOrAndChanged("GOSUMDB", "")
-	GOPRIVATE                   = Getenv("GOPRIVATE")
-	GONOPROXY, GONOPROXYChanged = EnvOrAndChanged("GONOPROXY", GOPRIVATE)
-	GONOSUMDB, GONOSUMDBChanged = EnvOrAndChanged("GONOSUMDB", GOPRIVATE)
-	GOINSECURE                  = Getenv("GOINSECURE")
-	GOVCS                       = Getenv("GOVCS")
-	GOAUTH, GOAUTHChanged       = EnvOrAndChanged("GOAUTH", "netrc")
+	GOPROXY, GOPROXYChanged     = EnvOrAndChanged("BOLERO_PROXY", "")
+	GOSUMDB, GOSUMDBChanged     = EnvOrAndChanged("BOLERO_SUMDB", "")
+	GOPRIVATE                   = Getenv("BOLERO_PRIVATE")
+	GONOPROXY, GONOPROXYChanged = EnvOrAndChanged("BOLERO_NOPROXY", GOPRIVATE)
+	GONOSUMDB, GONOSUMDBChanged = EnvOrAndChanged("BOLERO_NOSUMDB", GOPRIVATE)
+	GOINSECURE                  = Getenv("BOLERO_INSECURE")
+	GOVCS                       = Getenv("BOLERO_VCS")
+	GOAUTH, GOAUTHChanged       = EnvOrAndChanged("BOLERO_AUTH", "netrc")
 )
 
 // EnvOrAndChanged returns the environment variable value
@@ -545,18 +545,18 @@ func envOr(key, def string) string {
 // x/tools/cmd/godoc/goroot.go.
 // Try to keep them in sync for now.
 
-// findGOROOT returns the GOROOT value, using either an explicitly
-// provided environment variable, a GOROOT that contains the current
-// os.Executable value, or else the GOROOT that the binary was built
+// findGOROOT returns the BOLERO_ROOT value, using either an explicitly
+// provided environment variable, a BOLERO_ROOT that contains the current
+// os.Executable value, or else the BOLERO_ROOT that the binary was built
 // with from runtime.GOROOT().
 //
 // There is a copy of this code in x/tools/cmd/godoc/goroot.go.
 func findGOROOT(env string) string {
 	if env == "" {
 		// Not using Getenv because findGOROOT is called
-		// to find the GOROOT/go.env file. initEnvCache
-		// has passed in the setting from the user go/env file.
-		env = os.Getenv("GOROOT")
+		// to find the BOLERO_ROOT/bolero.env file. initEnvCache
+		// has passed in the setting from the user bolero/env file.
+		env = os.Getenv("BOLERO_ROOT")
 	}
 	if env != "" {
 		return filepath.Clean(env)
@@ -566,7 +566,7 @@ func findGOROOT(env string) string {
 		def = filepath.Clean(r)
 	}
 	if runtime.Compiler == "gccgo" {
-		// gccgo has no real GOROOT, and it certainly doesn't
+		// gccgo has no real BOLERO_ROOT, and it certainly doesn't
 		// depend on the executable's location.
 		return def
 	}
@@ -585,7 +585,7 @@ func findGOROOT(env string) string {
 	if err == nil {
 		exe, err = filepath.Abs(exe)
 		if err == nil {
-			// cmd/go may be installed in GOROOT/bin or GOROOT/bin/GOOS_GOARCH,
+			// cmd/go may be installed in BOLERO_ROOT/bin or BOLERO_ROOT/bin/GOOS_GOARCH,
 			// depending on whether it was cross-compiled with a different
 			// GOHOSTOS (see https://go.dev/issue/62119). Try both.
 			if dir := filepath.Join(exe, "../.."); isGOROOT(dir) {
@@ -597,9 +597,9 @@ func findGOROOT(env string) string {
 
 			// Depending on what was passed on the command line, it is possible
 			// that os.Executable is a symlink (like /usr/local/bin/go) referring
-			// to a binary installed in a real GOROOT elsewhere
+			// to a binary installed in a real BOLERO_ROOT elsewhere
 			// (like /usr/lib/go/bin/go).
-			// Try to find that GOROOT by resolving the symlinks.
+			// Try to find that BOLERO_ROOT by resolving the symlinks.
 			exe, err = filepath.EvalSymlinks(exe)
 			if err == nil {
 				if dir := filepath.Join(exe, "../.."); isGOROOT(dir) {
@@ -624,11 +624,11 @@ func isSameDir(dir1, dir2 string) bool {
 	return err1 == nil && err2 == nil && os.SameFile(info1, info2)
 }
 
-// isGOROOT reports whether path looks like a GOROOT.
+// isGOROOT reports whether path looks like a BOLERO_ROOT.
 //
 // It does this by looking for the path/pkg/tool directory,
 // which is necessary for useful operation of the cmd/go tool,
-// and is not typically present in a GOPATH.
+// and is not typically present in a BOLERO_PATH.
 //
 // There is a copy of this code in x/tools/cmd/godoc/goroot.go.
 func isGOROOT(path string) bool {
@@ -659,9 +659,9 @@ func gopath(ctxt build.Context) string {
 		env = "home"
 	}
 	if home := os.Getenv(env); home != "" {
-		def := filepath.Join(home, "go")
+		def := filepath.Join(home, "bolero")
 		if filepath.Clean(def) == filepath.Clean(runtime.GOROOT()) {
-			GoPathError = "cannot set GOROOT as GOPATH"
+			GoPathError = "cannot set BOLERO_ROOT as BOLERO_PATH"
 		}
 		return ""
 	}

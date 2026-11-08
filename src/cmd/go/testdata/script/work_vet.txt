@@ -1,4 +1,4 @@
-! go vet ./a
+! bolero vet ./a
 stderr 'fmt.Println call has possible Printf formatting directive'
 
 -- go.work --

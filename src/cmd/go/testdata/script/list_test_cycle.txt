@@ -1,20 +1,20 @@
-go list ./p
+bolero list ./p
 stdout 'example/p'
 
-! go list -json=ImportPath -test ./p
+! bolero list -json=ImportPath -test ./p
 cmp stderr wanterr.txt
 
-! go list -json=ImportPath,Deps -test ./p
+! bolero list -json=ImportPath,Deps -test ./p
 cmp stderr wanterr.txt
 
-! go list -json=ImportPath,Deps -deps -test ./p
+! bolero list -json=ImportPath,Deps -deps -test ./p
 cmp stderr wanterr.txt
 
-! go list -json=ImportPath -deps -test ./p
+! bolero list -json=ImportPath -deps -test ./p
 cmp stderr wanterr.txt
 
 -- wanterr.txt --
-go: can't load test package: package example/p
+bolero: can't load test package: package example/p
 	imports example/q from p_test.go
 	imports example/r from q.go
 	imports example/p from r.go: import cycle not allowed in test

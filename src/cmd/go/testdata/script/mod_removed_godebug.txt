@@ -2,7 +2,7 @@
 # instead of the generic "unknown godebug" error message
 # for removed GODEBUGs.
 
-! go list
+! bolero list
 stderr '^go.mod:3: use of removed godebug "x509sha1", see https://go.dev/doc/godebug#go-124$'
 
 -- go.mod --

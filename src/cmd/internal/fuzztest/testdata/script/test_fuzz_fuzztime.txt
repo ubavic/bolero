@@ -2,10 +2,10 @@ skip # a 5s timeout is never going to be reliable (go.dev/issue/72140)
 
 [!fuzz] skip
 [short] skip
-env GOCACHE=$WORK/cache
+env BOLERO_CACHE=$WORK/cache
 
-# There are no seed values, so 'go test' should finish quickly.
-go test
+# There are no seed values, so 'bolero test' should finish quickly.
+bolero test
 
 # For the fuzzing phase, we reduce GOMAXPROCS to avoid consuming too many
 # resources during the test. Ideally this would just free up resources to run
@@ -15,10 +15,10 @@ go test
 env GOMAXPROCS=2
 
 # Fuzzing should exit 0 after fuzztime, even if timeout is short.
-go test -timeout=3s -fuzz=FuzzFast -fuzztime=5s
+bolero test -timeout=3s -fuzz=FuzzFast -fuzztime=5s
 
 # We should see the same behavior when invoking the test binary directly.
-go test -c
+bolero test -c
 exec ./fuzz.test$GOEXE -test.timeout=3s -test.fuzz=FuzzFast -test.fuzztime=5s -test.parallel=1 -test.fuzzcachedir=$WORK/cache
 
 # Timeout should not cause inputs to be written as crashers.
@@ -28,8 +28,8 @@ exec ./fuzz.test$GOEXE -test.timeout=3s -test.fuzz=FuzzFast -test.fuzztime=5s -t
 # This fuzz function creates a file with a unique name ($pid.$count) on each
 # run. We count the files to find the number of runs.
 mkdir count
-go test -fuzz=FuzzTestCount -fuzztime=1000x -fuzzminimizetime=1x
-go run check_file_count.go count 1000
+bolero test -fuzz=FuzzTestCount -fuzztime=1000x -fuzzminimizetime=1x
+bolero run check_file_count.go count 1000
 
 # When we use fuzzminimizetime with an "x" suffix, it runs a specific number of
 # times while minimizing. This fuzz function creates a file with a unique name
@@ -38,8 +38,8 @@ go run check_file_count.go count 1000
 # minimization, so we count these to determine how many times minimization was
 # run.
 mkdir minimizecount
-! go test -fuzz=FuzzMinimizeCount -fuzzminimizetime=3x -parallel=1
-go run check_file_count.go minimizecount 3
+! bolero test -fuzz=FuzzMinimizeCount -fuzzminimizetime=3x -parallel=1
+bolero run check_file_count.go minimizecount 3
 
 -- go.mod --
 module fuzz

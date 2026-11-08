@@ -173,7 +173,7 @@ func (t *tester) run() {
 			//
 			// On the builders, we skip this step: we assume that 'dist test' is
 			// already using the result of a clean build, and because of test sharding
-			// and virtualization we usually start with a clean GOCACHE, so we would
+			// and virtualization we usually start with a clean BOLERO_CACHE, so we would
 			// end up rebuilding large parts of the standard library that aren't
 			// otherwise relevant to the actual set of packages under test.
 			goInstall(toolenv(), gorootBinGo, toolchain...)
@@ -214,10 +214,10 @@ func (t *tester) run() {
 		}
 	}
 
-	// On a few builders, make GOROOT unwritable to catch tests writing to it.
+	// On a few builders, make BOLERO_ROOT unwritable to catch tests writing to it.
 	if strings.HasPrefix(os.Getenv("GO_BUILDER_NAME"), "linux-") {
 		if os.Getuid() == 0 {
-			// Don't bother making GOROOT unwritable:
+			// Don't bother making BOLERO_ROOT unwritable:
 			// we're running as root, so permissions would have no effect.
 		} else {
 			xatexit(t.makeGOROOTUnwritable())
@@ -261,7 +261,7 @@ func (t *tester) run() {
 			fmt.Println("\nFAILED")
 		} else if !anyIncluded {
 			fmt.Println()
-			errprintf("go tool dist: warning: %q matched no tests; use the -list flag to list available tests\n", t.runRxStr)
+			errprintf("bolero tool dist: warning: %q matched no tests; use the -list flag to list available tests\n", t.runRxStr)
 			fmt.Println("NO TESTS TO RUN")
 		} else if someExcluded {
 			fmt.Println("\nALL TESTS PASSED (some were excluded)")
@@ -662,7 +662,7 @@ func (t *tester) registerTests() {
 		cmd.Stderr = new(bytes.Buffer)
 		all, err := cmd.Output()
 		if err != nil {
-			fatalf("Error running go list std cmd: %v:\n%s", err, cmd.Stderr)
+			fatalf("Error running bolero list std cmd: %v:\n%s", err, cmd.Stderr)
 		}
 		pkgs := strings.Fields(string(all))
 		for _, pkg := range pkgs {
@@ -720,7 +720,7 @@ func (t *tester) registerTests() {
 	// Check that all crypto packages compile (and test correctly, in longmode) with fips.
 	if t.fipsSupported() {
 		// Test standard crypto packages with fips140=on.
-		t.registerTest("GOFIPS140=latest go test crypto/...", &goTest{
+		t.registerTest("GOFIPS140=latest bolero test crypto/...", &goTest{
 			variant: "gofips140",
 			env:     []string{"GOFIPS140=latest"},
 			pkg:     "crypto/...",
@@ -735,18 +735,18 @@ func (t *tester) registerTests() {
 				suffix = ""
 				run = ""
 			}
-			t.registerTest("GOFIPS140="+version+" go test crypto/..."+suffix, &goTest{
+			t.registerTest("GOFIPS140="+version+" bolero test crypto/..."+suffix, &goTest{
 				variant:  "gofips140-" + version,
 				pkg:      "crypto/...",
 				runTests: run,
-				env:      []string{"GOFIPS140=" + version, "GOMODCACHE=" + filepath.Join(workdir, "fips-"+version)},
+				env:      []string{"GOFIPS140=" + version, "BOLERO_MODCACHE=" + filepath.Join(workdir, "fips-"+version)},
 			})
 		}
 	}
 
 	// Test GOEXPERIMENT=jsonv2.
 	if !strings.Contains(goexperiment, "jsonv2") {
-		t.registerTest("GOEXPERIMENT=jsonv2 go test encoding/json/...", &goTest{
+		t.registerTest("GOEXPERIMENT=jsonv2 bolero test encoding/json/...", &goTest{
 			variant: "jsonv2",
 			env:     []string{"GOEXPERIMENT=" + goexperiments("jsonv2")},
 			pkg:     "encoding/json/...",
@@ -755,7 +755,7 @@ func (t *tester) registerTests() {
 
 	// Test GOEXPERIMENT=runtimesecret.
 	if !strings.Contains(goexperiment, "runtimesecret") {
-		t.registerTest("GOEXPERIMENT=runtimesecret go test runtime/secret/...", &goTest{
+		t.registerTest("GOEXPERIMENT=runtimesecret bolero test runtime/secret/...", &goTest{
 			variant: "runtimesecret",
 			env:     []string{"GOEXPERIMENT=" + goexperiments("runtimesecret")},
 			pkg:     "runtime/secret/...",
@@ -764,7 +764,7 @@ func (t *tester) registerTests() {
 
 	// Test GOEXPERIMENT=simd on amd64.
 	if goarch == "amd64" && !strings.Contains(goexperiment, "simd") {
-		t.registerTest("GOEXPERIMENT=simd go test simd/archsimd/...", &goTest{
+		t.registerTest("GOEXPERIMENT=simd bolero test simd/archsimd/...", &goTest{
 			variant: "simd",
 			env:     []string{"GOEXPERIMENT=" + goexperiments("simd")},
 			pkg:     "simd/archsimd/...",
@@ -821,7 +821,7 @@ func (t *tester) registerTests() {
 		for _, hook := range hooks {
 			// Construct the build flags to use the
 			// maymorestack hook in the compiler and
-			// assembler. We pass this via the GOFLAGS
+			// assembler. We pass this via the BOLERO_FLAGS
 			// environment variable so that it applies to
 			// both the test itself and to binaries built
 			// by the test.
@@ -841,7 +841,7 @@ func (t *tester) registerTests() {
 					variant: hook,
 					timeout: 600 * time.Second,
 					short:   true,
-					env:     []string{"GOFLAGS=" + goFlags},
+					env:     []string{"BOLERO_FLAGS=" + goFlags},
 					pkgs:    []string{"runtime", "reflect", "sync"},
 				})
 		}
@@ -1484,7 +1484,7 @@ func (t *tester) runPending(nextTest *distTest) {
 			// Assumes all the entries for a single dt are in one worklist.
 			last = w.dt
 			if vflag > 0 {
-				fmt.Printf("# go tool dist test -run=^%s$\n", dt.name)
+				fmt.Printf("# bolero tool dist test -run=^%s$\n", dt.name)
 			}
 		}
 		if vflag > 1 {
@@ -1510,7 +1510,7 @@ func (t *tester) runPending(nextTest *distTest) {
 			t.out(dt.heading)
 		}
 		if vflag > 0 {
-			fmt.Printf("# go tool dist test -run=^%s$\n", dt.name)
+			fmt.Printf("# bolero tool dist test -run=^%s$\n", dt.name)
 		}
 	}
 }
@@ -1647,12 +1647,12 @@ func (t *tester) packageHasBenchmarks(pkg string) bool {
 	return false
 }
 
-// makeGOROOTUnwritable makes all $GOROOT files & directories non-writable to
-// check that no tests accidentally write to $GOROOT.
+// makeGOROOTUnwritable makes all $BOLERO_ROOT files & directories non-writable to
+// check that no tests accidentally write to $BOLERO_ROOT.
 func (t *tester) makeGOROOTUnwritable() (undo func()) {
-	dir := os.Getenv("GOROOT")
+	dir := os.Getenv("BOLERO_ROOT")
 	if dir == "" {
-		panic("GOROOT not set")
+		panic("BOLERO_ROOT not set")
 	}
 
 	type pathMode struct {
@@ -1698,7 +1698,7 @@ func (t *tester) makeGOROOTUnwritable() (undo func()) {
 		if err != nil {
 			dirs = dirs[i:] // Only undo what we did so far.
 			undo()
-			fatalf("failed to make GOROOT read-only: %v", err)
+			fatalf("failed to make BOLERO_ROOT read-only: %v", err)
 		}
 	}
 

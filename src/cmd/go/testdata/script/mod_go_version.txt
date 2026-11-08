@@ -1,12 +1,12 @@
 # Test support for declaring needed Go version in module.
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 env TESTGO_VERSION=go1.21
 
-! go list
-stderr -count=1 '^go: sub@v1.0.0: module ./sub requires go >= 1.999 \(running go 1.21\)$'
-! go build sub
-stderr -count=1 '^go: sub@v1.0.0: module ./sub requires go >= 1.999 \(running go 1.21\)$'
+! bolero list
+stderr -count=1 '^bolero: sub@v1.0.0: module ./sub requires go >= 1.999 \(running go 1.21\)$'
+! bolero build sub
+stderr -count=1 '^bolero: sub@v1.0.0: module ./sub requires go >= 1.999 \(running go 1.21\)$'
 
 -- go.mod --
 module m

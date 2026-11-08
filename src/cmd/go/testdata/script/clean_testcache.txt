@@ -1,22 +1,22 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 [short] skip
 
-# go clean -testcache
+# bolero clean -testcache
 # should work (see golang.org/issue/29757).
 cd x
-go test x_test.go
-go clean -testcache
-go test x_test.go
+bolero test x_test.go
+bolero clean -testcache
+bolero test x_test.go
 ! stdout 'cached'
-! go clean -testcache ../x
-stderr 'go: clean -testcache cannot be used with package arguments'
+! bolero clean -testcache ../x
+stderr 'bolero: clean -testcache cannot be used with package arguments'
 
-# golang.org/issue/29100: 'go clean -testcache' should succeed
+# golang.org/issue/29100: 'bolero clean -testcache' should succeed
 # if the cache directory doesn't exist at all.
 # It should not write a testexpire.txt file, since there are no
 # test results that need to be invalidated in the first place.
-env GOCACHE=$WORK/nonexistent
-go clean -testcache
+env BOLERO_CACHE=$WORK/nonexistent
+bolero clean -testcache
 ! exists $WORK/nonexistent
 
 -- x/x_test.go --

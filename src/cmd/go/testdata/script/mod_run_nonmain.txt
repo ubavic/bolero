@@ -1,13 +1,13 @@
-! go run $PWD
+! bolero run $PWD
 ! stderr 'no packages loaded'
 stderr '^package example.net/nonmain is not a main package$'
 
-! go run .
+! bolero run .
 stderr '^package example.net/nonmain is not a main package$'
 
-! go run ./...
-stderr '^go: warning: "\./\.\.\." matched only non-main packages$'
-stderr '^go: no packages loaded from \./\.\.\.$'
+! bolero run ./...
+stderr '^bolero: warning: "\./\.\.\." matched only non-main packages$'
+stderr '^bolero: no packages loaded from \./\.\.\.$'
 
 -- go.mod --
 module example.net/nonmain

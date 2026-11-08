@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package clean implements the “go clean” command.
+// Package clean implements the “bolero clean” command.
 package clean
 
 import (
@@ -30,13 +30,13 @@ import (
 )
 
 var CmdClean = &base.Command{
-	UsageLine: "go clean [-i] [-r] [-cache] [-testcache] [-modcache] [-fuzzcache] [build flags] [packages]",
+	UsageLine: "bolero clean [-i] [-r] [-cache] [-testcache] [-modcache] [-fuzzcache] [build flags] [packages]",
 	Short:     "remove object files and cached files",
 	Long: `
 Clean removes object files from package source directories.
-The go command builds most objects in a temporary directory,
-so go clean is mainly concerned with object files left by other
-tools or by manual invocations of go build.
+The bolero command builds most objects in a temporary directory,
+so bolero clean is mainly concerned with object files left by other
+tools or by manual invocations of bolero build.
 
 If a package argument is given or the -i or -r flag is set,
 clean removes the following files from each of the
@@ -49,18 +49,18 @@ source directories corresponding to the import paths:
 	build.out        old test log, left from Makefiles
 	*.[568ao]        object files, left from Makefiles
 
-	DIR(.exe)        from go build
-	DIR.test(.exe)   from go test -c
-	MAINFILE(.exe)   from go build MAINFILE.go
+	DIR(.exe)        from bolero build
+	DIR.test(.exe)   from bolero test -c
+	MAINFILE(.exe)   from bolero build MAINFILE.go
 	*.so             from SWIG
 
 In the list, DIR represents the final path element of the
-directory, and MAINFILE is the base name of any Go source
+directory, and MAINFILE is the base name of any Bolero source
 file in the directory that is not included when building
 the package.
 
 The -i flag causes clean to remove the corresponding installed
-archive or binary (what 'go install' would create).
+archive or binary (what 'bolero install' would create).
 
 The -n flag causes clean to print the remove commands it would execute,
 but not run them.
@@ -70,25 +70,25 @@ dependencies of the packages named by the import paths.
 
 The -x flag causes clean to print remove commands as it executes them.
 
-The -cache flag causes clean to remove the entire go build cache.
+The -cache flag causes clean to remove the entire bolero build cache.
 
 The -testcache flag causes clean to expire all test results in the
-go build cache.
+bolero build cache.
 
 The -modcache flag causes clean to remove the entire module
 download cache, including unpacked source code of versioned
 dependencies.
 
-The -fuzzcache flag causes clean to remove files stored in the Go build
+The -fuzzcache flag causes clean to remove files stored in the Bolero build
 cache for fuzz testing. The fuzzing engine caches files that expand
 code coverage, so removing them may make fuzzing less effective until
 new inputs are found that provide the same coverage. These files are
 distinct from those stored in testdata directory; clean does not remove
 those files.
 
-For more about build flags, see 'go help build'.
+For more about build flags, see 'bolero help build'.
 
-For more about specifying packages, see 'go help packages'.
+For more about specifying packages, see 'bolero help packages'.
 	`,
 }
 
@@ -135,7 +135,7 @@ func runClean(ctx context.Context, cmd *base.Command, args []string) {
 			cacheFlag = "-modcache"
 		}
 		if cacheFlag != "" {
-			base.Fatalf("go: clean %s cannot be used with package arguments", cacheFlag)
+			base.Fatalf("bolero: clean %s cannot be used with package arguments", cacheFlag)
 		}
 	}
 
@@ -218,7 +218,7 @@ func runClean(ctx context.Context, cmd *base.Command, args []string) {
 
 	if cleanModcache {
 		if cfg.GOMODCACHE == "" {
-			base.Fatalf("go: cannot clean -modcache without a module cache")
+			base.Fatalf("bolero: cannot clean -modcache without a module cache")
 		}
 		if cfg.BuildN || cfg.BuildX {
 			sh.ShowCmd("", "rm -rf %s", cfg.GOMODCACHE)
@@ -247,7 +247,7 @@ func runClean(ctx context.Context, cmd *base.Command, args []string) {
 	}
 }
 
-// logFilesInGOMODCACHE reports the file names and modes for the files in GOMODCACHE using base.Error.
+// logFilesInGOMODCACHE reports the file names and modes for the files in BOLERO_MODCACHE using base.Error.
 func logFilesInGOMODCACHE() {
 	var found []string
 	werr := filepath.WalkDir(cfg.GOMODCACHE, func(path string, d fs.DirEntry, err error) error {
@@ -265,9 +265,9 @@ func logFilesInGOMODCACHE() {
 		return nil
 	})
 	if werr != nil {
-		base.Errorf("walking files in GOMODCACHE (for debugging go.dev/issue/68087): %v", werr)
+		base.Errorf("walking files in BOLERO_MODCACHE (for debugging go.dev/issue/68087): %v", werr)
 	}
-	base.Errorf("files in GOMODCACHE (for debugging go.dev/issue/68087):\n%s", strings.Join(found, "\n"))
+	base.Errorf("files in BOLERO_MODCACHE (for debugging go.dev/issue/68087):\n%s", strings.Join(found, "\n"))
 }
 
 var cleaned = map[*load.Package]bool{}
@@ -307,7 +307,7 @@ func clean(p *load.Package) {
 	}
 	dirs, err := os.ReadDir(p.Dir)
 	if err != nil {
-		base.Errorf("go: %s: %v", p.Dir, err)
+		base.Errorf("bolero: %s: %v", p.Dir, err)
 		return
 	}
 

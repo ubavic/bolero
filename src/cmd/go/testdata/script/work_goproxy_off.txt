@@ -1,20 +1,20 @@
-go work init
-go work use . ./sub
+bolero work init
+bolero work use . ./sub
 
 # Verify that the go.mod files for both modules in the workspace are tidy,
 # and add missing go.sum entries as needed.
 
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.orig
 
 cd sub
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.orig
 cd ..
 
-go list -m all
+bolero list -m all
 stdout '^rsc\.io/quote v1\.5\.1$'
 stdout '^rsc\.io/sampler v1\.3\.1$'
 
@@ -22,10 +22,10 @@ stdout '^rsc\.io/sampler v1\.3\.1$'
 # Because one module upgrades a transitive dependency needed by another,
 # listing the modules in the workspace should error out.
 
-go clean -modcache
-env GOPROXY=off
-! go list -m all
-stderr '^go: rsc.io/sampler@v1.3.0: module lookup disabled by GOPROXY=off$'
+bolero clean -modcache
+env BOLERO_PROXY=off
+! bolero list -m all
+stderr '^bolero: rsc.io/sampler@v1.3.0: module lookup disabled by BOLERO_PROXY=off$'
 
 -- example.go --
 package example

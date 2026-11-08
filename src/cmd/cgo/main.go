@@ -258,13 +258,13 @@ var fset = token.NewFileSet()
 
 var dynobj = flag.String("dynimport", "", "if non-empty, print dynamic import data for that file")
 var dynout = flag.String("dynout", "", "write -dynimport output to this file")
-var dynpackage = flag.String("dynpackage", "main", "set Go package for -dynimport output")
+var dynpackage = flag.String("dynpackage", "main", "set package for -dynimport output")
 var dynlinker = flag.Bool("dynlinker", false, "record dynamic linker information in -dynimport mode")
 
 // This flag is for bootstrapping a new Go implementation,
 // to generate Go types that match the data layout and
 // constant values used in the host's C libraries and system calls.
-var godefs = flag.Bool("godefs", false, "for bootstrap: write Go definitions for C file to standard output")
+var godefs = flag.Bool("godefs", false, "for bootstrap: write definitions for C file to standard output")
 
 var srcDir = flag.String("srcdir", "", "source directory")
 var objDir = flag.String("objdir", "", "object directory")

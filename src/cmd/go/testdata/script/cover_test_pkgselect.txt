@@ -2,20 +2,20 @@
 [short] skip
 
 # Baseline run.
-go test -cover example/foo
+bolero test -cover example/foo
 stdout 'coverage: 50.0% of statements$'
 
 # Coverage percentage output should mention -coverpkg selection.
-go test -coverpkg=example/foo example/foo
+bolero test -coverpkg=example/foo example/foo
 stdout 'coverage: 50.0% of statements in example/foo'
 
 # Try to ask for coverage of a package that doesn't exist.
-go test -coverpkg nonexistent example/bar
+bolero test -coverpkg nonexistent example/bar
 stderr 'no packages being tested depend on matches for pattern nonexistent'
 stdout 'coverage: \[no statements\]'
 
 # Ask for foo coverage, but test bar.
-go test -coverpkg=example/foo example/bar
+bolero test -coverpkg=example/foo example/bar
 stdout 'coverage: 50.0% of statements in example/foo'
 
 # end of test cmds, start of harness and related files.

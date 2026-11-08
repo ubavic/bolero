@@ -1,46 +1,46 @@
 [short] skip
 
 # Install an echo command because Windows doesn't have it.
-env GOBIN=$WORK/tmp/bin
-go install echo.go
-env PATH=$GOBIN${:}$PATH
+env BOLERO_BIN=$WORK/tmp/bin
+bolero install echo.go
+env PATH=$BOLERO_BIN${:}$PATH
 
-# Test go generate for directory with no go files
-! go generate ./nogo
+# Test bolero generate for directory with no go files
+! bolero generate ./nogo
 ! stdout 'Fail'
-stderr 'no Go files'
+stderr 'no Bolero files'
 
 # Test go  generate for module which doesn't exist should fail
-! go generate foo.bar/nothing
+! bolero generate foo.bar/nothing
 stderr 'no required module provides package foo.bar/nothing'
 
-# Test go generate for package where all .go files are excluded by build
+# Test bolero generate for package where all .go files are excluded by build
 # constraints
-go generate -v ./excluded
+bolero generate -v ./excluded
 ! stdout 'Fail'
 ! stderr 'go' # -v shouldn't list any files
 
-# Test go generate for "package" with no package clause in any file
-go generate ./nopkg
+# Test bolero generate for "package" with no package clause in any file
+bolero generate ./nopkg
 stdout 'Success a'
 ! stdout 'Fail'
 
-# Test go generate for package with inconsistent package clauses
+# Test bolero generate for package with inconsistent package clauses
 # $GOPACKAGE should depend on each file's package clause
-go generate ./inconsistent
+bolero generate ./inconsistent
 stdout 'Success a'
 stdout 'Success b'
 stdout -count=2 'Success c'
 ! stdout 'Fail'
 
-# Test go generate for syntax errors before and after package clauses
-go generate ./syntax
+# Test bolero generate for syntax errors before and after package clauses
+bolero generate ./syntax
 stdout 'Success a'
 stdout 'Success b'
 ! stdout 'Fail'
 
-# Test go generate for files importing non-existent packages
-go generate ./importerr
+# Test bolero generate for files importing non-existent packages
+bolero generate ./importerr
 stdout 'Success a'
 stdout 'Success b'
 stdout 'Success c'
@@ -69,7 +69,7 @@ Go generate should ignore this directory.
 //go:generate echo Fail nogo
 
 -- excluded/a.go --
-// Include a build tag that go generate should exclude.
+// Include a build tag that bolero generate should exclude.
 // Go generate should ignore this file.
 
 // +build a
@@ -79,7 +79,7 @@ Go generate should ignore this directory.
 package excluded
 
 -- excluded/b.go --
-// Include a build tag that go generate should exclude.
+// Include a build tag that bolero generate should exclude.
 // Go generate should ignore this file.
 
 //go:generate echo Fail b

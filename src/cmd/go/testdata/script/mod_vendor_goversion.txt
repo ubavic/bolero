@@ -5,8 +5,8 @@
 
 # Control case: without a vendor directory, need117 builds and bad114 doesn't.
 
-go build example.net/need117
-! go build example.net/bad114
+bolero build example.net/need117
+! bolero build example.net/bad114
 stderr '^bad114[/\\]bad114.go:15:2: duplicate method .?Y.?( .*)?$'
 
 
@@ -14,35 +14,35 @@ stderr '^bad114[/\\]bad114.go:15:2: duplicate method .?Y.?( .*)?$'
 # because we have to guess a uniform version for everything.
 #
 # We always guess Go 1.16, because that was the last version for which
-# 'go mod vendor' failed to record dependency versions, and it has most of
+# 'bolero mod vendor' failed to record dependency versions, and it has most of
 # the language features added since modules were introduced in Go 1.11.
 #
 # Even so, modules that declare 'go 1.17' and use 1.17 features spuriously fail
 # to build, and modules that declare an older version and use features from a
 # newer one spuriously build (instead of failing as they ought to).
 
-go mod vendor
+bolero mod vendor
 
 ! grep 1.17 vendor/modules.txt
-! go build example.net/need117
+! bolero build example.net/need117
 stderr '^vendor[/\\]example\.net[/\\]need117[/\\]need117.go:5:1[89]:'
 stderr 'conversion of slice to array pointer requires go1\.17 or later'
 
 ! grep 1.13 vendor/modules.txt
-go build example.net/bad114
+bolero build example.net/bad114
 
 
 # Upgrading the main module to 1.17 adds version annotations.
 # Then everything is once again consistent with the non-vendored world.
 
-go mod edit -go=1.17
-go mod vendor
+bolero mod edit -go=1.17
+bolero mod vendor
 
 grep '^## explicit; go 1.17$' vendor/modules.txt
-go build example.net/need117
+bolero build example.net/need117
 
 grep '^## explicit; go 1.13$' vendor/modules.txt
-! go build example.net/bad114
+! bolero build example.net/bad114
 stderr '^vendor[/\\]example\.net[/\\]bad114[/\\]bad114.go:15:2: duplicate method .?Y.?( .*)?$'
 
 -- go.mod --

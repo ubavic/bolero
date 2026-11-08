@@ -224,7 +224,7 @@ func (f *goobjFile) symbols() ([]Sym, error) {
 func (f *goobjFile) pcln() (textStart uint64, pclntab []byte, err error) {
 	// Should never be called. We implement Liner below, callers
 	// should use that instead.
-	return 0, nil, fmt.Errorf("pcln not available in go object file")
+	return 0, nil, fmt.Errorf("pcln not available in object file")
 }
 
 // PCToLine returns the file name, line, and function data for the given pc.
@@ -338,5 +338,5 @@ func (f *goobjFile) loadAddress() (uint64, error) {
 }
 
 func (f *goobjFile) dwarf() (*dwarf.Data, error) {
-	return nil, errors.New("no DWARF data in go object file")
+	return nil, errors.New("no DWARF data in object file")
 }

@@ -1,26 +1,26 @@
-# go list should skip 'ignore' directives in workspaces
+# bolero list should skip 'ignore' directives in workspaces
 # See golang.org/issue/42965
 
 env ROOT=$WORK${/}gopath${/}src
 
-# go list ./... should only consider the current module's ignore directive
+# bolero list ./... should only consider the current module's ignore directive
 cd moduleA
-go list -x ./...
+bolero list -x ./...
 stdout 'moduleA$'
 stdout 'moduleA/pkg$'
 stderr 'ignoring directory '$ROOT''${/}'moduleA'${/}'node_modules'
 
-# go list ./... should only consider the current module's ignore directive
+# bolero list ./... should only consider the current module's ignore directive
 cd ../moduleB
-go list -x ./...
+bolero list -x ./...
 stdout 'moduleB$'
 ! stdout 'moduleB/pkg/helper'
 stderr 'ignoring directory '$ROOT''${/}'moduleB'${/}'pkg'
 
-# go list should respect module boundaries for ignore directives.
+# bolero list should respect module boundaries for ignore directives.
 # moduleA ignores './node_modules', moduleB ignores 'pkg'
 cd ..
-go list -x all
+bolero list -x all
 stderr 'ignoring directory '$ROOT''${/}'moduleA'${/}'node_modules'
 stderr 'ignoring directory '$ROOT''${/}'moduleB'${/}'pkg'
 ! stderr 'ignoring directory '$ROOT''${/}'moduleA'${/}'pkg'

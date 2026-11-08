@@ -72,7 +72,7 @@ func TestIssue16214(t *testing.T) {
 	cmd := testenv.Command(t, testenv.GoToolPath(t), "tool", "compile", "-p=main", "-S", "-o", filepath.Join(dir, "out.o"), src)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Fatalf("go tool compile: %v\n%s", err, out)
+		t.Fatalf("bolero tool compile: %v\n%s", err, out)
 	}
 
 	if strings.Contains(string(out), "unknown line number") {

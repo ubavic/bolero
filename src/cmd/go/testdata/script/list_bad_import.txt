@@ -1,60 +1,60 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 [short] skip
 
-# This test matches mod_list_bad_import, but in GOPATH mode.
+# This test matches mod_list_bad_import, but in BOLERO_PATH mode.
 # Please keep them in sync.
 
-env GO111MODULE=off
+env BOLERO_MODULE=off
 cd example.com
 
 # Without -e, listing an otherwise-valid package with an unsatisfied direct import should fail.
 # BUG: Today it succeeds.
-go list -f '{{if .Error}}error{{end}} {{if .Incomplete}}incomplete{{end}} {{range .DepsErrors}}bad dep: {{.Err}}{{end}}' example.com/direct
+bolero list -f '{{if .Error}}error{{end}} {{if .Incomplete}}incomplete{{end}} {{range .DepsErrors}}bad dep: {{.Err}}{{end}}' example.com/direct
 ! stdout ^error
 stdout 'incomplete'
 stdout 'bad dep: .*example.com[/\\]notfound'
 
 # Listing with -deps should also fail.
-! go list -deps example.com/direct
+! bolero list -deps example.com/direct
 stderr example.com[/\\]notfound
 
 # But -e -deps should succeed.
-go list -e -deps example.com/direct
+bolero list -e -deps example.com/direct
 stdout example.com/notfound
 
 
 # Listing an otherwise-valid package that imports some *other* package with an
 # unsatisfied import should also fail.
 # BUG: Today, it succeeds.
-go list -f '{{if .Error}}error{{end}} {{if .Incomplete}}incomplete{{end}} {{range .DepsErrors}}bad dep: {{.Err}}{{end}}' example.com/indirect
+bolero list -f '{{if .Error}}error{{end}} {{if .Incomplete}}incomplete{{end}} {{range .DepsErrors}}bad dep: {{.Err}}{{end}}' example.com/indirect
 ! stdout ^error
 stdout incomplete
 stdout 'bad dep: .*example.com[/\\]notfound'
 
 # Again, -deps should fail.
-! go list -deps example.com/indirect
+! bolero list -deps example.com/indirect
 stderr example.com[/\\]notfound
 
 # But -deps -e should succeed.
-go list -e -deps example.com/indirect
+bolero list -e -deps example.com/indirect
 stdout example.com/notfound
 
 
 # Listing the missing dependency directly should fail outright...
-! go list -f '{{if .Error}}error{{end}} {{if .Incomplete}}incomplete{{end}}' example.com/notfound
-stderr 'no Go files in .*example.com[/\\]notfound'
+! bolero list -f '{{if .Error}}error{{end}} {{if .Incomplete}}incomplete{{end}}' example.com/notfound
+stderr 'no Bolero files in .*example.com[/\\]notfound'
 ! stdout error
 ! stdout incomplete
 
 # ...but listing with -e should succeed.
-go list -e -f '{{if .Error}}error{{end}} {{if .Incomplete}}incomplete{{end}}' example.com/notfound
+bolero list -e -f '{{if .Error}}error{{end}} {{if .Incomplete}}incomplete{{end}}' example.com/notfound
 stdout error
 stdout incomplete
 
 
 # The pattern "all" should match only packages that actually exist,
 # ignoring those whose existence is merely implied by imports.
-go list -e -f '{{.ImportPath}}' all
+bolero list -e -f '{{.ImportPath}}' all
 stdout example.com/direct
 stdout example.com/indirect
 ! stdout example.com/notfound

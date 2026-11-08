@@ -31,7 +31,7 @@ import (
 	"cmd/internal/browser"
 )
 
-// impatientInsecureHTTPClient is used with GOINSECURE,
+// impatientInsecureHTTPClient is used with BOLERO_INSECURE,
 // when we're connecting to https servers that might not be there
 // or might be using self-signed certificates.
 var impatientInsecureHTTPClient = &http.Client{
@@ -118,7 +118,7 @@ func get(security SecurityMode, url *urlpkg.URL) (*Response, error) {
 
 	fetch := func(url *urlpkg.URL) (*http.Response, error) {
 		// Note: The -v build flag does not mean "print logging information",
-		// despite its historical misuse for this in GOPATH-based go get.
+		// despite its historical misuse for this in BOLERO_PATH-based bolero get.
 		// We print extra logging in -x mode instead, which traces what
 		// commands are executed.
 		if cfg.BuildX {
@@ -139,7 +139,7 @@ func get(security SecurityMode, url *urlpkg.URL) (*Response, error) {
 			client = securityPreservingDefaultClient
 		}
 		if url.Scheme == "https" {
-			// Use initial GOAUTH credentials.
+			// Use initial BOLERO_AUTH credentials.
 			auth.AddCredentials(client, req, nil, "")
 		}
 		if intercepted {
@@ -160,7 +160,7 @@ func get(security SecurityMode, url *urlpkg.URL) (*Response, error) {
 		// If the initial request fails with a 4xx client error and the
 		// response body didn't satisfy the request
 		// (e.g. a valid <meta name="go-import"> tag),
-		// retry the request with credentials obtained by invoking GOAUTH
+		// retry the request with credentials obtained by invoking BOLERO_AUTH
 		// with the request URL.
 		if url.Scheme == "https" && err == nil && res.StatusCode >= 400 && res.StatusCode < 500 {
 			// Close the body of the previous response since we

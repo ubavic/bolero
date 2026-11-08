@@ -1,7 +1,7 @@
 # If an import declaration is an absolute path, most commands should report
 # an error instead of going into an infinite loop.
 # Verifies golang.org/issue/42891.
-go list .
+bolero list .
 stdout '^m$'
 
 -- go.mod --

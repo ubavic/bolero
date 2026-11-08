@@ -39,7 +39,7 @@ func main() {
 	}
 
 	filename := "non-existent.go"
-	output, err := exec.Command("go", "tool", "compile", filename).CombinedOutput()
+	output, err := exec.Command("bolero", "tool", "compile", filename).CombinedOutput()
 	got := msgOrErr(output, err)
 
 	regFilenamePos := regexp.MustCompile(filename + ":\\d+")

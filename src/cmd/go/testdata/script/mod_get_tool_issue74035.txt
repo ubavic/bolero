@@ -1,5 +1,5 @@
 # Regression test for https://go.dev/issue/74035.
-go get -tool example.com/foo/cmd/a example.com/foo/cmd/b
+bolero get -tool example.com/foo/cmd/a example.com/foo/cmd/b
 cmp go.mod go.mod.want
 
 -- go.mod --

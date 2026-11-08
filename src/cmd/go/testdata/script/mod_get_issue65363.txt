@@ -1,4 +1,4 @@
-! go get -v example.net/a@v0.1.0
+! bolero get -v example.net/a@v0.1.0
 ! stderr panic
 stderr 'example.net/d@v0.1.0 requires\n\texample.net/invalid'
 

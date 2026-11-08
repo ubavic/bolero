@@ -1,16 +1,16 @@
 # Test that the error message for a syntax error in a test go file
 # says FAIL.
 
-env GO111MODULE=off
-! go test syntaxerror
+env BOLERO_MODULE=off
+! bolero test syntaxerror
 stderr 'x_test.go:' # check that the error is diagnosed
-stdout 'FAIL' # check that go test says FAIL
+stdout 'FAIL' # check that bolero test says FAIL
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 cd syntaxerror
-! go test syntaxerror
+! bolero test syntaxerror
 stderr 'x_test.go:' # check that the error is diagnosed
-stdout 'FAIL' # check that go test says FAIL
+stdout 'FAIL' # check that bolero test says FAIL
 
 -- syntaxerror/go.mod --
 module syntaxerror

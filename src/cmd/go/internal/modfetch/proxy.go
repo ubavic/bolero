@@ -36,7 +36,7 @@ URLs of a specified form. The requests have no query parameters, so even
 a site serving from a fixed file system (including a file:/// URL)
 can be a module proxy.
 
-For details on the GOPROXY protocol, see
+For details on the BOLERO_PROXY protocol, see
 https://golang.org/ref/mod#goproxy-protocol.
 `,
 }
@@ -117,9 +117,9 @@ func proxyList() ([]proxySpec, error) {
 		if len(proxyOnce.list) == 0 ||
 			len(proxyOnce.list) == 1 && proxyOnce.list[0].url == "noproxy" {
 			// There were no proxies, other than the implicit "noproxy" added when
-			// GONOPROXY is set. This can happen if GOPROXY is a non-empty string
+			// BOLERO_NOPROXY is set. This can happen if BOLERO_PROXY is a non-empty string
 			// like "," or " ".
-			proxyOnce.err = fmt.Errorf("GOPROXY list is not the empty string, but contains no entries")
+			proxyOnce.err = fmt.Errorf("BOLERO_PROXY list is not the empty string, but contains no entries")
 		}
 	})
 
@@ -133,7 +133,7 @@ func proxyList() ([]proxySpec, error) {
 //
 // TryProxies then returns that final error.
 //
-// If GOPROXY is set to "off", TryProxies invokes f once with the argument
+// If BOLERO_PROXY is set to "off", TryProxies invokes f once with the argument
 // "off".
 func TryProxies(f func(proxy string) error) error {
 	proxies, err := proxyList()
@@ -141,7 +141,7 @@ func TryProxies(f func(proxy string) error) error {
 		return err
 	}
 	if len(proxies) == 0 {
-		panic("GOPROXY list is empty")
+		panic("BOLERO_PROXY list is empty")
 	}
 
 	// We try to report the most helpful error to the user. "direct" and "noproxy"

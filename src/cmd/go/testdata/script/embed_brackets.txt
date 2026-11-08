@@ -1,7 +1,7 @@
 # issue 53314
 [GOOS:windows] skip
 cd [pkg]
-go build
+bolero build
 
 -- [pkg]/go.mod --
 module m

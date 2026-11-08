@@ -38,16 +38,16 @@ type Dirs struct {
 
 var dirs Dirs
 
-// dirsInit starts the scanning of package directories in GOROOT and GOPATH. Any
+// dirsInit starts the scanning of package directories in BOLERO_ROOT and BOLERO_PATH. Any
 // extra paths passed to it are included in the channel.
 func dirsInit(extra ...Dir) {
 	if buildCtx.GOROOT == "" {
-		stdout, err := exec.Command("go", "env", "GOROOT").Output()
+		stdout, err := exec.Command("bolero", "env", "BOLERO_ROOT").Output()
 		if err != nil {
 			if ee, ok := err.(*exec.ExitError); ok && len(ee.Stderr) > 0 {
-				log.Fatalf("failed to determine GOROOT: $GOROOT is not set and 'go env GOROOT' failed:\n%s", ee.Stderr)
+				log.Fatalf("failed to determine BOLERO_ROOT: $BOLERO_ROOT is not set and 'bolero env BOLERO_ROOT' failed:\n%s", ee.Stderr)
 			}
-			log.Fatalf("failed to determine GOROOT: $GOROOT is not set and could not run 'go env GOROOT':\n\t%s", err)
+			log.Fatalf("failed to determine BOLERO_ROOT: $BOLERO_ROOT is not set and could not run 'bolero env BOLERO_ROOT':\n\t%s", err)
 		}
 		buildCtx.GOROOT = string(bytes.TrimSpace(stdout))
 	}
@@ -58,12 +58,12 @@ func dirsInit(extra ...Dir) {
 	go dirs.walk(codeRoots())
 }
 
-// goCmd returns the "go" command path corresponding to buildCtx.GOROOT.
+// goCmd returns the "bolero" command path corresponding to buildCtx.GOROOT.
 func goCmd() string {
 	if buildCtx.GOROOT == "" {
-		return "go"
+		return "bolero"
 	}
-	return filepath.Join(buildCtx.GOROOT, "bin", "go")
+	return filepath.Join(buildCtx.GOROOT, "bin", "bolero")
 }
 
 // Reset puts the scan back at the beginning.
@@ -88,7 +88,7 @@ func (d *Dirs) Next() (Dir, bool) {
 	return dir, ok
 }
 
-// walk walks the trees in GOROOT and GOPATH.
+// walk walks the trees in BOLERO_ROOT and BOLERO_PATH.
 func (d *Dirs) walk(roots []Dir) {
 	for _, root := range roots {
 		d.bfsWalkRoot(root)
@@ -133,7 +133,7 @@ func (d *Dirs) bfsWalkRoot(root Dir) {
 				}
 				// Entry is a directory.
 
-				// The go tool ignores directories starting with ., _, or named "testdata".
+				// The bolero tool ignores directories starting with ., _, or named "testdata".
 				if name[0] == '.' || name[0] == '_' || name == "testdata" {
 					continue
 				}
@@ -165,10 +165,10 @@ func (d *Dirs) bfsWalkRoot(root Dir) {
 	}
 }
 
-var testGOPATH = false // force GOPATH use for testing
+var testGOPATH = false // force BOLERO_PATH use for testing
 
 // codeRoots returns the code roots to search for packages.
-// In GOPATH mode this is GOROOT/src and GOPATH/src, with empty import paths.
+// In BOLERO_PATH mode this is BOLERO_ROOT/src and BOLERO_PATH/src, with empty import paths.
 // In module mode, this is each module root, with an import path set to its module path.
 func codeRoots() []Dir {
 	codeRootsCache.once.Do(func() {
@@ -187,9 +187,9 @@ var usingModules bool
 func findCodeRoots() []Dir {
 	var list []Dir
 	if !testGOPATH {
-		// Check for use of modules by 'go env GOMOD',
+		// Check for use of modules by 'bolero env BOLERO_MOD',
 		// which reports a go.mod file path if modules are enabled.
-		stdout, _ := exec.Command(goCmd(), "env", "GOMOD").Output()
+		stdout, _ := exec.Command(goCmd(), "env", "BOLERO_MOD").Output()
 		gomod := string(bytes.TrimSpace(stdout))
 
 		usingModules = len(gomod) > 0
@@ -203,7 +203,7 @@ func findCodeRoots() []Dir {
 			// Modules are enabled, but the working directory is outside any module.
 			// We can still access std, cmd, and packages specified as source files
 			// on the command line, but there are no module roots.
-			// Avoid 'go list -m all' below, since it will not work.
+			// Avoid 'bolero list -m all' below, since it will not work.
 			return list
 		}
 	}
@@ -218,7 +218,7 @@ func findCodeRoots() []Dir {
 		return list
 	}
 
-	// Find module root directories from go list.
+	// Find module root directories from bolero list.
 	// Eventually we want golang.org/x/tools/go/packages
 	// to handle the entire file system search and become go/packages,
 	// but for now enumerating the module roots lets us fit modules
@@ -267,7 +267,7 @@ func vendorEnabled() (*moduleJSON, bool, error) {
 		return nil, false, err
 	}
 
-	stdout, _ := exec.Command(goCmd(), "env", "GOFLAGS").Output()
+	stdout, _ := exec.Command(goCmd(), "env", "BOLERO_FLAGS").Output()
 	goflags := string(bytes.TrimSpace(stdout))
 	matches := modFlagRegexp.FindStringSubmatch(goflags)
 	var modFlag string
@@ -293,7 +293,7 @@ func vendorEnabled() (*moduleJSON, bool, error) {
 }
 
 // getMainModuleAnd114 gets the main module's information and whether the
-// go command in use is 1.14+. This is the information needed to figure out
+// bolero command in use is 1.14+. This is the information needed to figure out
 // if vendoring should be enabled.
 func getMainModuleAnd114() (*moduleJSON, bool, error) {
 	const format = `{{.Path}}

@@ -1,57 +1,57 @@
-# This test exercises the GOAUTH mechanism for specifying
+# This test exercises the BOLERO_AUTH mechanism for specifying
 # credentials passed in HTTPS requests to VCS servers.
 # See golang.org/issue/26232
 
-env GOPROXY=direct
-env GOSUMDB=off
+env BOLERO_PROXY=direct
+env BOLERO_SUMDB=off
 
-# GOAUTH should default to netrc behavior.
+# BOLERO_AUTH should default to netrc behavior.
 # Without credentials, downloading a module from a path that requires HTTPS
 # basic auth should fail.
 # Override default location of $HOME/.netrc
 env NETRC=$WORK/empty
-! go get vcs-test.golang.org/auth/or401
+! bolero get vcs-test.golang.org/auth/or401
 stderr '^\tserver response: ACCESS DENIED, buddy$'
 
 # With credentials from a netrc file, it should succeed.
 env NETRC=$WORK/netrc
-go get vcs-test.golang.org/auth/or401
+bolero get vcs-test.golang.org/auth/or401
 
-# GOAUTH=off should result in failures.
-env GOAUTH='off'
+# BOLERO_AUTH=off should result in failures.
+env BOLERO_AUTH='off'
 # Without credentials, downloading a module from a path that requires HTTPS
 # basic auth should fail.
 env NETRC=$WORK/empty
-! go get vcs-test.golang.org/auth/or401
+! bolero get vcs-test.golang.org/auth/or401
 stderr '^\tserver response: ACCESS DENIED, buddy$'
 
-# GOAUTH='off' should ignore credentials from a valid netrc file.
-env GOAUTH='off'
+# BOLERO_AUTH='off' should ignore credentials from a valid netrc file.
+env BOLERO_AUTH='off'
 env NETRC=$WORK/netrc
-! go get vcs-test.golang.org/auth/or401
+! bolero get vcs-test.golang.org/auth/or401
 stderr '^\tserver response: ACCESS DENIED, buddy$'
 
-# GOAUTH=off cannot be combined with other authentication commands
-env GOAUTH='off; netrc'
+# BOLERO_AUTH=off cannot be combined with other authentication commands
+env BOLERO_AUTH='off; netrc'
 env NETRC=$WORK/netrc
-! go get vcs-test.golang.org/auth/or401
-stderr 'GOAUTH=off cannot be combined with other authentication commands \(GOAUTH=off; netrc\)'
+! bolero get vcs-test.golang.org/auth/or401
+stderr 'BOLERO_AUTH=off cannot be combined with other authentication commands \(BOLERO_AUTH=off; netrc\)'
 
-# An unset GOAUTH should default to netrc.
-env GOAUTH=
+# An unset BOLERO_AUTH should default to netrc.
+env BOLERO_AUTH=
 # Without credentials, downloading a module from a path that requires HTTPS
 # basic auth should fail.
 env NETRC=$WORK/empty
-! go get vcs-test.golang.org/auth/or401
+! bolero get vcs-test.golang.org/auth/or401
 stderr '^\tserver response: ACCESS DENIED, buddy$'
 
 # With credentials from a netrc file, it should succeed.
 env NETRC=$WORK/netrc
-go get vcs-test.golang.org/auth/or401
+bolero get vcs-test.golang.org/auth/or401
 
 # A missing file should be fail as well.
 env NETRC=$WORK/missing
-! go get vcs-test.golang.org/auth/or401
+! bolero get vcs-test.golang.org/auth/or401
 stderr '^\tserver response: ACCESS DENIED, buddy$'
 
 [short] skip 'requires a remote vcs lookup'
@@ -61,10 +61,10 @@ env NETRC=
 env HOME=
 env USERPROFILE=
 env home=
-go get -x vcs-test.golang.org/git/emptytest.git
-[!GOOS:windows] [!GOOS:plan9] stderr 'GOAUTH=netrc: \$HOME is not defined'
-[GOOS:windows] stderr 'GOAUTH=netrc: \%userprofile\% is not defined'
-[GOOS:plan9] stderr 'GOAUTH=netrc: \$home is not defined'
+bolero get -x vcs-test.golang.org/git/emptytest.git
+[!GOOS:windows] [!GOOS:plan9] stderr 'BOLERO_AUTH=netrc: \$HOME is not defined'
+[GOOS:windows] stderr 'BOLERO_AUTH=netrc: \%userprofile\% is not defined'
+[GOOS:plan9] stderr 'BOLERO_AUTH=netrc: \$home is not defined'
 
 -- go.mod --
 module private.example.com

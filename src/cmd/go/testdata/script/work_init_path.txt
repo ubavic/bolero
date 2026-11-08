@@ -1,15 +1,15 @@
 # Regression test for https://go.dev/issue/51448.
-# 'go work init . .. foo/bar' should produce a go.work file
-# with the same paths as 'go work init; go work use -r ..',
+# 'bolero work init . .. foo/bar' should produce a go.work file
+# with the same paths as 'bolero work init; bolero work use -r ..',
 # and it should have 'use .' rather than 'use ./.' inside.
 
 cd dir
 
-go work init . .. foo/bar
+bolero work init . .. foo/bar
 mv go.work go.work.init
 
-go work init
-go work use -r ..
+bolero work init
+bolero work use -r ..
 cmp go.work go.work.init
 
 cmpenv go.work $WORK/go.work.want

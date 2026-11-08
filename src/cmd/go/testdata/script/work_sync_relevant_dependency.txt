@@ -1,10 +1,10 @@
-# Test of go work sync in a workspace in which some dependency in the build
+# Test of bolero work sync in a workspace in which some dependency in the build
 # list of 'b' (but not otherwise needed by `b`, so not seen when lazy loading
 # occurs) actually is relevant to `a`.
 #
 # a -> p 1.0
 # b -> q 1.1 -> p 1.1
-go work sync
+bolero work sync
 cmp a/go.mod a/want_go.mod
 cmp b/go.mod b/want_go.mod
 

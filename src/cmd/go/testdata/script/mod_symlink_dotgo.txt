@@ -1,10 +1,10 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 [!symlink] skip
 
 symlink dir.go -> dir
 
 # Issue #39841: symlinks to directories should be ignored, not treated as source files.
-go list -f '{{range .GoFiles}}{{.}}{{"\n"}}{{end}}' .
+bolero list -f '{{range .GoFiles}}{{.}}{{"\n"}}{{end}}' .
 stdout 'p\.go$'
 ! stdout 'dir\.go$'
 

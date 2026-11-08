@@ -5,15 +5,15 @@ cd workspace
 
 # Base case: ensure the module would default to mod=vendor
 # outside of workspace mode.
-env GOWORK=off
-go list -f '{{.Dir}}' example.com/dep
-stdout $GOPATH[\\/]src[\\/]workspace[\\/]vendor[\\/]example.com[\\/]dep
+env BOLERO_WORK=off
+bolero list -f '{{.Dir}}' example.com/dep
+stdout $BOLERO_PATH[\\/]src[\\/]workspace[\\/]vendor[\\/]example.com[\\/]dep
 
 # Test case: endure the module does not enter mod=vendor outside
 # worspace mode.
-env GOWORK=''
-go list -f '{{.Dir}}' example.com/dep
-stdout $GOPATH[\\/]src[\\/]dep
+env BOLERO_WORK=''
+bolero list -f '{{.Dir}}' example.com/dep
+stdout $BOLERO_PATH[\\/]src[\\/]dep
 
 -- workspace/go.work --
 use .

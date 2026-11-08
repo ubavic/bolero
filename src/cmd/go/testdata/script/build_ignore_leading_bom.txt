@@ -2,7 +2,7 @@
 # a compiler may ignore a UTF-8-encoded byte order mark (U+FEFF)
 # if it is the first Unicode code point in the source text.
 
-go list -f 'Imports: {{.Imports}} EmbedFiles: {{.EmbedFiles}}' .
+bolero list -f 'Imports: {{.Imports}} EmbedFiles: {{.EmbedFiles}}' .
 stdout '^Imports: \[embed m/hello\] EmbedFiles: \[.*file\]$'
 
 -- go.mod --

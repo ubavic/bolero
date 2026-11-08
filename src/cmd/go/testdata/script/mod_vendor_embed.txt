@@ -1,23 +1,23 @@
-go mod vendor
+bolero mod vendor
 cmp vendor/example.com/a/samedir_embed.txt a/samedir_embed.txt
 cmp vendor/example.com/a/subdir/embed.txt a/subdir/embed.txt
 cmp vendor/example.com/a/subdir/test/embed.txt a/subdir/test/embed.txt
 cmp vendor/example.com/a/subdir/test/xtest/embed.txt a/subdir/test/xtest/embed.txt
 
 cd broken_no_matching_files
-! go mod vendor
-stderr '^go: resolving embeds in example.com/brokendep: pattern foo.txt: no matching files found$'
-go mod vendor -e
-stderr '^go: resolving embeds in example.com/brokendep: pattern foo.txt: no matching files found$'
+! bolero mod vendor
+stderr '^bolero: resolving embeds in example.com/brokendep: pattern foo.txt: no matching files found$'
+bolero mod vendor -e
+stderr '^bolero: resolving embeds in example.com/brokendep: pattern foo.txt: no matching files found$'
 
 cd ../broken_bad_pattern
-! go mod vendor
-stderr '^go: resolving embeds in example.com/brokendep: pattern ../foo.txt: invalid pattern syntax$'
-go mod vendor -e
-stderr '^go: resolving embeds in example.com/brokendep: pattern ../foo.txt: invalid pattern syntax$'
+! bolero mod vendor
+stderr '^bolero: resolving embeds in example.com/brokendep: pattern ../foo.txt: invalid pattern syntax$'
+bolero mod vendor -e
+stderr '^bolero: resolving embeds in example.com/brokendep: pattern ../foo.txt: invalid pattern syntax$'
 
 cd ../embed_go122
-go mod vendor
+bolero mod vendor
 cmp vendor/example.com/a/samedir_embed.txt ../a/samedir_embed.txt
 cmp vendor/example.com/a/subdir/embed.txt ../a/subdir/embed.txt
 ! exists vendor/example.com/a/subdir/test/embed.txt
@@ -49,7 +49,7 @@ func main() {
 # matchPotentialSourceFile prunes out tests and unbuilt code.
 # Make sure that they are vendored if they are embedded files.
 cd ../embed_unbuilt
-go mod vendor
+bolero mod vendor
 cmp vendor/example.com/dep/unbuilt.go dep/unbuilt.go
 cmp vendor/example.com/dep/dep_test.go dep/dep_test.go
 ! exists vendor/example.com/dep/not_embedded_unbuilt.go

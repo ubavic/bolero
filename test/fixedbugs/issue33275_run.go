@@ -19,7 +19,7 @@ import (
 )
 
 func main() {
-	out, _ := exec.Command("go", "run", "fixedbugs/issue33275.go").CombinedOutput()
+	out, _ := exec.Command("bolero", "run", "fixedbugs/issue33275.go").CombinedOutput()
 	if strings.Contains(string(out), "index out of range") {
 		panic(`go run issue33275.go reported "index out of range"`)
 	}

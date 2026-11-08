@@ -15,11 +15,11 @@
 # If that downgrade selects b version 1, we will add a new dependency on module c.
 
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod.orig go.mod
 
-go get example.com/d@v0.1.0
-go list -m all
+bolero get example.com/d@v0.1.0
+bolero list -m all
 stdout '^example.com/b v0.1.0 '
 stdout '^example.com/c v0.1.0 '
 stdout '^example.com/d v0.1.0 '

@@ -8,16 +8,16 @@ calls whose arguments do not align with the format string. Vet uses heuristics
 that do not guarantee all reports are genuine problems, but it can find errors
 not caught by the compilers.
 
-Vet is normally invoked through the go command.
+Vet is normally invoked through the bolero command.
 This command vets the package in the current directory:
 
-	go vet
+	bolero vet
 
 whereas this one vets the packages whose path is provided:
 
-	go vet my/project/...
+	bolero vet my/project/...
 
-Use "go help packages" to see other ways of specifying which packages to vet.
+Use "bolero help packages" to see other ways of specifying which packages to vet.
 
 Vet's exit code is non-zero for erroneous invocation of the tool or if a
 problem was reported, and 0 otherwise. Note that the tool does not
@@ -25,7 +25,7 @@ check every possible problem and depends on unreliable heuristics,
 so it should be used as guidance only, not as a firm indicator of
 program correctness.
 
-To list the available checks, run "go tool vet help":
+To list the available checks, run "bolero tool vet help":
 
 	appends          check for missing values after append
 	asmdecl          report mismatches between assembly files and Go declarations
@@ -63,7 +63,7 @@ To list the available checks, run "go tool vet help":
 	unusedresult     check for unused results of calls to some functions
 	waitgroup        check for misuses of sync.WaitGroup
 
-For details and flags of a particular check, such as printf, run "go tool vet help printf".
+For details and flags of a particular check, such as printf, run "bolero tool vet help printf".
 
 By default, all checks are performed.
 If any flags are explicitly set to true, only those tests are run.

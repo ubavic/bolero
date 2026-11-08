@@ -1,11 +1,11 @@
-! go work use foo bar baz
+! bolero work use foo bar baz
 
-stderr '^go: foo is not a directory'
-stderr '^go: directory baz does not exist'
+stderr '^bolero: foo is not a directory'
+stderr '^bolero: directory baz does not exist'
 cmp go.work go.work_want
 
-! go work use -r qux
-stderr '^go: qux is not a directory'
+! bolero work use -r qux
+stderr '^bolero: qux is not a directory'
 
 -- go.work --
 go 1.18

@@ -42,7 +42,7 @@ func scriptConditions(t *testing.T) map[string]script.Cond {
 	add("abscc", script.Condition("default $CC path is absolute and exists", defaultCCIsAbsolute))
 	add("bzr", lazyBool("the 'bzr' executable exists and provides the standard CLI", hasWorkingBzr))
 	add("case-sensitive", script.OnceCondition("$WORK filesystem is case-sensitive", isCaseSensitive))
-	add("cc", script.PrefixCondition("go env CC = <suffix> (ignoring the go/env file)", ccIs))
+	add("cc", script.PrefixCondition("bolero env CC = <suffix> (ignoring the go/env file)", ccIs))
 	add("git", lazyBool("the 'git' executable exists and provides the standard CLI", hasWorkingGit))
 	add("git-sha256", script.OnceCondition("the local 'git' version is recent enough to support sha256 object/commit hashes", gitSupportsSHA256))
 	add("net", script.PrefixCondition("can connect to external network host <suffix>", hasNet))

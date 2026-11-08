@@ -117,15 +117,15 @@ func buildGoobj(t *testing.T) goobjPaths {
 
 			out, err := testenv.Command(t, gotool, "tool", "compile", "-importcfg="+importcfgfile, "-p=p", "-o", go1obj, go1src).CombinedOutput()
 			if err != nil {
-				return fmt.Errorf("go tool compile -o %s %s: %v\n%s", go1obj, go1src, err, out)
+				return fmt.Errorf("bolero tool compile -o %s %s: %v\n%s", go1obj, go1src, err, out)
 			}
 			out, err = testenv.Command(t, gotool, "tool", "compile", "-importcfg="+importcfgfile, "-p=p", "-o", go2obj, go2src).CombinedOutput()
 			if err != nil {
-				return fmt.Errorf("go tool compile -o %s %s: %v\n%s", go2obj, go2src, err, out)
+				return fmt.Errorf("bolero tool compile -o %s %s: %v\n%s", go2obj, go2src, err, out)
 			}
 			out, err = testenv.Command(t, gotool, "tool", "pack", "c", goarchive, go1obj, go2obj).CombinedOutput()
 			if err != nil {
-				return fmt.Errorf("go tool pack c %s %s %s: %v\n%s", goarchive, go1obj, go2obj, err, out)
+				return fmt.Errorf("bolero tool pack c %s %s %s: %v\n%s", goarchive, go1obj, go2obj, err, out)
 			}
 
 			if testenv.HasCGO() {
@@ -140,10 +140,10 @@ func buildGoobj(t *testing.T) goobjPaths {
 				}
 				cmd := testenv.Command(t, gotool, "build", "-buildmode=archive", "-o", cgoarchive, "-gcflags=all="+os.Getenv("GO_GCFLAGS"), "mycgo")
 				cmd.Dir = filepath.Join(gopath, "src", "mycgo")
-				cmd.Env = append(os.Environ(), "GOPATH="+gopath)
+				cmd.Env = append(os.Environ(), "BOLERO_PATH="+gopath)
 				out, err = cmd.CombinedOutput()
 				if err != nil {
-					return fmt.Errorf("go install mycgo: %v\n%s", err, out)
+					return fmt.Errorf("bolero install mycgo: %v\n%s", err, out)
 				}
 			}
 

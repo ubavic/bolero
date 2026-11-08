@@ -10,23 +10,23 @@ Alignment assumes that an editor is using a fixed-width font.
 Without an explicit path, it processes the standard input.  Given a file,
 it operates on that file; given a directory, it operates on all .go files in
 that directory, recursively.  (Files starting with a period are ignored.)
-By default, gofmt prints the reformatted sources to standard output.
+By default, bolerofmt prints the reformatted sources to standard output.
 
 Usage:
 
-	gofmt [flags] [path ...]
+	bolerofmt [flags] [path ...]
 
 The flags are:
 
 	-d
 		Do not print reformatted sources to standard output.
-		If a file's formatting is different than gofmt's, print diffs
+		If a file's formatting is different than bolerofmt's, print diffs
 		to standard output.
 	-e
 		Print all (including spurious) errors.
 	-l
 		Do not print reformatted sources to standard output.
-		If a file's formatting is different from gofmt's, print its name
+		If a file's formatting is different from bolerofmt's, print its name
 		to standard output.
 	-r rule
 		Apply the rewrite rule to the source before reformatting.
@@ -34,8 +34,8 @@ The flags are:
 		Try to simplify code (after applying the rewrite rule, if any).
 	-w
 		Do not print reformatted sources to standard output.
-		If a file's formatting is different from gofmt's, overwrite it
-		with gofmt's version. If an error occurred during overwriting,
+		If a file's formatting is different from bolerofmt's, overwrite it
+		with bolerofmt's version. If an error occurred during overwriting,
 		the original file is restored from an automatic backup.
 
 Debugging support:
@@ -52,10 +52,10 @@ In the pattern, single-character lowercase identifiers serve as
 wildcards matching arbitrary sub-expressions; those expressions
 will be substituted for the same identifiers in the replacement.
 
-When gofmt reads from standard input, it accepts either a full Go program
+When bolerofmt reads from standard input, it accepts either a full Go program
 or a program fragment.  A program fragment must be a syntactically
 valid declaration list, statement list, or expression.  When formatting
-such a fragment, gofmt preserves leading indentation as well as leading
+such a fragment, bolerofmt preserves leading indentation as well as leading
 and trailing spaces, so that individual sections of a Go program can be
 formatted by piping them through gofmt.
 
@@ -63,19 +63,19 @@ formatted by piping them through gofmt.
 
 To check files for unnecessary parentheses:
 
-	gofmt -r '(a) -> a' -l *.go
+	bolerofmt -r '(a) -> a' -l *.go
 
 To remove the parentheses:
 
-	gofmt -r '(a) -> a' -w *.go
+	bolerofmt -r '(a) -> a' -w *.go
 
 To convert the package tree from explicit slice upper bounds to implicit ones:
 
-	gofmt -r 'α[β:len(α)] -> α[β:]' -w $GOROOT/src
+	bolerofmt -r 'α[β:len(α)] -> α[β:]' -w $BOLERO_ROOT/src
 
 # The simplify command
 
-When invoked with -s gofmt will make the following source transformations where possible.
+When invoked with -s bolerofmt will make the following source transformations where possible.
 
 	An array, slice, or map composite literal of the form:
 		[]T{T{}, T{}}

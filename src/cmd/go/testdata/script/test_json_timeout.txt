@@ -1,4 +1,4 @@
-! go test -json -timeout=1ms
+! bolero test -json -timeout=1ms
 
 stdout '"Action":"output","Package":"p","Output":"FAIL\\tp\\t'
 stdout '"Action":"fail","Package":"p","Elapsed":'

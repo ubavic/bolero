@@ -1,54 +1,54 @@
 [short] skip 'builds and runs go programs'
-[!symlink] skip 'uses symlinks to construct a GOROOT'
+[!symlink] skip 'uses symlinks to construct a BOLERO_ROOT'
 
 env NEWGOROOT=$WORK${/}goroot
-env TOOLDIR=$GOROOT/pkg/tool/${GOOS}_${GOARCH}
+env TOOLDIR=$BOLERO_ROOT/pkg/tool/${GOOS}_${GOARCH}
 # Use ${/} in paths we'll check for in stdout below, so they contain '\' on Windows
 env NEWTOOLDIR=$NEWGOROOT${/}pkg${/}tool${/}${GOOS}_${GOARCH}
 mkdir $NEWGOROOT $NEWGOROOT/bin $NEWTOOLDIR
-[symlink] symlink $NEWGOROOT/src -> $GOROOT/src
-[symlink] symlink $NEWGOROOT/pkg/include -> $GOROOT/pkg/include
-[symlink] symlink $NEWGOROOT/bin/go -> $GOROOT/bin/go
+[symlink] symlink $NEWGOROOT/src -> $BOLERO_ROOT/src
+[symlink] symlink $NEWGOROOT/pkg/include -> $BOLERO_ROOT/pkg/include
+[symlink] symlink $NEWGOROOT/bin/bolero -> $BOLERO_ROOT/bin/bolero
 [symlink] symlink $NEWTOOLDIR/compile$GOEXE -> $TOOLDIR/compile$GOEXE
 [symlink] symlink $NEWTOOLDIR/cgo$GOEXE -> $TOOLDIR/cgo$GOEXE
 [symlink] symlink $NEWTOOLDIR/link$GOEXE -> $TOOLDIR/link$GOEXE
 [symlink] symlink $NEWTOOLDIR/asm$GOEXE -> $TOOLDIR/asm$GOEXE
 [symlink] symlink $NEWTOOLDIR/pack$GOEXE -> $TOOLDIR/pack$GOEXE
-env GOROOT=$NEWGOROOT
+env BOLERO_ROOT=$NEWGOROOT
 env TOOLDIR=$NEWTOOLDIR
 
-# GOROOT without test2json tool builds and runs it as needed
-go env GOROOT
+# BOLERO_ROOT without test2json tool builds and runs it as needed
+bolero env BOLERO_ROOT
 ! exists $TOOLDIR/test2json
-go tool test2json
+bolero tool test2json
 stdout '{"Action":"start"}'
 ! exists $TOOLDIR/test2json$GOEXE
-go tool -n test2json
+bolero tool -n test2json
 ! stdout $NEWTOOLDIR${/}test2json$GOEXE
 
-# GOROOT with test2json uses the test2json in the GOROOT
-go install cmd/test2json
+# BOLERO_ROOT with test2json uses the test2json in the BOLERO_ROOT
+bolero install cmd/test2json
 exists $TOOLDIR/test2json$GOEXE
-go tool test2json
+bolero tool test2json
 stdout '{"Action":"start"}'
-go tool -n test2json
+bolero tool -n test2json
 stdout $NEWTOOLDIR${/}test2json$GOEXE
 
 # Tool still runs properly even with wrong GOOS/GOARCH
 # Remove test2json from tooldir
 rm $TOOLDIR/test2json$GOEXE
-go tool -n test2json
+bolero tool -n test2json
 ! stdout $NEWTOOLDIR${/}test2json$GOEXE
 # Set GOOS/GOARCH to different values than host GOOS/GOARCH.
 env GOOS=js
 env GOARCH=wasm
-# Control case: go run shouldn't work because it respects
+# Control case: bolero run shouldn't work because it respects
 # GOOS/GOARCH, and we can't execute non-native binary.
 # Don't actually run the binary because maybe we can.
 # (Maybe the user has a go_js_wasm_exec installed.)
 # Instead just look to see that the right binary got linked.
-go run -n cmd/test2json
+bolero run -n cmd/test2json
 stderr modinfo.*GOARCH=wasm.*GOOS=js
-# go tool should succeed because it doesn't respect GOOS/GOARCH.
-go tool test2json
+# bolero tool should succeed because it doesn't respect GOOS/GOARCH.
+bolero tool test2json
 stdout '{"Action":"start"}'

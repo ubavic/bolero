@@ -16,7 +16,7 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: go tool buildid [-w] file\n")
+	fmt.Fprintf(os.Stderr, "usage: bolero tool buildid [-w] file\n")
 	flag.PrintDefaults()
 	os.Exit(2)
 }

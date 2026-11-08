@@ -9,10 +9,10 @@ env HOME=$WORK${/}home${/}gopher
 exec git config --global --show-origin user.name
 stdout 'Go Gopher'
 
-env GOPROXY=direct
+env BOLERO_PROXY=direct
 
-! go mod download
-stderr '^go: github\.com/golang/notexist/subdir@v0.1.0: reading github\.com/golang/notexist/subdir/go\.mod at revision subdir/v0\.1\.0: '
+! bolero mod download
+stderr '^bolero: github\.com/golang/notexist/subdir@v0.1.0: reading github\.com/golang/notexist/subdir/go\.mod at revision subdir/v0\.1\.0: '
 
 -- go.mod --
 module test

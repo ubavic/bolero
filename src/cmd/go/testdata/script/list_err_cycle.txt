@@ -1,6 +1,6 @@
 # Check that we don't get infinite recursion when loading a package with
 # an import cycle and another error. Verifies #25830.
-! go list
+! bolero list
 stderr 'found packages a \(a.go\) and b \(b.go\)'
 
 -- go.mod --

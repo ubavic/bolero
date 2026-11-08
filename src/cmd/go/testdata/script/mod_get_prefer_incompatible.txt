@@ -3,16 +3,16 @@
 # If we are already using an +incompatible version, we shouldn't look up
 # a lower compatible version when upgrading.
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod.orig go.mod
 grep '^example.com/incompatiblewithsub v2\.0\.0\+incompatible' go.sum
 ! grep '^example.com/incompatiblewithsub v1.0.0' go.sum
 
-go get example.com/incompatiblewithsub/sub
+bolero get example.com/incompatiblewithsub/sub
 cmp go.mod.orig go.mod
 ! grep '^example.com/incompatiblewithsub v1.0.0' go.sum
 
-# TODO(golang.org/issue/31580): the 'go get' command above should not change
+# TODO(golang.org/issue/31580): the 'bolero get' command above should not change
 # go.sum. However, as part of the query above, we download example.com@v1.0.0,
 # an unrelated module, since it's a possible prefix. The sum for that module
 # should not be written to go.sum.

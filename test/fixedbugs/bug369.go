@@ -37,10 +37,10 @@ func main() {
 	importcfg := string(stdlibimportcfg) + "\npackagefile test/slow=" + tmp("test/slow.o") + "\npackagefile test/fast=" + tmp("test/fast.o")
 	os.WriteFile(tmp("importcfg"), []byte(importcfg), 0644)
 
-	run("go", "tool", "compile", "-importcfg="+tmp("importcfg"), "-p=test/slow", "-N", "-o", tmp("test/slow.o"), "pkg.go")
-	run("go", "tool", "compile", "-importcfg="+tmp("importcfg"), "-p=test/fast", "-o", tmp("test/fast.o"), "pkg.go")
-	run("go", "tool", "compile", "-importcfg="+tmp("importcfg"), "-p=main", "-D", "test", "-o", tmp("main.o"), "main.go")
-	run("go", "tool", "link", "-importcfg="+tmp("importcfg"), "-o", tmp("a.exe"), tmp("main.o"))
+	run("bolero", "tool", "compile", "-importcfg="+tmp("importcfg"), "-p=test/slow", "-N", "-o", tmp("test/slow.o"), "pkg.go")
+	run("bolero", "tool", "compile", "-importcfg="+tmp("importcfg"), "-p=test/fast", "-o", tmp("test/fast.o"), "pkg.go")
+	run("bolero", "tool", "compile", "-importcfg="+tmp("importcfg"), "-p=main", "-D", "test", "-o", tmp("main.o"), "main.go")
+	run("bolero", "tool", "link", "-importcfg="+tmp("importcfg"), "-o", tmp("a.exe"), tmp("main.o"))
 	run(tmp("a.exe"))
 }
 

@@ -1,14 +1,14 @@
-env GOWORK=stop.work
-! go list a # require absolute path
+env BOLERO_WORK=stop.work
+! bolero list a # require absolute path
 ! stderr panic
-env GOWORK=doesnotexist
-! go list a
+env BOLERO_WORK=doesnotexist
+! bolero list a
 ! stderr panic
 
-env GOWORK=$GOPATH/src/stop.work
-go list -n a
-go build -n a
-go test -n a
+env BOLERO_WORK=$BOLERO_PATH/src/stop.work
+bolero list -n a
+bolero build -n a
+bolero test -n a
 
 -- stop.work --
 go 1.18

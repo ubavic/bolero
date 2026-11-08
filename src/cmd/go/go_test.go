@@ -47,11 +47,11 @@ import (
 )
 
 func init() {
-	// GOVCS defaults to public:git|hg,private:all,
+	// BOLERO_VCS defaults to public:git|hg,private:all,
 	// which breaks many tests here - they can't use non-git, non-hg VCS at all!
 	// Change to fully permissive.
-	// The tests of the GOVCS setting itself are in ../../testdata/script/govcs.txt.
-	os.Setenv("GOVCS", "*:all")
+	// The tests of the BOLERO_VCS setting itself are in ../../testdata/script/govcs.txt.
+	os.Setenv("BOLERO_VCS", "*:all")
 }
 
 var (
@@ -62,7 +62,7 @@ var (
 
 var (
 	goHostOS, goHostArch string
-	cgoEnabled           string // raw value from 'go env CGO_ENABLED'
+	cgoEnabled           string // raw value from 'bolero env CGO_ENABLED'
 )
 
 // netTestSem is a semaphore limiting the number of tests that may use the
@@ -85,8 +85,8 @@ func tooSlow(t *testing.T, reason string) {
 	}
 }
 
-// testGOROOT is the GOROOT to use when running testgo, a cmd/go binary
-// build from this process's current GOROOT, but run from a different
+// testGOROOT is the BOLERO_ROOT to use when running testgo, a cmd/go binary
+// build from this process's current BOLERO_ROOT, but run from a different
 // (temp) directory.
 var testGOROOT string
 
@@ -96,7 +96,7 @@ var testGo string
 var testTmpDir string
 var testBin string
 
-// The TestMain function creates a go command for testing purposes and
+// The TestMain function creates a bolero command for testing purposes and
 // deletes it after the tests have been run.
 func TestMain(m *testing.M) {
 	// When CMDGO_TEST_RUN_MAIN is set, we're reusing the test binary as cmd/go.
@@ -112,7 +112,7 @@ func TestMain(m *testing.M) {
 		}
 
 		if testGOROOT := os.Getenv("TESTGO_GOROOT"); testGOROOT != "" {
-			// Disallow installs to the GOROOT from which testgo was built.
+			// Disallow installs to the BOLERO_ROOT from which testgo was built.
 			// Installs to other GOROOTs — such as one set explicitly within a test — are ok.
 			work.AllowInstall = func(a *work.Action) error {
 				if cfg.BuildN {
@@ -131,8 +131,8 @@ func TestMain(m *testing.M) {
 					}
 					callerPos = fmt.Sprintf("%s:%d: ", file, line)
 				}
-				notice := "This error error can occur if GOROOT is stale, in which case rerunning make.bash will fix it."
-				return fmt.Errorf("%stestgo must not write to GOROOT (installing to %s) (%v)", callerPos, filepath.Join("GOROOT", rel), notice)
+				notice := "This error error can occur if BOLERO_ROOT is stale, in which case rerunning make.bash will fix it."
+				return fmt.Errorf("%stestgo must not write to BOLERO_ROOT (installing to %s) (%v)", callerPos, filepath.Join("BOLERO_ROOT", rel), notice)
 			}
 		}
 
@@ -159,7 +159,7 @@ func TestMain(m *testing.M) {
 	os.Setenv("CMDGO_TEST_RUN_MAIN", "true")
 
 	// $GO_GCFLAGS a compiler debug flag known to cmd/dist, make.bash, etc.
-	// It is not a standard go command flag; use os.Getenv, not cfg.Getenv.
+	// It is not a standard bolero command flag; use os.Getenv, not cfg.Getenv.
 	if os.Getenv("GO_GCFLAGS") != "" {
 		fmt.Fprintf(os.Stderr, "testing: warning: no tests to run\n") // magic string for cmd/go
 		fmt.Printf("cmd/go test is not compatible with $GO_GCFLAGS being set\n")
@@ -202,30 +202,30 @@ func TestMain(m *testing.M) {
 		if err := os.Mkdir(testBin, 0777); err != nil {
 			log.Fatal(err)
 		}
-		testGo = filepath.Join(testBin, "go"+exeSuffix)
+		testGo = filepath.Join(testBin, "bolero"+exeSuffix)
 		gotool, err := testenv.GoTool()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "locating go tool: ", err)
+			fmt.Fprintln(os.Stderr, "locating bolero tool: ", err)
 			os.Exit(2)
 		}
 
 		goEnv := func(name string) string {
 			out, err := exec.Command(gotool, "env", name).CombinedOutput()
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "go env %s: %v\n%s", name, err, out)
+				fmt.Fprintf(os.Stderr, "bolero env %s: %v\n%s", name, err, out)
 				os.Exit(2)
 			}
 			return strings.TrimSpace(string(out))
 		}
-		testGOROOT = goEnv("GOROOT")
+		testGOROOT = goEnv("BOLERO_ROOT")
 		os.Setenv("TESTGO_GOROOT", testGOROOT)
-		os.Setenv("GOROOT", testGOROOT)
+		os.Setenv("BOLERO_ROOT", testGOROOT)
 
-		// The whole GOROOT/pkg tree was installed using the GOHOSTOS/GOHOSTARCH
-		// toolchain (installed in GOROOT/pkg/tool/GOHOSTOS_GOHOSTARCH).
+		// The whole BOLERO_ROOT/pkg tree was installed using the GOHOSTOS/GOHOSTARCH
+		// toolchain (installed in BOLERO_ROOT/pkg/tool/GOHOSTOS_GOHOSTARCH).
 		// The testgo.exe we are about to create will be built for GOOS/GOARCH,
 		// which means it will use the GOOS/GOARCH toolchain
-		// (installed in GOROOT/pkg/tool/GOOS_GOARCH).
+		// (installed in BOLERO_ROOT/pkg/tool/GOOS_GOARCH).
 		// If these are not the same toolchain, then the entire standard library
 		// will look out of date (the compilers in those two different tool directories
 		// are built for different architectures and have different build IDs),
@@ -267,9 +267,9 @@ func TestMain(m *testing.M) {
 			}
 		}
 
-		out, err := exec.Command(gotool, "env", "GOCACHE").CombinedOutput()
+		out, err := exec.Command(gotool, "env", "BOLERO_CACHE").CombinedOutput()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "could not find testing GOCACHE: %v\n%s", err, out)
+			fmt.Fprintf(os.Stderr, "could not find testing BOLERO_CACHE: %v\n%s", err, out)
 			os.Exit(2)
 		}
 		testGOCACHE = strings.TrimSpace(string(out))
@@ -297,18 +297,18 @@ func TestMain(m *testing.M) {
 	}
 
 	// Don't let these environment variables confuse the test.
-	os.Setenv("GOENV", "off")
-	os.Unsetenv("GOFLAGS")
-	os.Unsetenv("GOBIN")
-	os.Unsetenv("GOPATH")
+	os.Setenv("BOLERO_ENV", "off")
+	os.Unsetenv("BOLERO_FLAGS")
+	os.Unsetenv("BOLERO_BIN")
+	os.Unsetenv("BOLERO_PATH")
 	os.Unsetenv("GIT_ALLOW_PROTOCOL")
 	os.Setenv("HOME", "/test-go-home-does-not-exist")
 	// On some systems the default C compiler is ccache.
 	// Setting HOME to a non-existent directory will break
 	// those systems. Disable ccache and use real compiler. Issue 17668.
 	os.Setenv("CCACHE_DISABLE", "1")
-	if cfg.Getenv("GOCACHE") == "" {
-		os.Setenv("GOCACHE", testGOCACHE) // because $HOME is gone
+	if cfg.Getenv("BOLERO_CACHE") == "" {
+		os.Setenv("BOLERO_CACHE", testGOCACHE) // because $HOME is gone
 	}
 
 	if testenv.Builder() != "" || os.Getenv("GIT_TRACE_CURL") == "1" {
@@ -426,7 +426,7 @@ func (tg *testgoData) parallel() {
 		tg.t.Fatal("internal testsuite error: call to parallel after run")
 	}
 	for _, e := range tg.env {
-		if strings.HasPrefix(e, "GOROOT=") || strings.HasPrefix(e, "GOPATH=") || strings.HasPrefix(e, "GOBIN=") {
+		if strings.HasPrefix(e, "BOLERO_ROOT=") || strings.HasPrefix(e, "BOLERO_PATH=") || strings.HasPrefix(e, "BOLERO_BIN=") {
 			val := e[strings.Index(e, "=")+1:]
 			if strings.HasPrefix(val, "testdata") || strings.HasPrefix(val, "./testdata") {
 				tg.t.Fatalf("internal testsuite error: call to parallel with testdata in environment (%s)", e)
@@ -466,7 +466,7 @@ func (tg *testgoData) setenv(name, val string) {
 func (tg *testgoData) unsetenv(name string) {
 	if tg.env == nil {
 		tg.env = append([]string(nil), os.Environ()...)
-		tg.env = append(tg.env, "GO111MODULE=off", "TESTGONETWORK=panic")
+		tg.env = append(tg.env, "BOLERO_MODULE=off", "TESTGONETWORK=panic")
 		if testing.Short() {
 			tg.env = append(tg.env, "TESTGOVCSREMOTE=panic")
 		}
@@ -483,7 +483,7 @@ func (tg *testgoData) goTool() string {
 	return testGo
 }
 
-// doRun runs the test go command, recording stdout and stderr and
+// doRun runs the test bolero command, recording stdout and stderr and
 // returning exit status.
 func (tg *testgoData) doRun(args []string) error {
 	tg.t.Helper()
@@ -497,14 +497,14 @@ func (tg *testgoData) doRun(args []string) error {
 
 	hasGoroot := false
 	for _, v := range tg.env {
-		if strings.HasPrefix(v, "GOROOT=") {
+		if strings.HasPrefix(v, "BOLERO_ROOT=") {
 			hasGoroot = true
 			break
 		}
 	}
 	prog := tg.goTool()
 	if !hasGoroot {
-		tg.setenv("GOROOT", testGOROOT)
+		tg.setenv("BOLERO_ROOT", testGOROOT)
 	}
 
 	tg.t.Logf("running testgo %v", args)
@@ -528,7 +528,7 @@ func (tg *testgoData) doRun(args []string) error {
 	return status
 }
 
-// run runs the test go command, and expects it to succeed.
+// run runs the test bolero command, and expects it to succeed.
 func (tg *testgoData) run(args ...string) {
 	tg.t.Helper()
 	if status := tg.doRun(args); status != nil {
@@ -538,7 +538,7 @@ func (tg *testgoData) run(args ...string) {
 	}
 }
 
-// runFail runs the test go command, and expects it to fail.
+// runFail runs the test bolero command, and expects it to fail.
 func (tg *testgoData) runFail(args ...string) {
 	tg.t.Helper()
 	if status := tg.doRun(args); status == nil {
@@ -866,12 +866,12 @@ func TestNewReleaseRebuildsStalePackagesInGOPATH(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 
-	// Set GOCACHE to an empty directory so that a previous run of
+	// Set BOLERO_CACHE to an empty directory so that a previous run of
 	// this test does not affect the staleness of the packages it builds.
 	tg.tempDir("gocache")
-	tg.setenv("GOCACHE", tg.path("gocache"))
+	tg.setenv("BOLERO_CACHE", tg.path("gocache"))
 
-	// Copy the runtime packages into a temporary GOROOT
+	// Copy the runtime packages into a temporary BOLERO_ROOT
 	// so that we can change files.
 	var dirs []string
 	tg.run("list", "-deps", "runtime")
@@ -916,7 +916,7 @@ func TestNewReleaseRebuildsStalePackagesInGOPATH(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	tg.setenv("GOROOT", tg.path("goroot"))
+	tg.setenv("BOLERO_ROOT", tg.path("goroot"))
 
 	addVar := func(name string, idx int) (restore func()) {
 		data, err := os.ReadFile(name)
@@ -938,7 +938,7 @@ func TestNewReleaseRebuildsStalePackagesInGOPATH(t *testing.T) {
 
 	// Every main package depends on the "runtime".
 	tg.tempFile("d1/src/p1/p1.go", `package main; func main(){}`)
-	tg.setenv("GOPATH", tg.path("d1"))
+	tg.setenv("BOLERO_PATH", tg.path("d1"))
 	// Pass -i flag to rebuild everything outdated.
 	tg.run("install", "p1")
 	tg.wantNotStale("p1", "", "./testgo list claims p1 is stale, incorrectly, before any changes")
@@ -981,12 +981,12 @@ func TestGoTestWithPackageListedMultipleTimes(t *testing.T) {
 	tg.parallel()
 	tg.run("test", "errors", "errors", "errors", "errors", "errors")
 	if strings.Contains(strings.TrimSpace(tg.getStdout()), "\n") {
-		t.Error("go test errors errors errors errors errors tested the same package multiple times")
+		t.Error("bolero test errors errors errors errors errors tested the same package multiple times")
 	}
 }
 
 func TestGoListHasAConsistentOrder(t *testing.T) {
-	tooSlow(t, "walks all of GOROOT/src twice")
+	tooSlow(t, "walks all of BOLERO_ROOT/src twice")
 
 	tg := testgo(t)
 	defer tg.cleanup()
@@ -995,23 +995,23 @@ func TestGoListHasAConsistentOrder(t *testing.T) {
 	first := tg.getStdout()
 	tg.run("list", "std")
 	if first != tg.getStdout() {
-		t.Error("go list std ordering is inconsistent")
+		t.Error("bolero list std ordering is inconsistent")
 	}
 }
 
 func TestGoListStdDoesNotIncludeCommands(t *testing.T) {
-	tooSlow(t, "walks all of GOROOT/src")
+	tooSlow(t, "walks all of BOLERO_ROOT/src")
 
 	tg := testgo(t)
 	defer tg.cleanup()
 	tg.parallel()
 	tg.run("list", "std")
-	tg.grepStdoutNot("cmd/", "go list std shows commands")
+	tg.grepStdoutNot("cmd/", "bolero list std shows commands")
 }
 
 func TestGoListCmdOnlyShowsCommands(t *testing.T) {
-	skipIfGccgo(t, "gccgo does not have GOROOT")
-	tooSlow(t, "walks all of GOROOT/src/cmd")
+	skipIfGccgo(t, "gccgo does not have BOLERO_ROOT")
+	tooSlow(t, "walks all of BOLERO_ROOT/src/cmd")
 
 	tg := testgo(t)
 	defer tg.cleanup()
@@ -1020,7 +1020,7 @@ func TestGoListCmdOnlyShowsCommands(t *testing.T) {
 	out := strings.TrimSpace(tg.getStdout())
 	for _, line := range strings.Split(out, "\n") {
 		if !strings.Contains(line, "cmd/") {
-			t.Error("go list cmd shows non-commands")
+			t.Error("bolero list cmd shows non-commands")
 			break
 		}
 	}
@@ -1031,7 +1031,7 @@ func TestGoListDeps(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.tempDir("src/p1/p2/p3/p4")
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.tempFile("src/p1/p.go", "package p1\nimport _ \"p1/p2\"\n")
 	tg.tempFile("src/p1/p2/p.go", "package p2\nimport _ \"p1/p2/p3\"\n")
 	tg.tempFile("src/p1/p2/p3/p.go", "package p3\nimport _ \"p1/p2/p3/p4\"\n")
@@ -1064,7 +1064,7 @@ func TestGoListCompiledCgo(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.makeTempdir()
-	tg.setenv("GOCACHE", tg.tempdir)
+	tg.setenv("BOLERO_CACHE", tg.tempdir)
 
 	tg.run("list", "-f", `{{join .CgoFiles "\n"}}`, "net")
 	if tg.stdout.String() == "" {
@@ -1103,7 +1103,7 @@ func TestGoListExport(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.makeTempdir()
-	tg.setenv("GOCACHE", tg.tempdir)
+	tg.setenv("BOLERO_CACHE", tg.tempdir)
 
 	tg.run("list", "-f", "{{.Export}}", "strings")
 	if tg.stdout.String() != "" {
@@ -1127,18 +1127,18 @@ func TestGoListExport(t *testing.T) {
 	tg.run("tool", "buildid", file)
 	toolBuildID := strings.TrimSpace(tg.stdout.String())
 	if buildID != toolBuildID {
-		t.Fatalf(".BuildID with -export %q disagrees with 'go tool buildid' %q", buildID, toolBuildID)
+		t.Fatalf(".BuildID with -export %q disagrees with 'bolero tool buildid' %q", buildID, toolBuildID)
 	}
 }
 
-// Issue 4096. Validate the output of unsuccessful go install foo/quxx.
+// Issue 4096. Validate the output of unsuccessful bolero install foo/quxx.
 func TestUnsuccessfulGoInstallShouldMentionMissingPackage(t *testing.T) {
 	tg := testgo(t)
 	defer tg.cleanup()
 	tg.parallel()
 	tg.runFail("install", "foo/quxx")
 	if tg.grepCountBoth(`cannot find package "foo/quxx" in any of`) != 1 {
-		t.Error(`go install foo/quxx expected error: .*cannot find package "foo/quxx" in any of`)
+		t.Error(`bolero install foo/quxx expected error: .*cannot find package "foo/quxx" in any of`)
 	}
 }
 
@@ -1147,8 +1147,8 @@ func TestGOROOTSearchFailureReporting(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.runFail("install", "foo/quxx")
-	if tg.grepCountBoth(regexp.QuoteMeta(filepath.Join("foo", "quxx"))+` \(from \$GOROOT\)$`) != 1 {
-		t.Error(`go install foo/quxx expected error: .*foo/quxx (from $GOROOT)`)
+	if tg.grepCountBoth(regexp.QuoteMeta(filepath.Join("foo", "quxx"))+` \(from \$BOLERO_ROOT\)$`) != 1 {
+		t.Error(`bolero install foo/quxx expected error: .*foo/quxx (from $BOLERO_ROOT)`)
 	}
 }
 
@@ -1157,23 +1157,23 @@ func TestMultipleGOPATHEntriesReportedSeparately(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	sep := string(filepath.ListSeparator)
-	tg.setenv("GOPATH", filepath.Join(tg.pwd(), "testdata", "a")+sep+filepath.Join(tg.pwd(), "testdata", "b"))
+	tg.setenv("BOLERO_PATH", filepath.Join(tg.pwd(), "testdata", "a")+sep+filepath.Join(tg.pwd(), "testdata", "b"))
 	tg.runFail("install", "foo/quxx")
 	if tg.grepCountBoth(`testdata[/\\].[/\\]src[/\\]foo[/\\]quxx`) != 2 {
-		t.Error(`go install foo/quxx expected error: .*testdata/a/src/foo/quxx (from $GOPATH)\n.*testdata/b/src/foo/quxx`)
+		t.Error(`bolero install foo/quxx expected error: .*testdata/a/src/foo/quxx (from $BOLERO_PATH)\n.*testdata/b/src/foo/quxx`)
 	}
 }
 
-// Test (from $GOPATH) annotation is reported for the first GOPATH entry,
+// Test (from $BOLERO_PATH) annotation is reported for the first BOLERO_PATH entry,
 func TestMentionGOPATHInFirstGOPATHEntry(t *testing.T) {
 	tg := testgo(t)
 	defer tg.cleanup()
 	tg.parallel()
 	sep := string(filepath.ListSeparator)
-	tg.setenv("GOPATH", filepath.Join(tg.pwd(), "testdata", "a")+sep+filepath.Join(tg.pwd(), "testdata", "b"))
+	tg.setenv("BOLERO_PATH", filepath.Join(tg.pwd(), "testdata", "a")+sep+filepath.Join(tg.pwd(), "testdata", "b"))
 	tg.runFail("install", "foo/quxx")
-	if tg.grepCountBoth(regexp.QuoteMeta(filepath.Join("testdata", "a", "src", "foo", "quxx"))+` \(from \$GOPATH\)$`) != 1 {
-		t.Error(`go install foo/quxx expected error: .*testdata/a/src/foo/quxx (from $GOPATH)`)
+	if tg.grepCountBoth(regexp.QuoteMeta(filepath.Join("testdata", "a", "src", "foo", "quxx"))+` \(from \$BOLERO_PATH\)$`) != 1 {
+		t.Error(`bolero install foo/quxx expected error: .*testdata/a/src/foo/quxx (from $BOLERO_PATH)`)
 	}
 }
 
@@ -1183,10 +1183,10 @@ func TestMentionGOPATHNotOnSecondEntry(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	sep := string(filepath.ListSeparator)
-	tg.setenv("GOPATH", filepath.Join(tg.pwd(), "testdata", "a")+sep+filepath.Join(tg.pwd(), "testdata", "b"))
+	tg.setenv("BOLERO_PATH", filepath.Join(tg.pwd(), "testdata", "a")+sep+filepath.Join(tg.pwd(), "testdata", "b"))
 	tg.runFail("install", "foo/quxx")
 	if tg.grepCountBoth(regexp.QuoteMeta(filepath.Join("testdata", "b", "src", "foo", "quxx"))+`$`) != 1 {
-		t.Error(`go install foo/quxx expected error: .*testdata/b/src/foo/quxx`)
+		t.Error(`bolero install foo/quxx expected error: .*testdata/b/src/foo/quxx`)
 	}
 }
 
@@ -1225,30 +1225,30 @@ func TestDefaultGOPATH(t *testing.T) {
 	tg := testgo(t)
 	defer tg.cleanup()
 	tg.parallel()
-	tg.tempDir("home/go")
+	tg.tempDir("home/bolero")
 	tg.setenv(homeEnvName(), tg.path("home"))
 	// Set TEST_TELEMETRY_DIR to a path that doesn't exist
 	// so that the counter uploading code doesn't write
 	// the counter token file to the temp dir after the test finishes.
 	tg.setenv("TEST_TELEMETRY_DIR", "/no-telemetry-dir")
 
-	tg.run("env", "GOPATH")
-	tg.grepStdout(regexp.QuoteMeta(tg.path("home/go")), "want GOPATH=$HOME/go")
+	tg.run("env", "BOLERO_PATH")
+	tg.grepStdout(regexp.QuoteMeta(tg.path("home/bolero")), "want BOLERO_PATH=$HOME/bolero")
 
-	tg.setenv("GOROOT", tg.path("home/go"))
-	tg.run("env", "GOPATH")
-	tg.grepStdoutNot(".", "want unset GOPATH because GOROOT=$HOME/go")
+	tg.setenv("BOLERO_ROOT", tg.path("home/bolero"))
+	tg.run("env", "BOLERO_PATH")
+	tg.grepStdoutNot(".", "want unset BOLERO_PATH because BOLERO_ROOT=$HOME/bolero")
 
-	tg.setenv("GOROOT", tg.path("home/go")+"/")
-	tg.run("env", "GOPATH")
-	tg.grepStdoutNot(".", "want unset GOPATH because GOROOT=$HOME/go/")
+	tg.setenv("BOLERO_ROOT", tg.path("home/bolero")+"/")
+	tg.run("env", "BOLERO_PATH")
+	tg.grepStdoutNot(".", "want unset BOLERO_PATH because BOLERO_ROOT=$HOME/bolero/")
 }
 
 func TestDefaultGOPATHPrintedSearchList(t *testing.T) {
 	tg := testgo(t)
 	defer tg.cleanup()
 	tg.parallel()
-	tg.setenv("GOPATH", "")
+	tg.setenv("BOLERO_PATH", "")
 	tg.tempDir("home")
 	tg.setenv(homeEnvName(), tg.path("home"))
 	// Set TEST_TELEMETRY_DIR to a path that doesn't exist
@@ -1257,7 +1257,7 @@ func TestDefaultGOPATHPrintedSearchList(t *testing.T) {
 	tg.setenv("TEST_TELEMETRY_DIR", "/no-telemetry-dir")
 
 	tg.runFail("install", "github.com/golang/example/hello")
-	tg.grepStderr(regexp.QuoteMeta(tg.path("home/go/src/github.com/golang/example/hello"))+`.*from \$GOPATH`, "expected default GOPATH")
+	tg.grepStderr(regexp.QuoteMeta(tg.path("home/bolero/src/github.com/golang/example/hello"))+`.*from \$BOLERO_PATH`, "expected default BOLERO_PATH")
 }
 
 func TestLdflagsArgumentsWithSpacesIssue3941(t *testing.T) {
@@ -1310,7 +1310,7 @@ func TestGoTestDashCDashOControlsBinaryLocation(t *testing.T) {
 	tg.parallel()
 	tg.makeTempdir()
 	tg.run("test", "-c", "-o", tg.path("myerrors.test"+exeSuffix), "errors")
-	tg.wantExecutable(tg.path("myerrors.test"+exeSuffix), "go test -c -o myerrors.test did not create myerrors.test")
+	tg.wantExecutable(tg.path("myerrors.test"+exeSuffix), "bolero test -c -o myerrors.test did not create myerrors.test")
 }
 
 func TestGoTestDashOWritesBinary(t *testing.T) {
@@ -1322,7 +1322,7 @@ func TestGoTestDashOWritesBinary(t *testing.T) {
 	tg.parallel()
 	tg.makeTempdir()
 	tg.run("test", "-o", tg.path("myerrors.test"+exeSuffix), "errors")
-	tg.wantExecutable(tg.path("myerrors.test"+exeSuffix), "go test -o myerrors.test did not create myerrors.test")
+	tg.wantExecutable(tg.path("myerrors.test"+exeSuffix), "bolero test -o myerrors.test did not create myerrors.test")
 }
 
 // Issue 4515.
@@ -1339,18 +1339,18 @@ func TestInstallWithTags(t *testing.T) {
 
 		package main
 		func main() {}`)
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.run("install", "-tags", "mytag", "example/a", "example/b")
-	tg.wantExecutable(tg.path("bin/a"+exeSuffix), "go install example/a example/b did not install binaries")
-	tg.wantExecutable(tg.path("bin/b"+exeSuffix), "go install example/a example/b did not install binaries")
+	tg.wantExecutable(tg.path("bin/a"+exeSuffix), "bolero install example/a example/b did not install binaries")
+	tg.wantExecutable(tg.path("bin/b"+exeSuffix), "bolero install example/a example/b did not install binaries")
 	tg.must(os.Remove(tg.path("bin/a" + exeSuffix)))
 	tg.must(os.Remove(tg.path("bin/b" + exeSuffix)))
 	tg.run("install", "-tags", "mytag", "example/...")
-	tg.wantExecutable(tg.path("bin/a"+exeSuffix), "go install example/... did not install binaries")
-	tg.wantExecutable(tg.path("bin/b"+exeSuffix), "go install example/... did not install binaries")
+	tg.wantExecutable(tg.path("bin/a"+exeSuffix), "bolero install example/... did not install binaries")
+	tg.wantExecutable(tg.path("bin/b"+exeSuffix), "bolero install example/... did not install binaries")
 	tg.run("list", "-tags", "mytag", "example/b...")
 	if strings.TrimSpace(tg.getStdout()) != "example/b" {
-		t.Error("go list example/b did not find example/b")
+		t.Error("bolero list example/b did not find example/b")
 	}
 }
 
@@ -1360,7 +1360,7 @@ func TestSymlinkWarning(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.makeTempdir()
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 
 	tg.tempDir("src/example/xx")
 	tg.tempDir("yy/zz")
@@ -1389,7 +1389,7 @@ func TestCgoShowsFullPathNames(t *testing.T) {
 		package foo
 		import "C"
 		func f() {`)
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.runFail("build", "x/y/dirname")
 	tg.grepBoth("x/y/dirname", "error did not use full path")
 }
@@ -1406,7 +1406,7 @@ func TestCgoHandlesWlORIGIN(t *testing.T) {
 		// void f(void) {}
 		import "C"
 		func f() { C.f() }`)
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.run("build", "origin")
 }
 
@@ -1479,7 +1479,7 @@ func main() {}
 }
 
 // Test that you cannot use a local import in a package
-// accessed by a non-local import (found in a GOPATH/GOROOT).
+// accessed by a non-local import (found in a BOLERO_PATH/BOLERO_ROOT).
 // See golang.org/issue/17475.
 func TestImportLocal(t *testing.T) {
 	tooSlow(t, "builds a lot of sequential packages")
@@ -1491,7 +1491,7 @@ func TestImportLocal(t *testing.T) {
 	tg.tempFile("src/dir/x/x.go", `package x
 		var X int
 	`)
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.run("build", "dir/x")
 
 	// Ordinary import should work.
@@ -1669,7 +1669,7 @@ func TestParallelTest(t *testing.T) {
 	tg.tempFile("src/p2/p2_test.go", strings.Replace(testSrc, "package_test", "p2_test", 1))
 	tg.tempFile("src/p3/p3_test.go", strings.Replace(testSrc, "package_test", "p3_test", 1))
 	tg.tempFile("src/p4/p4_test.go", strings.Replace(testSrc, "package_test", "p4_test", 1))
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.run("test", "-p=4", "p1", "p2", "p3", "p4")
 }
 
@@ -1680,7 +1680,7 @@ func TestBinaryOnlyPackages(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.makeTempdir()
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 
 	tg.tempFile("src/p1/p1.go", `//go:binary-only-package
 
@@ -1706,7 +1706,7 @@ func TestBinaryOnlyPackages(t *testing.T) {
 		func F() { p1.F(true) }
 	`)
 	tg.runFail("install", "p2")
-	tg.grepStderr("no Go files", "did not complain about missing sources")
+	tg.grepStderr("no Bolero files", "did not complain about missing sources")
 
 	tg.tempFile("src/p1/missing.go", `//go:binary-only-package
 
@@ -1735,7 +1735,7 @@ func TestLinkSysoFiles(t *testing.T) {
 	tg.tempDir("src/syso")
 	tg.tempFile("src/syso/a.syso", ``)
 	tg.tempFile("src/syso/b.go", `package syso`)
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 
 	// We should see the .syso file regardless of the setting of
 	// CGO_ENABLED.
@@ -1764,7 +1764,7 @@ func TestGenerateUsesBuildContext(t *testing.T) {
 	tg.parallel()
 	tg.tempDir("src/gen")
 	tg.tempFile("src/gen/gen.go", "package gen\n//go:generate echo $GOOS $GOARCH\n")
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 
 	tg.setenv("GOOS", "linux")
 	tg.setenv("GOARCH", "amd64")
@@ -1802,16 +1802,16 @@ func TestGoEnv(t *testing.T) {
 	tg.run("env", "GOGCCFLAGS")
 	tg.grepStdout("-ffaster", "CC arguments not found")
 
-	tg.run("env", "GOVERSION")
+	tg.run("env", "BOLERO_VERSION")
 	envVersion := strings.TrimSpace(tg.stdout.String())
 
 	tg.run("version")
 	cmdVersion := strings.TrimSpace(tg.stdout.String())
 
-	// If 'go version' is "go version <version> <goos>/<goarch>", then
-	// 'go env GOVERSION' is just "<version>".
+	// If 'bolero version' is "bolero version <version> <goos>/<goarch>", then
+	// 'bolero env BOLERO_VERSION' is just "<version>".
 	if cmdVersion == envVersion || !strings.Contains(cmdVersion, envVersion) {
-		t.Fatalf("'go env GOVERSION' %q should be a shorter substring of 'go version' %q", envVersion, cmdVersion)
+		t.Fatalf("'bolero env BOLERO_VERSION' %q should be a shorter substring of 'bolero version' %q", envVersion, cmdVersion)
 	}
 }
 
@@ -1842,7 +1842,7 @@ GLOBL ·constants<>(SB),8,$8
 	tg.tempFile("go/src/p/a.s", asm)
 	tg.tempFile("go/src/p/b.s", asm)
 	tg.tempFile("go/src/p/p.go", `package p`)
-	tg.setenv("GOPATH", tg.path("go"))
+	tg.setenv("BOLERO_PATH", tg.path("go"))
 	tg.run("build", "p")
 }
 
@@ -1860,7 +1860,7 @@ func TestFFLAGS(t *testing.T) {
 		func main() {}
 	`)
 	tg.tempFile("p/src/p/a.f", `! comment`)
-	tg.setenv("GOPATH", tg.path("p"))
+	tg.setenv("BOLERO_PATH", tg.path("p"))
 
 	// This should normally fail because we are passing an unknown flag,
 	// but issue #19080 points to Fortran compilers that succeed anyhow.
@@ -1908,7 +1908,7 @@ func main() {
 	_ = a.Data() + b.Data()
 }
 `)
-	tg.setenv("GOPATH", tg.path("go"))
+	tg.setenv("BOLERO_PATH", tg.path("go"))
 	exe := tg.path("p.exe")
 	tg.creatingTemp(exe)
 	tg.run("build", "-o", exe, "p")
@@ -1943,7 +1943,7 @@ func TestNeedVersion(t *testing.T) {
 	path := tg.path("goversion.go")
 	tg.setenv("TESTGO_TOOLCHAIN_VERSION", "go1.testgo")
 	tg.runFail("run", path)
-	tg.grepStderr("compile", "does not match go tool version")
+	tg.grepStderr("compile", "does not match bolero tool version")
 }
 
 func TestBuildmodePIE(t *testing.T) {
@@ -2133,12 +2133,12 @@ func TestCacheListStale(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.makeTempdir()
-	tg.setenv("GOCACHE", tg.path("cache"))
+	tg.setenv("BOLERO_CACHE", tg.path("cache"))
 	tg.tempFile("gopath/src/p/p.go", "package p; import _ \"q\"; func F(){}\n")
 	tg.tempFile("gopath/src/q/q.go", "package q; func F(){}\n")
 	tg.tempFile("gopath/src/m/m.go", "package main; import _ \"q\"; func main(){}\n")
 
-	tg.setenv("GOPATH", tg.path("gopath"))
+	tg.setenv("BOLERO_PATH", tg.path("gopath"))
 	tg.run("install", "p", "m")
 	tg.run("list", "-f={{.ImportPath}} {{.Stale}}", "m", "q", "p")
 	tg.grepStdout("^m false", "m should not be stale")
@@ -2155,10 +2155,10 @@ func TestCacheCoverage(t *testing.T) {
 	tg := testgo(t)
 	defer tg.cleanup()
 	tg.parallel()
-	tg.setenv("GOPATH", filepath.Join(tg.pwd(), "testdata"))
+	tg.setenv("BOLERO_PATH", filepath.Join(tg.pwd(), "testdata"))
 	tg.makeTempdir()
 
-	tg.setenv("GOCACHE", tg.path("c1"))
+	tg.setenv("BOLERO_CACHE", tg.path("c1"))
 	tg.run("test", "-cover", "-short", "strings")
 	tg.run("test", "-cover", "-short", "math", "strings")
 }
@@ -2173,8 +2173,8 @@ func TestIssue22531(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.makeTempdir()
-	tg.setenv("GOPATH", tg.tempdir)
-	tg.setenv("GOCACHE", tg.path("cache"))
+	tg.setenv("BOLERO_PATH", tg.tempdir)
+	tg.setenv("BOLERO_CACHE", tg.path("cache"))
 	tg.tempFile("src/m/main.go", "package main /* c1 */; func main() {}\n")
 	tg.run("install", "-x", "m")
 	tg.run("list", "-f", "{{.Stale}}", "m")
@@ -2203,17 +2203,17 @@ func TestIssue22596(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.makeTempdir()
-	tg.setenv("GOCACHE", tg.path("cache"))
+	tg.setenv("BOLERO_CACHE", tg.path("cache"))
 	tg.tempFile("gopath1/src/p/p.go", "package p; func F(){}\n")
 	tg.tempFile("gopath2/src/p/p.go", "package p; func F(){}\n")
 
-	tg.setenv("GOPATH", tg.path("gopath1"))
+	tg.setenv("BOLERO_PATH", tg.path("gopath1"))
 	tg.run("list", "-f={{.Target}}", "p")
 	target1 := strings.TrimSpace(tg.getStdout())
 	tg.run("install", "p")
 	tg.wantNotStale("p", "", "p stale after install")
 
-	tg.setenv("GOPATH", tg.path("gopath2"))
+	tg.setenv("BOLERO_PATH", tg.path("gopath2"))
 	tg.run("list", "-f={{.Target}}", "p")
 	target2 := strings.TrimSpace(tg.getStdout())
 	tg.must(os.MkdirAll(filepath.Dir(target2), 0777))
@@ -2233,8 +2233,8 @@ func TestTestCache(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.makeTempdir()
-	tg.setenv("GOPATH", tg.tempdir)
-	tg.setenv("GOCACHE", tg.path("cache"))
+	tg.setenv("BOLERO_PATH", tg.tempdir)
+	tg.setenv("BOLERO_CACHE", tg.path("cache"))
 
 	// The -p=1 in the commands below just makes the -x output easier to read.
 
@@ -2366,7 +2366,7 @@ func TestTestVetRebuild(t *testing.T) {
 		}
 	`)
 
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.run("test", "b")
 	tg.run("vet", "b")
 }
@@ -2378,7 +2378,7 @@ func TestInstallDeps(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.makeTempdir()
-	tg.setenv("GOPATH", tg.tempdir)
+	tg.setenv("BOLERO_PATH", tg.tempdir)
 
 	tg.tempFile("src/p1/p1.go", "package p1\nvar X =  1\n")
 	tg.tempFile("src/p2/p2.go", "package p2\nimport _ \"p1\"\n")
@@ -2446,7 +2446,7 @@ var V = true
 func init() {}
 `)
 
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.run("build", "-o", tg.path("a.exe"), "a")
 	tg.run("test", "a")
 }
@@ -2457,7 +2457,7 @@ func TestBadCommandLines(t *testing.T) {
 	tg.parallel()
 
 	tg.tempFile("src/x/x.go", "package x\n")
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 
 	tg.run("build", "x")
 
@@ -2479,22 +2479,22 @@ func TestBadCommandLines(t *testing.T) {
 	tg.grepStderr("invalid command-line argument @x in command", "did not reject @x during exec")
 
 	tg.tempFile("src/@x/x.go", "package x\n")
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.runFail("build", "@x")
-	tg.grepStderr("invalid input directory name \"@x\"|can only use path@version syntax with 'go get' and 'go install' in module-aware mode", "did not reject @x directory")
+	tg.grepStderr("invalid input directory name \"@x\"|can only use path@version syntax with 'bolero get' and 'bolero install' in module-aware mode", "did not reject @x directory")
 
 	tg.tempFile("src/@x/y/y.go", "package y\n")
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.runFail("build", "@x/y")
-	tg.grepStderr("invalid import path \"@x/y\"|can only use path@version syntax with 'go get' and 'go install' in module-aware mode", "did not reject @x/y import path")
+	tg.grepStderr("invalid import path \"@x/y\"|can only use path@version syntax with 'bolero get' and 'bolero install' in module-aware mode", "did not reject @x/y import path")
 
 	tg.tempFile("src/-x/x.go", "package x\n")
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.runFail("build", "--", "-x")
 	tg.grepStderr("invalid import path \"-x\"", "did not reject -x import path")
 
 	tg.tempFile("src/-x/y/y.go", "package y\n")
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.runFail("build", "--", "-x/y")
 	tg.grepStderr("invalid import path \"-x/y\"", "did not reject -x/y import path")
 }
@@ -2520,7 +2520,7 @@ func TestTwoPkgConfigs(t *testing.T) {
 	tg.tempFile("pkg-config.sh", `#!/bin/sh
 echo $* >>`+tg.path("pkg-config.out"))
 	tg.must(os.Chmod(tg.path("pkg-config.sh"), 0755))
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.setenv("PKG_CONFIG", tg.path("pkg-config.sh"))
 	tg.run("build", "x")
 	out, err := os.ReadFile(tg.path("pkg-config.out"))
@@ -2548,7 +2548,7 @@ func TestCgoCache(t *testing.T) {
 		import "fmt"
 		func main() { fmt.Println(C.val) }
 	`)
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	exe := tg.path("x.exe")
 	tg.run("build", "-o", exe, "x")
 	tg.setenv("CGO_LDFLAGS", "-lnosuchlibraryexists")
@@ -2571,7 +2571,7 @@ func TestDontReportRemoveOfEmptyDir(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.tempFile("src/a/a.go", `package a`)
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.run("install", "-x", "a")
 	tg.run("install", "-x", "a")
 	// The second install should have printed only a WORK= line,
@@ -2646,7 +2646,7 @@ func TestCoverpkgTestOnly(t *testing.T) {
 		import ( "a"; "testing" )
 		func TestF(t *testing.T) { a.F(2) }
 	`)
-	tg.setenv("GOPATH", tg.path("."))
+	tg.setenv("BOLERO_PATH", tg.path("."))
 	tg.run("test", "-coverpkg=a", "atest")
 	tg.grepStderrNot("no packages being tested depend on matches", "bad match message")
 	tg.grepStdout("coverage: 100", "no coverage")
@@ -2669,6 +2669,6 @@ func TestExecInDeletedDir(t *testing.T) {
 
 	tg.check(os.Remove(tg.tempdir))
 
-	// `go version` should not fail
+	// `bolero version` should not fail
 	tg.run("version")
 }

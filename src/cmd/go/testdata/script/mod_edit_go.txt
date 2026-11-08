@@ -1,20 +1,20 @@
-# Test support for go mod edit -go to set language version.
+# Test support for bolero mod edit -go to set language version.
 
-env GO111MODULE=on
-! go build
+env BOLERO_MODULE=on
+! bolero build
 stderr ' type alias requires'
-go mod edit -go=1.9
+bolero mod edit -go=1.9
 grep 'go 1.9' go.mod
-go build
+bolero build
 
 # Reverting the version should force a rebuild and error instead of using
 # the cached 1.9 build. (https://golang.org/issue/37804)
-go mod edit -go=1.8
-! go build
+bolero mod edit -go=1.8
+! bolero build
 stderr 'type alias requires'
 
 # go=none should drop the line
-go mod edit -go=none
+bolero mod edit -go=none
 ! grep go go.mod
 
 -- go.mod --

@@ -1,28 +1,28 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
 # As of Go 1.12, the module cache is required.
 
-# If none of the variables we use to locate GOCACHE are set, the cache is off
+# If none of the variables we use to locate BOLERO_CACHE are set, the cache is off
 # and we cannot build.
-env GOCACHE=
+env BOLERO_CACHE=
 env XDG_CACHE_HOME=
 env HOME=
 [GOOS:plan9] env home=
 [GOOS:windows] env LocalAppData=
-! go build -o triv triv.go
-stderr 'build cache is required, but could not be located: GOCACHE is not defined and .*'
+! bolero build -o triv triv.go
+stderr 'build cache is required, but could not be located: BOLERO_CACHE is not defined and .*'
 
-# If GOCACHE is set but is not an absolute path, and we cannot build.
-env GOCACHE=test
-! go build -o triv triv.go
-stderr 'build cache is required, but could not be located: GOCACHE is not an absolute path'
+# If BOLERO_CACHE is set but is not an absolute path, and we cannot build.
+env BOLERO_CACHE=test
+! bolero build -o triv triv.go
+stderr 'build cache is required, but could not be located: BOLERO_CACHE is not an absolute path'
 
-# An explicit GOCACHE=off also disables builds.
-env GOCACHE=off
-! go build -o triv triv.go
-stderr 'build cache is disabled by GOCACHE=off'
+# An explicit BOLERO_CACHE=off also disables builds.
+env BOLERO_CACHE=off
+! bolero build -o triv triv.go
+stderr 'build cache is disabled by BOLERO_CACHE=off'
 
-# If GOCACHE is set to an unwritable directory, we should diagnose it as such.
+# If BOLERO_CACHE is set to an unwritable directory, we should diagnose it as such.
 [GOOS:windows] stop # Does not support unwritable directories.
 [root] skip # Can write to unwritable directories.
 
@@ -31,8 +31,8 @@ chmod 0555 $WORK/unwritable/home
 [!GOOS:plan9] env HOME=$WORK/unwritable/home
 [GOOS:plan9] env home=$WORK/unwritable/home
 
-env GOCACHE=$WORK/unwritable/home
-! go build -o triv triv.go
+env BOLERO_CACHE=$WORK/unwritable/home
+! bolero build -o triv triv.go
 stderr 'failed to initialize build cache.* permission denied'
 
 -- triv.go --

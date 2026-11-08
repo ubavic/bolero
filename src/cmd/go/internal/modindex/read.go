@@ -50,14 +50,14 @@ type Module struct {
 // located at filesystem path modroot.
 func moduleHash(modroot string, ismodcache bool) (cache.ActionID, error) {
 	// We expect modules stored within the module cache to be checksummed and
-	// immutable, and we expect released modules within GOROOT to change only
+	// immutable, and we expect released modules within BOLERO_ROOT to change only
 	// infrequently (when the Go version changes).
 	if !ismodcache {
 		// The contents of this module may change over time. We don't want to pay
 		// the cost to detect changes and re-index whenever they occur, so just
 		// don't index it at all.
 		//
-		// Note that this is true even for modules in GOROOT/src: non-release builds
+		// Note that this is true even for modules in BOLERO_ROOT/src: non-release builds
 		// of the Go toolchain may have arbitrary development changes on top of the
 		// commit reported by runtime.Version, or could be completely artificial due
 		// to lacking a `git` binary (like "devel gomote.XXXXX", as synthesized by
@@ -140,7 +140,7 @@ func GetPackage(modroot, pkgdir string) (*IndexPackage, error) {
 		return nil, err
 	}
 	if cfg.BuildContext.Compiler == "gccgo" && str.HasPathPrefix(modroot, cfg.GOROOTsrc) {
-		return nil, err // gccgo has no sources for GOROOT packages.
+		return nil, err // gccgo has no sources for BOLERO_ROOT packages.
 	}
 	// The pkgdir for fips140 has been replaced in the fsys overlay,
 	// but the module index does not see that. Do not try to use the module index.
@@ -409,8 +409,8 @@ func (rp *IndexPackage) Import(bctxt build.Context, mode build.ImportMode) (p *b
 	var pkga string
 	if !inTestdata(rp.dir) {
 		// In build.go, p.Root should only be set in the non-local-import case, or in
-		// GOROOT or GOPATH. Since module mode only calls Import with path set to "."
-		// and the module index doesn't apply outside modules, the GOROOT case is
+		// BOLERO_ROOT or BOLERO_PATH. Since module mode only calls Import with path set to "."
+		// and the module index doesn't apply outside modules, the BOLERO_ROOT case is
 		// the only case where p.Root needs to be set.
 		if ctxt.GOROOT != "" && str.HasFilePathPrefix(p.Dir, cfg.GOROOTsrc) && p.Dir != cfg.GOROOTsrc {
 			p.Root = ctxt.GOROOT
@@ -421,7 +421,7 @@ func (rp *IndexPackage) Import(bctxt build.Context, mode build.ImportMode) (p *b
 				p.ImportPath = filepath.Join(modprefix, p.ImportPath)
 			}
 
-			// Set GOROOT-specific fields (sometimes for modules in a GOPATH directory).
+			// Set BOLERO_ROOT-specific fields (sometimes for modules in a BOLERO_PATH directory).
 			// The fields set below (SrcRoot, PkgRoot, BinDir, PkgTargetRoot, and PkgObj)
 			// are only set in build.Import if p.Root != "".
 			var pkgtargetroot string

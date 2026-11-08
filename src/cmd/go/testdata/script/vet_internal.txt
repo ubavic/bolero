@@ -1,29 +1,29 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-# Issue 36173. Verify that "go vet" prints line numbers on load errors.
+# Issue 36173. Verify that "bolero vet" prints line numbers on load errors.
 
-! go vet a/a.go
+! bolero vet a/a.go
 stderr '^package command-line-arguments\n\ta[/\\]a.go:5:3: use of internal package'
 
-! go vet a/a_test.go
+! bolero vet a/a_test.go
 stderr '^package command-line-arguments \(test\)\n\ta[/\\]a_test.go:4:3: use of internal package'
 
-! go vet a
+! bolero vet a
 stderr '^package a\n\ta[/\\]a.go:5:3: use of internal package'
 
-go vet b/b.go
+bolero vet b/b.go
 ! stderr 'use of internal package'
 
-! go vet b/b_test.go
+! bolero vet b/b_test.go
 stderr '^package command-line-arguments \(test\)\n\tb[/\\]b_test.go:4:3: use of internal package'
 
-! go vet depends-on-a/depends-on-a.go
+! bolero vet depends-on-a/depends-on-a.go
 stderr '^package command-line-arguments\n\timports a\n\ta[/\\]a.go:5:3: use of internal package'
 
-! go vet depends-on-a/depends-on-a_test.go
+! bolero vet depends-on-a/depends-on-a_test.go
 stderr '^package command-line-arguments \(test\)\n\timports a\n\ta[/\\]a.go:5:3: use of internal package a/x/internal/y not allowed'
 
-! go vet depends-on-a
+! bolero vet depends-on-a
 stderr '^package depends-on-a\n\timports a\n\ta[/\\]a.go:5:3: use of internal package'
 
 -- a/a.go --

@@ -207,7 +207,7 @@ func (p *Importer) cgo(bp *build.Package) (*ast.File, error) {
 
 	goCmd := "go"
 	if p.ctxt.GOROOT != "" {
-		goCmd = filepath.Join(p.ctxt.GOROOT, "bin", "go")
+		goCmd = filepath.Join(p.ctxt.GOROOT, "bin", "bolero")
 	}
 	args := []string{goCmd, "tool", "cgo", "-objdir", tmpdir}
 	if bp.Goroot {
@@ -237,7 +237,7 @@ func (p *Importer) cgo(bp *build.Package) (*ast.File, error) {
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Dir = bp.Dir
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("go tool cgo: %w", err)
+		return nil, fmt.Errorf("bolero tool cgo: %w", err)
 	}
 
 	return parser.ParseFile(p.fset, filepath.Join(tmpdir, "_cgo_gotypes.go"), nil, parser.SkipObjectResolution)

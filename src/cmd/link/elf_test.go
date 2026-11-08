@@ -81,8 +81,8 @@ func TestSectionsWithSameName(t *testing.T) {
 
 	dir := t.TempDir()
 
-	gopath := filepath.Join(dir, "GOPATH")
-	gopathEnv := "GOPATH=" + gopath
+	gopath := filepath.Join(dir, "BOLERO_PATH")
+	gopathEnv := "BOLERO_PATH=" + gopath
 	env := append(os.Environ(), gopathEnv)
 
 	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module elf_test\n"), 0666); err != nil {
@@ -151,8 +151,8 @@ func TestMinusRSymsWithSameName(t *testing.T) {
 
 	dir := t.TempDir()
 
-	gopath := filepath.Join(dir, "GOPATH")
-	gopathEnv := "GOPATH=" + gopath
+	gopath := filepath.Join(dir, "BOLERO_PATH")
+	gopathEnv := "BOLERO_PATH=" + gopath
 	env := append(os.Environ(), gopathEnv)
 
 	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module elf_test\n"), 0666); err != nil {
@@ -300,7 +300,7 @@ func TestMergeNoteSections(t *testing.T) {
 
 	sec = ef.Section(".note.go.buildid")
 	if sec == nil {
-		t.Fatalf("can't find go build id")
+		t.Fatalf("can't find bolero build id")
 	}
 	cnt := 0
 	for _, ph := range ef.Progs {

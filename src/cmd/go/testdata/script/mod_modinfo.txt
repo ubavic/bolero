@@ -1,16 +1,16 @@
 # Test to ensure runtime/debug.ReadBuildInfo parses
-# the modinfo embedded in a binary by the go tool
+# the modinfo embedded in a binary by the bolero tool
 # when module is enabled.
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 cd x
-go mod edit -require=rsc.io/quote@v1.5.2
-go mod edit -replace=rsc.io/quote@v1.5.2=rsc.io/quote@v1.0.0
-go mod tidy # populate go.sum
+bolero mod edit -require=rsc.io/quote@v1.5.2
+bolero mod edit -replace=rsc.io/quote@v1.5.2=rsc.io/quote@v1.0.0
+bolero mod tidy # populate go.sum
 
 # Build a binary and ensure that it can output its own debug info.
 # The debug info should be accessible before main starts (golang.org/issue/29628).
-go build
+bolero build
 exec ./x$GOEXE
 stderr 'mod\s+x\s+\(devel\)'
 stderr 'dep\s+rsc.io/quote\s+v1.5.2\s+'
@@ -23,7 +23,7 @@ stderr 'Hello, world.'
 # (rather than through debug.ReadBuildInfo).
 # The debug info should still be present (golang.org/issue/28753).
 cd unused
-go build
+bolero build
 exec ./unused$GOEXE
 
 -- x/go.mod --

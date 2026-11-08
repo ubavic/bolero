@@ -2,7 +2,7 @@
 # that the error for not matching tests does not override the error for
 # the build failure.
 
-! go test -run ThisWillNotMatch syntaxerror
+! bolero test -run ThisWillNotMatch syntaxerror
 ! stderr '(?m)^ok.*\[no tests to run\]'
 stdout 'FAIL'
 

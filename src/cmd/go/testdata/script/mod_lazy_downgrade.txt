@@ -1,5 +1,5 @@
 # This test illustrates the interaction between lazy loading and downgrading in
-# 'go get'.
+# 'bolero get'.
 
 # The package import graph used in this test looks like:
 #
@@ -17,26 +17,26 @@
 # (Note that lazy loading will prune out the dependency from b.1 on c.1.)
 
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod.orig go.mod
 
-go list -m all
+bolero list -m all
 stdout '^example.com/a v0.1.0 '
 stdout '^example.com/b v0.3.0 '
 stdout '^example.com/c v0.2.0 '
 
 # Downgrading c should also downgrade the b that requires it.
 
-go get example.com/c@v0.1.0
-go list -m all
+bolero get example.com/c@v0.1.0
+bolero list -m all
 stdout '^example.com/a v0.1.0 '
 stdout '^example.com/b v0.2.0 '
 stdout '^example.com/c v0.1.0 '
 
 # Removing c entirely should also remove the a and b that require it.
 
-go get example.com/c@none
-go list -m all
+bolero get example.com/c@none
+bolero list -m all
 ! stdout '^example.com/a '
 ! stdout '^example.com/b '
 ! stdout '^example.com/c '
@@ -46,58 +46,58 @@ go list -m all
 # outside of the deepening scan should not affect the downgrade.
 
 cp go.mod.orig go.mod
-go mod edit -go=1.17
+bolero mod edit -go=1.17
 
-go list -m all
+bolero list -m all
 stdout '^example.com/a v0.1.0 '
 stdout '^example.com/b v0.3.0 '
 stdout '^example.com/c v0.2.0 '
 
-go get example.com/c@v0.1.0
-go list -m all
+bolero get example.com/c@v0.1.0
+bolero list -m all
 stdout '^example.com/a v0.1.0 '
 stdout '^example.com/b v0.2.0 '
 stdout '^example.com/c v0.1.0 '
 
 # At this point, b.2 is still an explicit root, so its dependency on c
 # is still tracked, and it will still be downgraded away if we remove c.
-# ('go get' never makes a root into a non-root. Only 'go mod tidy' does that.)
+# ('bolero get' never makes a root into a non-root. Only 'bolero mod tidy' does that.)
 
-go get example.com/c@none
-go list -m all
+bolero get example.com/c@none
+bolero list -m all
 ! stdout '^example.com/a '
 ! stdout '^example.com/b '
 ! stdout '^example.com/c '
 
 
 # This time, we drop the explicit 'b' root by downgrading it to v0.1.0
-# (the version required by a.1) and running 'go mod tidy'.
+# (the version required by a.1) and running 'bolero mod tidy'.
 # It is still selected at v0.1.0 (as a dependency of a),
 # but its dependency on c is now pruned from the module graph, so it doesn't
-# result in any downgrades to b or a if we run 'go get c@none'.
+# result in any downgrades to b or a if we run 'bolero get c@none'.
 
 cp go.mod.orig go.mod
-go mod edit -go=1.17
+bolero mod edit -go=1.17
 
-go list -m all
+bolero list -m all
 stdout '^example.com/a v0.1.0 '
 stdout '^example.com/b v0.3.0 '
 stdout '^example.com/c v0.2.0 '
 
-go get example.com/c@v0.1.0 example.com/b@v0.1.0
-go list -m all
+bolero get example.com/c@v0.1.0 example.com/b@v0.1.0
+bolero list -m all
 stdout '^example.com/a v0.1.0 '
 stdout '^example.com/b v0.1.0 '
 stdout '^example.com/c v0.1.0 '
 
-go mod tidy
-go list -m all
+bolero mod tidy
+bolero list -m all
 stdout '^example.com/a v0.1.0 '
 stdout '^example.com/b v0.1.0 '
 ! stdout '^example.com/c '
 
-go get example.com/c@none
-go list -m all
+bolero get example.com/c@none
+bolero list -m all
 stdout '^example.com/a v0.1.0'
 stdout '^example.com/b v0.1.0'
 ! stdout '^example.com/c '

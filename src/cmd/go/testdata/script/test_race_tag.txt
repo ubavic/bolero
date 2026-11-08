@@ -3,8 +3,8 @@
 [short] skip 'links a test binary'
 [!race] skip
 
-go mod tidy
-go test -c -o=$devnull -race .
+bolero mod tidy
+bolero test -c -o=$devnull -race .
 
 ! stderr 'cannot find package'
 

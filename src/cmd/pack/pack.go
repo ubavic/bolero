@@ -17,11 +17,11 @@ import (
 
 const usageMessage = `Usage: pack op file.a [name....]
 Where op is one of cprtx optionally followed by v for verbose output.
-For compatibility with old Go build environments the op string grc is
+For compatibility with old build environments the op string grc is
 accepted as a synonym for c.
 
 For more information, run
-	go doc cmd/pack`
+	bolero doc cmd/pack`
 
 func usage() {
 	fmt.Fprintln(os.Stderr, usageMessage)

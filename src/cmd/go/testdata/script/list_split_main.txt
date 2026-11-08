@@ -2,17 +2,17 @@
 # is recompiled only once.
 # Verifies golang.org/issue/34321.
 
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-go list -e -test -deps -f '{{if not .Standard}}{{.ImportPath}}{{end}}' pkg
+bolero list -e -test -deps -f '{{if not .Standard}}{{.ImportPath}}{{end}}' pkg
 cmp stdout want
 
--- $GOPATH/src/pkg/pkg.go --
+-- $BOLERO_PATH/src/pkg/pkg.go --
 package main
 
 func main() {}
 
--- $GOPATH/src/pkg/pkg_test.go --
+-- $BOLERO_PATH/src/pkg/pkg_test.go --
 package main
 
 import "testing"

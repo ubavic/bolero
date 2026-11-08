@@ -1,8 +1,8 @@
 # go.dev/issue/60028: use semver sort in exclude block in 1.21
 cp $WORK/go.mod.badfmtexclude go.mod
-go mod edit -go=1.20
+bolero mod edit -go=1.20
 cmp go.mod $WORK/go.mod.goodfmtexclude120
-go mod edit -go=1.21
+bolero mod edit -go=1.21
 cmp go.mod $WORK/go.mod.goodfmtexclude121
 
 -- $WORK/go.mod.badfmtexclude --

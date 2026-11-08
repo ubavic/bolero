@@ -1,16 +1,16 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # Without vendoring, a build should succeed unless -mod=vendor is set.
-[!short] go build
-[!short] ! go build -mod=vendor
+[!short] bolero build
+[!short] ! bolero build -mod=vendor
 
-# Without vendoring, 'go list' should report the replacement directory for
+# Without vendoring, 'bolero list' should report the replacement directory for
 # a package in a replaced module.
-go list -f {{.Dir}} x
+bolero list -f {{.Dir}} x
 stdout 'src[\\/]x'
 
-# 'go mod vendor' should copy all replaced modules to the vendor directory.
-go mod vendor -v
+# 'bolero mod vendor' should copy all replaced modules to the vendor directory.
+bolero mod vendor -v
 stderr '^# x v1.0.0 => ./x'
 stderr '^x'
 stderr '^# y v1.0.0 => ./y'
@@ -21,43 +21,43 @@ stderr '^z'
 grep 'a/foo/bar/b\na/foo/bar/c' vendor/modules.txt # must be sorted
 
 # An explicit '-mod=mod' should ignore the vendor directory.
-go list -mod=mod -f {{.Dir}} x
+bolero list -mod=mod -f {{.Dir}} x
 stdout 'src[\\/]x'
 
-go list -mod=mod -f {{.Dir}} -m x
+bolero list -mod=mod -f {{.Dir}} -m x
 stdout 'src[\\/]x'
 
 # An explicit '-mod=vendor' should report package directories within
 # the vendor directory.
-go list -mod=vendor -f {{.Dir}} x
+bolero list -mod=vendor -f {{.Dir}} x
 stdout 'src[\\/]vendor[\\/]x'
 
-# 'go list -mod=vendor -m' should successfully list vendored modules,
+# 'bolero list -mod=vendor -m' should successfully list vendored modules,
 # but should not provide a module directory because no directory contains
 # the complete module.
-go list -mod=vendor -f '{{.Version}} {{.Dir}}' -m x
+bolero list -mod=vendor -f '{{.Version}} {{.Dir}}' -m x
 stdout '^v1.0.0 $'
 
-# -mod=vendor should cause 'go list' flags that look up versions to fail.
-! go list -mod=vendor -versions -m x
-stderr '^go: can''t determine available versions using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)$'
-! go list -mod=vendor -u -m x
-stderr '^go: can''t determine available upgrades using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)$'
+# -mod=vendor should cause 'bolero list' flags that look up versions to fail.
+! bolero list -mod=vendor -versions -m x
+stderr '^bolero: can''t determine available versions using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)$'
+! bolero list -mod=vendor -u -m x
+stderr '^bolero: can''t determine available upgrades using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)$'
 
-# 'go list -mod=vendor -m' on a transitive dependency that does not
+# 'bolero list -mod=vendor -m' on a transitive dependency that does not
 # provide vendored packages should give a helpful error rather than
 # 'not a known dependency'.
-! go list -mod=vendor -f '{{.Version}} {{.Dir}}' -m diamondright
-stderr 'go: module diamondright: can''t resolve module using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)'
+! bolero list -mod=vendor -f '{{.Version}} {{.Dir}}' -m diamondright
+stderr 'bolero: module diamondright: can''t resolve module using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)'
 
-# 'go list -mod=mod' should report packages outside the import graph,
-# but 'go list -mod=vendor' should error out for them.
-go list -mod=mod -f {{.Dir}} w
+# 'bolero list -mod=mod' should report packages outside the import graph,
+# but 'bolero list -mod=vendor' should error out for them.
+bolero list -mod=mod -f {{.Dir}} w
 stdout 'src[\\/]w'
-! go list -mod=vendor -f {{.Dir}} w
+! bolero list -mod=vendor -f {{.Dir}} w
 stderr 'package w is not in std'
 
-go list -mod=mod -f {{.Dir}} diamondright
+bolero list -mod=mod -f {{.Dir}} diamondright
 stdout 'src[\\/]diamondright'
 
 # Test dependencies should not be copied.
@@ -82,19 +82,19 @@ exists vendor/mysite/myname/mypkg/LICENSE.txt
 ! exists vendor/x/x2
 ! exists vendor/x/x2/LICENSE
 
-# 'go mod vendor' should work with an alternative vendor directory if the -o flag is provided.
-go mod vendor -v -o alternative-vendor-dir
+# 'bolero mod vendor' should work with an alternative vendor directory if the -o flag is provided.
+bolero mod vendor -v -o alternative-vendor-dir
 exists alternative-vendor-dir/modules.txt
 exists alternative-vendor-dir/a/foo/LICENSE
 
-# 'go mod vendor' should interpret paths relative to the current working directory when the -o flag is provided.
+# 'bolero mod vendor' should interpret paths relative to the current working directory when the -o flag is provided.
 mkdir dir1
 mkdir dir2
 
 cd dir1
-go mod vendor -v -o relative-vendor-dir
+bolero mod vendor -v -o relative-vendor-dir
 
-go mod vendor -v -o ../dir2/relative-vendor-dir
+bolero mod vendor -v -o ../dir2/relative-vendor-dir
 
 cd ..
 exists dir1/relative-vendor-dir/modules.txt
@@ -102,36 +102,36 @@ exists dir1/relative-vendor-dir/a/foo/LICENSE
 exists dir2/relative-vendor-dir/modules.txt
 exists dir2/relative-vendor-dir/a/foo/LICENSE
 
-# 'go mod vendor' should fall back to the default 'vendor' directory when an empty argument is passed to the -o flag
+# 'bolero mod vendor' should fall back to the default 'vendor' directory when an empty argument is passed to the -o flag
 # the same behavior should be exhibited both on the module root directory, as well as nested subdirectories
 
-go mod vendor -v -o ''
+bolero mod vendor -v -o ''
 exists vendor/modules.txt
 
-env GOFLAGS=-o=foo
-go mod vendor -v -o ''
+env BOLERO_FLAGS=-o=foo
+bolero mod vendor -v -o ''
 exists vendor/modules.txt
-env GOFLAGS=''
+env BOLERO_FLAGS=''
 
 mkdir -p nested/dir
 cd nested/dir
-go mod vendor -v -o ''
+bolero mod vendor -v -o ''
 ! exists vendor/
 exists ../../vendor/modules.txt
 cd ../..
 
-# 'go mod vendor' should work with absolute paths as well
-go mod vendor -v -o $WORK/tmp/absolute-vendor-dir
+# 'bolero mod vendor' should work with absolute paths as well
+bolero mod vendor -v -o $WORK/tmp/absolute-vendor-dir
 exists $WORK/tmp/absolute-vendor-dir/modules.txt
 
 [short] stop
 
-# 'go build' and 'go test' using vendored packages should succeed.
-go build -mod=mod
-go build -mod=vendor
-go test -mod=vendor . ./subdir
-go test -mod=vendor ./...
-go fmt -mod=vendor ./...
+# 'bolero build' and 'bolero test' using vendored packages should succeed.
+bolero build -mod=mod
+bolero build -mod=vendor
+bolero test -mod=vendor . ./subdir
+bolero test -mod=vendor ./...
+bolero fmt -mod=vendor ./...
 
 -- go.mod --
 module m
@@ -176,7 +176,7 @@ replace (
 -- a/foo/bar/b/main.go --
 package b
 -- a/foo/bar/b/ignored.go --
-// This file is intended for use with "go run"; it isn't really part of the package.
+// This file is intended for use with "bolero run"; it isn't really part of the package.
 
 // +build ignore
 

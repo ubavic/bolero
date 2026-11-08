@@ -1,37 +1,37 @@
-go mod tidy
+bolero mod tidy
 cp go.mod go.mod.orig
 
 # If there is no sensible *package* meaning for 'm/p', it should refer
 # to *module* m/p.
 
-go get m/p  # @latest
-go list -m all
+bolero get m/p  # @latest
+bolero list -m all
 stdout '^m/p v0.3.0 '
 ! stdout '^m '
 
 cp go.mod.orig go.mod
 
-go get m/p@v0.1.0
-go list -m all
+bolero get m/p@v0.1.0
+bolero list -m all
 stdout '^m/p v0.1.0 '
 ! stdout '^m '
 
-# When feasible, the argument 'm/p' in 'go get m/p' refers to *package* m/p,
+# When feasible, the argument 'm/p' in 'bolero get m/p' refers to *package* m/p,
 # which is in module m.
 #
 # (It only refers to *module* m/p if there is no such package at the
 # requested version.)
 
-go get m/p@v0.2.0
-go list -m all
+bolero get m/p@v0.2.0
+bolero list -m all
 stdout '^m v0.2.0 '
 stdout '^m/p v0.1.0 '  # unchanged from the previous case
 
 # Repeating the above with module m/p already in the module graph does not
 # change its meaning.
 
-go get m/p@v0.2.0
-go list -m all
+bolero get m/p@v0.2.0
+bolero list -m all
 stdout '^m v0.2.0 '
 stdout '^m/p v0.1.0 '
 

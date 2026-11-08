@@ -5,11 +5,11 @@
 [short] skip
 [!git] skip
 
-env GO111MODULE=on
-env GOPROXY=direct
-env GOSUMDB=off
+env BOLERO_MODULE=on
+env BOLERO_PROXY=direct
+env BOLERO_SUMDB=off
 
-! go mod download vcs-test.golang.org/go/missingrepo/missingrepo-git@latest
+! bolero mod download vcs-test.golang.org/go/missingrepo/missingrepo-git@latest
 stderr 'vcs-test.golang.org/go/missingrepo/missingrepo-git: git ls-remote .*: exit status .*'
 
-go mod download vcs-test.golang.org/go/missingrepo/missingrepo-git/notmissing@latest
+bolero mod download vcs-test.golang.org/go/missingrepo/missingrepo-git/notmissing@latest

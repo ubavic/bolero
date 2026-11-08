@@ -2,49 +2,49 @@
 
 # The go.mod file can exist only in the overlay.
 cd $WORK/gopath/src/no-go-mod
-go list -overlay overlay.json .
+bolero list -overlay overlay.json .
 stdout example.com/simple
 
 # Check content of overlaid go.mod is used.
 cd $WORK/gopath/src/overlay-go-mod
-go list -overlay overlay.json .
+bolero list -overlay overlay.json .
 stdout use.this/module/name
 
 # Check content of overlaid go.mod in a replacement module is used.
 # The go.mod in the replacement module is missing a requirement
 # that the overlay has, so it will fail to list without the overlay.
 cd $WORK/gopath/src/overlay-replaced-go-mod
-! go list -deps .
-go list -deps -overlay overlay.json .
+! bolero list -deps .
+bolero list -deps -overlay overlay.json .
 
-# Overlaid go.mod is not rewritten by 'go get'.
+# Overlaid go.mod is not rewritten by 'bolero get'.
 cd $WORK/gopath/src/get-doesnt-add-dep
 cp $WORK/overlay/get_doesnt_add_dep_go_mod $WORK/want_go_mod
-! go get -overlay overlay.json .
-stderr '^go: updates to go.mod needed, but go.mod is part of the overlay specified with -overlay$'
+! bolero get -overlay overlay.json .
+stderr '^bolero: updates to go.mod needed, but go.mod is part of the overlay specified with -overlay$'
 cmp $WORK/overlay/get_doesnt_add_dep_go_mod $WORK/want_go_mod
 
 # Content of overlaid go.sum is used.
 # The go.sum in the module directory has garbage values for its
 # hashes, but the overlaid file has the correct values. If
-# the correct go.sum is used with the overlay, 'go get .' should
+# the correct go.sum is used with the overlay, 'bolero get .' should
 # not report a security error.
 cd $WORK/gopath/src/overlay-sum-used
-! go get .
+! bolero get .
 stderr 'SECURITY ERROR'
-! go mod verify
+! bolero mod verify
 stderr 'SECURITY ERROR'
-go get -overlay overlay.json .
-go mod verify -overlay overlay.json
+bolero get -overlay overlay.json .
+bolero mod verify -overlay overlay.json
 # Overlaid go.sum is not rewritten.
 # Copy an incomplete file to the overlay file, and expect an error
 # attempting to update the file
 cp incomplete-sum-file $WORK/overlay/overlay-sum-used-correct-sums
-! go get -overlay overlay.json .
-stderr '^go: updates to go.sum needed, but go.sum is part of the overlay specified with -overlay$'
+! bolero get -overlay overlay.json .
+stderr '^bolero: updates to go.sum needed, but go.sum is part of the overlay specified with -overlay$'
 cmp incomplete-sum-file $WORK/overlay/overlay-sum-used-correct-sums
-! go mod tidy -overlay overlay.json
-stderr '^go: updates to go.sum needed, but go.sum is part of the overlay specified with -overlay$'
+! bolero mod tidy -overlay overlay.json
+stderr '^bolero: updates to go.sum needed, but go.sum is part of the overlay specified with -overlay$'
 cmp incomplete-sum-file $WORK/overlay/overlay-sum-used-correct-sums
 
 # -overlay works with -modfile.
@@ -52,36 +52,36 @@ cmp incomplete-sum-file $WORK/overlay/overlay-sum-used-correct-sums
 # overlaid to the true go.mod file, so the -modfile flag and the overlay
 # mechanism need to work together to determine the name of the module.
 cd $WORK/gopath/src/overlay-and-dash-modfile
-go list -modfile=alternate.mod -overlay overlay.json .
+bolero list -modfile=alternate.mod -overlay overlay.json .
 stdout 'found.the/module'
 # Even with -modfile, overlaid files can't be opened for write.
-! go get -modfile=alternate.mod -overlay overlay.json rsc.io/quote
-stderr '^go: updates to go.mod needed, but go.mod is part of the overlay specified with -overlay$'
+! bolero get -modfile=alternate.mod -overlay overlay.json rsc.io/quote
+stderr '^bolero: updates to go.mod needed, but go.mod is part of the overlay specified with -overlay$'
 
 # Carving out a module by adding an overlaid go.mod file
 cd $WORK/gopath/src/carve
-go list ./... # without an overlay, hasmod is carved out and nomod isn't
+bolero list ./... # without an overlay, hasmod is carved out and nomod isn't
 stdout carve/nomod
 ! stdout carve/hasmod
-go list -overlay overlay_carve_module.json ./... # The overlay carves out nomod, leaving nothing
+bolero list -overlay overlay_carve_module.json ./... # The overlay carves out nomod, leaving nothing
 ! stdout .
 stderr 'matched no packages'
-go list -overlay overlay_uncarve_module.json ./... # The overlay uncarves out hasmod
+bolero list -overlay overlay_uncarve_module.json ./... # The overlay uncarves out hasmod
 stdout carve/nomod
 stdout carve/hasmod
 
 # Carving out a module by adding an overlaid go.mod file and using
 # -modfile to write to that file.
 cd $WORK/gopath/src/carve2/nomod
-go list -overlay overlay.json all
+bolero list -overlay overlay.json all
 ! stdout ^carve2$
 stdout ^carve2/nomod$
 # Editing go.mod file fails because overlay is read only
-! go get -overlay overlay.json rsc.io/quote
-stderr '^go: updates to go.mod needed, but go.mod is part of the overlay specified with -overlay$'
+! bolero get -overlay overlay.json rsc.io/quote
+stderr '^bolero: updates to go.mod needed, but go.mod is part of the overlay specified with -overlay$'
 ! grep rsc.io/quote $WORK/overlay/carve2-nomod-go.mod
 # Editing go.mod file succeeds because we use -modfile to redirect to same file
-go get -overlay overlay.json -modfile $WORK/overlay/carve2-nomod-go.mod rsc.io/quote
+bolero get -overlay overlay.json -modfile $WORK/overlay/carve2-nomod-go.mod rsc.io/quote
 grep rsc.io/quote $WORK/overlay/carve2-nomod-go.mod
 
 -- no-go-mod/file.go --

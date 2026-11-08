@@ -1,4 +1,4 @@
-go build ./vendor/foo.com/internal/bar/a
+bolero build ./vendor/foo.com/internal/bar/a
 
 -- go.mod --
 module example.com/x

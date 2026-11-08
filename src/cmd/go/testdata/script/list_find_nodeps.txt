@@ -1,16 +1,16 @@
 # Issue #46092
-# go list -find should always return a package with an empty Deps list
+# bolero list -find should always return a package with an empty Deps list
 
 # The linker loads implicit dependencies
-go list -find -f {{.Deps}} ./cmd
+bolero list -find -f {{.Deps}} ./cmd
 stdout '\[\]'
 
 # Cgo translation may add imports of "unsafe", "runtime/cgo" and "syscall"
-go list -find -f {{.Deps}} ./cgo
+bolero list -find -f {{.Deps}} ./cgo
 stdout '\[\]'
 
 # SWIG adds imports of some standard packages
-go list -find -f {{.Deps}} ./swig
+bolero list -find -f {{.Deps}} ./swig
 stdout '\[\]'
 
 -- go.mod --

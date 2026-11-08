@@ -1,11 +1,11 @@
 [short] skip
 # Reset all experiments so fieldtrack is definitely off.
 env GOEXPERIMENT=none
-go run m
+bolero run m
 stderr 'fieldtrack off'
 # Turn fieldtrack on.
 env GOEXPERIMENT=none,fieldtrack
-go run m
+bolero run m
 stderr 'fieldtrack on'
 
 -- ft_off.go --

@@ -19,75 +19,75 @@
 #
 # As of 1.21 we continue to use internal linking for programs whose
 # CGO use comes only from stdlib packages in the absence of any flag
-# funny business, however if the Go command sees flags that may be suspicious,
+# funny business, however if the Bolero command sees flags that may be suspicious,
 # it signals the Go linker to invoke the external linker.
 
-# The next few tests run builds passing "-n" to the Go command, then
-# checking the output to see if the Go command is trying to pass a
+# The next few tests run builds passing "-n" to the Bolero command, then
+# checking the output to see if the Bolero command is trying to pass a
 # "preferlinkext" token to the linker to request external linking.
 
 #-----------------------
 
-# Use a fresh GOCACHE for these next steps, so as to have the real
+# Use a fresh BOLERO_CACHE for these next steps, so as to have the real
 # actions for the runtime/cgo package appear in the "-n -x" output.
-env GOCACHE=$WORK/gocache
-mkdir $GOCACHE
+env BOLERO_CACHE=$WORK/gocache
+mkdir $BOLERO_CACHE
 
 # First build: there is no CGO in use, so no token should be present regardless
 # of weird CGO flags.
-go build -x -n -o dummy.exe ./noUseOfCgo
+bolero build -x -n -o dummy.exe ./noUseOfCgo
 ! stderr preferlinkext
 env CGO_CFLAGS=-flto
-go build -x -n -o dummy.exe ./noUseOfCgo
+bolero build -x -n -o dummy.exe ./noUseOfCgo
 ! stderr preferlinkext
 env CGO_CFLAGS=
 
 # Second build uses CGO, so we expect to see the token present in the
 # -n output only when strange flags are used.
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 ! stderr preferlinkext
 env CGO_CFLAGS=-flto
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 stderr preferlinkext
 env CGO_CFLAGS=-fplugin
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 stderr preferlinkext
 env CGO_CFLAGS=-fprofile-instr-generate
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 stderr preferlinkext
 
 # Trimming file information for the UndefinedBehaviorSanitizer is permitted for internal linking.
 env CGO_CFLAGS=-fsanitize-undefined-strip-path-components=-1
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 ! stderr preferlinkext
 env CGO_CFLAGS=-fsanitize-undefined-strip-path-components=2
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 ! stderr preferlinkext
 
 # The -fdebug-prefix-map=path is permitted for internal linking.
 env CGO_CFLAGS=-fdebug-prefix-map=/some/sandbox/execroot/workspace=/tmp/new
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 ! stderr preferlinkext
 env CGO_CFLAGS=-fdebug-prefix-map=/Users/someone/.cache/bazel/_bazel_someone/3fa7e4650c43657ead684537951f49e2/sandbox/linux-sandbox/10/execroot/rules_go_static=.
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 ! stderr preferlinkext
 # The -ffile-prefix-map=path is permitted for internal linking too.
 env CGO_CFLAGS=-ffile-prefix-map=/Users/someone/.cache/bazel/_bazel_someone/3fa7e4650c43657ead684537951f49e2/sandbox/linux-sandbox/10/execroot/rules_go_static/bazel-out/aarch64-fastbuild-ST-b33d65c724e6/bin/external/io_bazel_rules_go/stdlib_=.
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 ! stderr preferlinkext
 # Verifying that -fdebug-prefix-map=path, -ffile-prefix-map, -no-canonical-prefixes
 # and -fno-canonical-systemd-headers are permitted for internal linking.
 env CGO_CFLAGS=-fdebug-prefix-map=old=/tmp/new
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 ! stderr preferlinkext
 env CGO_CFLAGS=-ffile-prefix-map=/Users/someone/_11233/things=new
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 ! stderr preferlinkext
 env CGO_CFLAGS=-no-canonical-prefixes
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 ! stderr preferlinkext
 env CGO_CFLAGS=-fno-canonical-system-headers
-go build -x -n -o dummy.exe ./usesInternalCgo
+bolero build -x -n -o dummy.exe ./usesInternalCgo
 ! stderr preferlinkext
 env CGO_CFLAGS=
 
@@ -95,7 +95,7 @@ env CGO_CFLAGS=
 
 # In the remaining tests below we do actual builds (without -n) to
 # verify that the Go linker is going the right thing in addition to the
-# Go command. Here the idea is to pass "-tmpdir" to the linker, then
+# Bolero command. Here the idea is to pass "-tmpdir" to the linker, then
 # check after the link is done for the presence of the file
 # <tmpdir>/go.o, which the Go linker creates prior to kicking off the
 # external linker.
@@ -107,30 +107,30 @@ mkdir tmp4
 mkdir tmp5
 
 # First build: no external linking expected
-go build -ldflags=-tmpdir=tmp1 -o $devnull ./noUseOfCgo &
+bolero build -ldflags=-tmpdir=tmp1 -o $devnull ./noUseOfCgo &
 
 # Second build: using only "runtime/cgo", expect internal linking.
-go build -ldflags=-tmpdir=tmp2 -o $devnull ./usesInternalCgo &
+bolero build -ldflags=-tmpdir=tmp2 -o $devnull ./usesInternalCgo &
 
 # Third build: program uses only "runtime/cgo", so we would normally
 # expect internal linking, except that cflags contain suspicious entries
 # (in this case, a flag that does not appear on the allow list).
 env CGO_CFLAGS=-fmerge-all-constants
 env CGO_LDFLAGS=-fmerge-all-constants
-go build -ldflags=-tmpdir=tmp3 -o $devnull ./usesInternalCgo &
+bolero build -ldflags=-tmpdir=tmp3 -o $devnull ./usesInternalCgo &
 env CGO_CFLAGS=
 env CGO_LDFLAGS=
 
 # Fourth build: explicit CGO, expect external linking.
-go build -ldflags=-tmpdir=tmp4 -o $devnull ./usesExplicitCgo &
+bolero build -ldflags=-tmpdir=tmp4 -o $devnull ./usesExplicitCgo &
 
 # Fifth build: explicit CGO, but we specifically asked for internal linking
 # via a flag, so using internal linking it is.
-[cgolinkext] go list ./usesInternalCgo
-[!cgolinkext] go build '-ldflags=-tmpdir=tmp5 -linkmode=internal' -o $devnull ./usesInternalCgo &
+[cgolinkext] bolero list ./usesInternalCgo
+[!cgolinkext] bolero build '-ldflags=-tmpdir=tmp5 -linkmode=internal' -o $devnull ./usesInternalCgo &
 
 # Sixth build: explicit CGO use in a non-main package.
-go build -o p.a ./nonMainPackageUsesExplicitCgo &
+bolero build -o p.a ./nonMainPackageUsesExplicitCgo &
 
 wait
 
@@ -150,9 +150,9 @@ exists tmp4/go.o
 # Fifth build: explicit CGO, -linkmode=internal.
 ! exists tmp5/go.o
 
-# Sixth build: make sure that "go tool nm" doesn't get confused
+# Sixth build: make sure that "bolero tool nm" doesn't get confused
 # by the presence of the "preferlinkext" sentinel.
-go tool nm p.a
+bolero tool nm p.a
 
 -- go.mod --
 

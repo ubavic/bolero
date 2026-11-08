@@ -6,10 +6,10 @@ module golang.org/toolchain
 {"Version":"v0.0.1-go1.999testmod.linux-amd64"}
 -- go.mod --
 module golang.org/toolchain
--- bin/go --
+-- bin/bolero --
 #!/bin/sh
 echo go1.999testmod here!
--- bin/gofmt --
+-- bin/bolerofmt --
 echo i am unused
 -- pkg/tool/fake --
 -- lib/wasm/go_js_wasm_exec --

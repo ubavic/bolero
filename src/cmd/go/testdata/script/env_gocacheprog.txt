@@ -1,33 +1,33 @@
-# GOCACHEPROG unset
-env GOCACHEPROG=
+# BOLERO_CACHEPROG unset
+env BOLERO_CACHEPROG=
 
-go env
-stdout 'GOCACHEPROG=''?''?'
+bolero env
+stdout 'BOLERO_CACHEPROG=''?''?'
 
-go env -changed
-! stdout 'GOCACHEPROG'
+bolero env -changed
+! stdout 'BOLERO_CACHEPROG'
 
-go env -changed -json
-! stdout 'GOCACHEPROG'
+bolero env -changed -json
+! stdout 'BOLERO_CACHEPROG'
 
-# GOCACHEPROG set
+# BOLERO_CACHEPROG set
 [short] skip 'compiles and runs a go program'
 
-go build -o cacheprog$GOEXE cacheprog.go
+bolero build -o cacheprog$GOEXE cacheprog.go
 
-env GOCACHEPROG=$GOPATH/src/cacheprog$GOEXE
+env BOLERO_CACHEPROG=$BOLERO_PATH/src/cacheprog$GOEXE
 
-go env
-stdout 'GOCACHEPROG=''?'$GOCACHEPROG'''?'
+bolero env
+stdout 'BOLERO_CACHEPROG=''?'$BOLERO_CACHEPROG'''?'
 
-go env -changed
-stdout 'GOCACHEPROG=''?'$GOCACHEPROG'''?'
+bolero env -changed
+stdout 'BOLERO_CACHEPROG=''?'$BOLERO_CACHEPROG'''?'
 
-go env -changed -json
-stdout '"GOCACHEPROG": ".*cacheprog'$GOEXE'"'
+bolero env -changed -json
+stdout '"BOLERO_CACHEPROG": ".*cacheprog'$GOEXE'"'
 
 -- cacheprog.go --
-// This is a minimal GOCACHEPROG program that can't actually do anything but exit.
+// This is a minimal BOLERO_CACHEPROG program that can't actually do anything but exit.
 package main
 
 import (

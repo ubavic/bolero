@@ -1,29 +1,29 @@
-env GO111MODULE=on
-env GOPROXY=off
+env BOLERO_MODULE=on
+env BOLERO_PROXY=off
 
 [!compiler:gc] skip
 [short] skip
 
-# Outside of GOROOT, our vendored packages should be reported as part of the standard library.
-go list -f '{{if .Standard}}{{.ImportPath}}{{end}}' std cmd
+# Outside of BOLERO_ROOT, our vendored packages should be reported as part of the standard library.
+bolero list -f '{{if .Standard}}{{.ImportPath}}{{end}}' std cmd
 stdout ^vendor/golang\.org/x/net/http2/hpack
 stdout ^cmd/vendor/golang\.org/x/arch/x86/x86asm
 ! stdout ^golang\.org/x/
 
 # The dependencies of those packages should also be vendored.
-go list -deps vendor/golang.org/x/crypto/chacha20
+bolero list -deps vendor/golang.org/x/crypto/chacha20
 stdout ^vendor/golang\.org/x/crypto/internal/alias
 
-# cmd/... should match the same packages it used to match in GOPATH mode.
-go list cmd/...
+# cmd/... should match the same packages it used to match in BOLERO_PATH mode.
+bolero list cmd/...
 stdout ^cmd/compile
 ! stdout ^cmd/vendor/golang\.org/x/arch/x86/x86asm
 
-# GOROOT/src/... should list the packages in std as if it were a module
+# BOLERO_ROOT/src/... should list the packages in std as if it were a module
 # dependency: omitting vendored dependencies and stopping at the 'cmd' module
 # boundary.
 
-go list $GOROOT/src/...
+bolero list $BOLERO_ROOT/src/...
 stdout ^bytes$
 ! stdout ^builtin$
 ! stdout ^cmd/
@@ -32,19 +32,19 @@ stdout ^bytes$
 
 
 # Vendored dependencies should appear with their 'vendor/' paths in std (they're
-# in GOROOT/src, but not in the 'std' module following the usual module-boundary
+# in BOLERO_ROOT/src, but not in the 'std' module following the usual module-boundary
 # rules).
 
-cd $GOROOT/src
-env GOWORK=off
+cd $BOLERO_ROOT/src
+env BOLERO_WORK=off
 
-go list std
+bolero list std
 stdout ^vendor/golang.org/x/net/http2/hpack
 ! stdout ^golang\.org/x
 
 # The dependencies of packages with an explicit 'vendor/' prefix should
 # still themselves resolve to vendored packages.
-go list -deps vendor/golang.org/x/crypto/chacha20
+bolero list -deps vendor/golang.org/x/crypto/chacha20
 stdout ^vendor/golang.org/x/crypto/internal/alias
 ! stdout ^golang\.org/x
 
@@ -52,27 +52,27 @@ stdout ^vendor/golang.org/x/crypto/internal/alias
 # std should appear to be packages beginning with 'vendor/', not 'golang.org/…'
 # module dependencies.
 
-go list all
+bolero list all
 ! stdout ^golang.org/x/
 ! stdout ^std/
 ! stdout ^cmd/
 stdout ^vendor/
 
-go list -deps -f '{{if not .Standard}}{{.ImportPath}}{{end}}' std
+bolero list -deps -f '{{if not .Standard}}{{.ImportPath}}{{end}}' std
 ! stdout .
 
 # However, the 'golang.org/…' module dependencies should resolve to those same
 # directories.
 
-go list -f '{{.Dir}}' golang.org/x/net/http2/hpack
-stdout $GOROOT[/\\]src[/\\]vendor
+bolero list -f '{{.Dir}}' golang.org/x/net/http2/hpack
+stdout $BOLERO_ROOT[/\\]src[/\\]vendor
 
 # Within the std module, the packages within the module should omit the 'std/'
 # prefix (they retain their own identities), but should respect normal module
 # boundaries (vendored packages are not included in the module, even though they
 # are included in the 'std' pattern).
 
-go list ./...
+bolero list ./...
 stdout ^bytes$
 ! stdout ^builtin$
 ! stdout ^cmd/
@@ -82,12 +82,12 @@ stdout ^bytes$
 
 # Within std, the vendored dependencies of cmd should still appear to be part of cmd.
 
-go list -f '{{if .Standard}}{{.ImportPath}}{{end}}' cmd
+bolero list -f '{{if .Standard}}{{.ImportPath}}{{end}}' cmd
 stdout ^cmd/vendor/golang\.org/x/arch/x86/x86asm
 
-go list -f '{{if not .Standard}}{{.ImportPath}}{{end}}' cmd
+bolero list -f '{{if not .Standard}}{{.ImportPath}}{{end}}' cmd
 ! stdout .
 
-go list cmd/...
+bolero list cmd/...
 stdout ^cmd/compile
 ! stdout ^cmd/vendor/golang\.org/x/arch/x86/x86asm

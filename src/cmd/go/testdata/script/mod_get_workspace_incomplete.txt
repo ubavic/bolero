@@ -7,55 +7,55 @@
 cd m
 cp go.mod go.mod.orig
 
-# Test go get with an incomplete module using a local query.
+# Test bolero get with an incomplete module using a local query.
 cp go.mod.orig go.mod
-go get
+bolero get
 cmp go.mod go.mod.want
 cmp go.sum go.sum.want
 
-# Test go get with an incomplete module using a wildcard query.
+# Test bolero get with an incomplete module using a wildcard query.
 cp go.mod.orig go.mod
 rm go.sum
-go get ./...
+bolero get ./...
 cmp go.mod go.mod.want
 cmp go.sum go.sum.want
 
-# Test go get with an incomplete module using a "work" query.
+# Test bolero get with an incomplete module using a "work" query.
 cp go.mod.orig go.mod
 rm go.sum
-go get work
+bolero get work
 cmp go.mod go.mod.want
 cmp go.sum go.sum.want
 
-# Test go get with an incomplete module using a path query that can be resolved.
+# Test bolero get with an incomplete module using a path query that can be resolved.
 cp go.mod.orig go.mod
 rm go.sum
-go get rsc.io/quote
+bolero get rsc.io/quote
 cmp go.mod go.mod.want.path_query # query wasn't resolved through import, so don't know if it's direct
 cmp go.sum go.sum.want
 
-# Test go get with a path query that is to a workspace module but that can't be resolved.
+# Test bolero get with a path query that is to a workspace module but that can't be resolved.
 # Normally, when we encounter an unresolved import of a workspace module, it's
 # ignored, but a path query of the module was asked for explicitly and isn't ignored.
 cp go.mod.orig go.mod
 rm go.sum
-! go get example.com/n
+! bolero get example.com/n
 # The following error is returned because module example.com does exist in the proxy we use
 # to run these tests, and because its is a prefix of example.com/n, it is a candidate to
 # satisfy the import.
 stderr 'module example.com@upgrade found \(v1\.0\.0\), but does not contain package example.com/n'
 
-# Test go get with an incomplete module using an "all" query.
+# Test bolero get with an incomplete module using an "all" query.
 cp go.mod.orig go.mod
 rm go.sum
-go get all
+bolero get all
 cmp go.mod go.mod.want.all # all loads a different graph so the requirements get bumped up
 cmp go.sum go.sum.want.all
 
-# Test go get with an incomplete module using a tool query
+# Test bolero get with an incomplete module using a tool query
 # The hastool directory has its own go.work file than includes example.com/n and hastool.
 cd ../hastool
-go get tool
+bolero get tool
 cmp go.mod go.mod.want
 
 # Test that missing imports from loading the workspace are reported.
@@ -67,7 +67,7 @@ cmp go.mod go.mod.want
 # appear in the missingworkspaceimport's module graph, and the
 # workspace will fail to load in checkPackageProblems because of the missing import.
 cd ../missingworkspaceimport
-! go get ./...
+! bolero get ./...
 stderr 'cannot find module providing package rsc.io/quote'
 
 # Test that missing imports are not reported if they're not in the package
@@ -79,7 +79,7 @@ stderr 'cannot find module providing package rsc.io/quote'
 # module still has an import on the rsc.io/quote package, but the package
 # with the import doesn't appear in the loaded package graph.
 cd ../missingworkspaceimport_disconnected
-go get ./...
+bolero get ./...
 
 # Test that deprecations are reported using the workspace.
 # First, the control case: without the workspace, the deprecated module
@@ -87,17 +87,17 @@ go get ./...
 # so we shouldn't get a deprecation warning.
 cd ../withdeprecation/indirect
 cp go.mod go.mod.orig
-env GOWORK=off
-go get ./...
+env BOLERO_WORK=off
+bolero get ./...
 ! stderr 'is deprecated'
 cmp go.mod go.mod.want
 # Now, in the workspace, we should get a deprecation warning, because
 # the deprecated module is a direct dependency of example.com/withdeprecation/direct, which
 # is a workspace module.
 cp go.mod.orig go.mod
-env GOWORK=
-go get ./...
-stderr 'go: module example.com/deprecated/b is deprecated: in example.com/deprecated/b@v1.9.0'
+env BOLERO_WORK=
+bolero get ./...
+stderr 'bolero: module example.com/deprecated/b is deprecated: in example.com/deprecated/b@v1.9.0'
 cmp go.mod go.mod.want
 
 # Test that retractions are reported using the workspace.
@@ -107,21 +107,21 @@ cmp go.mod go.mod.want
 # or need it to build a requested package, we don't produce the warning.
 cd ../../withretraction/doesnotrequireretracted
 cp go.mod go.mod.orig
-go get rsc.io/quote
+bolero get rsc.io/quote
 ! stderr 'retracted'
 # If we do request a non-retracted version of the module but the workspace
 # is off, we also won't see the retraction warning because the retracted
 # module isn't selected in the graph.
 cp go.mod.orig go.mod
-env GOWORK=off
-go get example.com/retract@v1.0.0-good
+env BOLERO_WORK=off
+bolero get example.com/retract@v1.0.0-good
 ! stderr 'retracted'
 # Now, with the workspace on, because example.com/retract@v1.0.0-unused
 # is a higher version, it will be selected and the retraction will
 # be reported.
 cp go.mod.orig go.mod
-env GOWORK=
-go get example.com/retract@v1.0.0-good
+env BOLERO_WORK=
+bolero get example.com/retract@v1.0.0-good
 stderr 'retracted'
 # Finally, with the workspace on, if the other workspace depends on
 # example.com/retract@v1.0.0-bad rather than 'v1.0.0-unused', because
@@ -129,10 +129,10 @@ stderr 'retracted'
 # will be selected and the deprecation will not be reported.
 cp go.mod.orig go.mod
 cd ../requiresretracted
-go get example.com/retract@v1.0.0-bad # set the verison to 'v1.0.0-bad'
+bolero get example.com/retract@v1.0.0-bad # set the verison to 'v1.0.0-bad'
 stderr 'retracted'
 cd ../doesnotrequireretracted
-go get example.com/retract@v1.0.0-good
+bolero get example.com/retract@v1.0.0-good
 ! stderr 'retracted'
 
 -- go.work --

@@ -90,7 +90,7 @@ func main() {
 		log.Fatalf("Write error %v", err)
 	}
 
-	cmd := exec.Command("go", "run", file)
+	cmd := exec.Command("bolero", "run", file)
 	output, err := cmd.CombinedOutput()
 	if err == nil {
 		log.Fatalf("Passed, expected an error")

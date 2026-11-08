@@ -1,6 +1,6 @@
 # Test adding sums to go.work.sum when sum isn't in go.mod.
 
-go run .
+bolero run .
 cmp go.work.sum want.sum
 
 -- want.sum --

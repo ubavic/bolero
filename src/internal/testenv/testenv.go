@@ -118,11 +118,11 @@ var tryGoBuild = sync.OnceValue(func() error {
 func MustHaveGoBuild(t testing.TB) {
 	if os.Getenv("GO_GCFLAGS") != "" {
 		t.Helper()
-		t.Skipf("skipping test: 'go build' not compatible with setting $GO_GCFLAGS")
+		t.Skipf("skipping test: 'bolero build' not compatible with setting $GO_GCFLAGS")
 	}
 	if !HasGoBuild() {
 		t.Helper()
-		t.Skipf("skipping test: 'go build' unavailable: %v", tryGoBuild())
+		t.Skipf("skipping test: 'bolero build' unavailable: %v", tryGoBuild())
 	}
 }
 
@@ -137,7 +137,7 @@ func HasGoRun() bool {
 func MustHaveGoRun(t testing.TB) {
 	if !HasGoRun() {
 		t.Helper()
-		t.Skipf("skipping test: 'go run' not available on %s/%s", runtime.GOOS, runtime.GOARCH)
+		t.Skipf("skipping test: 'bolero run' not available on %s/%s", runtime.GOOS, runtime.GOARCH)
 	}
 }
 
@@ -204,7 +204,7 @@ var findGOROOT = sync.OnceValues(func() (path string, err error) {
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		return "", fmt.Errorf("finding GOROOT: %w", err)
+		return "", fmt.Errorf("finding BOLERO_ROOT: %w", err)
 	}
 
 	dir := cwd
@@ -212,7 +212,7 @@ var findGOROOT = sync.OnceValues(func() (path string, err error) {
 		parent := filepath.Dir(dir)
 		if parent == dir {
 			// dir is either "." or only a volume name.
-			return "", fmt.Errorf("failed to locate GOROOT/src in any parent directory")
+			return "", fmt.Errorf("failed to locate BOLERO_ROOT/src in any parent directory")
 		}
 
 		if base := filepath.Base(dir); base != "src" {
@@ -226,7 +226,7 @@ var findGOROOT = sync.OnceValues(func() (path string, err error) {
 				dir = parent
 				continue
 			}
-			return "", fmt.Errorf("finding GOROOT: %w", err)
+			return "", fmt.Errorf("finding BOLERO_ROOT: %w", err)
 		}
 		goMod := string(b)
 
@@ -264,13 +264,13 @@ func GOROOT(t testing.TB) string {
 // GoTool reports the path to the Go tool.
 func GoTool() (string, error) {
 	if !HasGoBuild() {
-		return "", errors.New("platform cannot run go tool")
+		return "", errors.New("platform cannot run bolero tool")
 	}
 	return goTool()
 }
 
 var goTool = sync.OnceValues(func() (string, error) {
-	return exec.LookPath("go")
+	return exec.LookPath("bolero")
 })
 
 // MustHaveSource checks that the entire source tree is available under GOROOT.

@@ -10,9 +10,9 @@
 # be an implicit downgrade), and split-incompatible/subpkg v0.1.0, which we
 # *should* use.
 
-go mod tidy
+bolero mod tidy
 
-go list -m all
+bolero list -m all
 stdout '^example.com/split-incompatible/subpkg v0\.1\.0$'
 ! stdout '^example.com/split-incompatible .*'
 

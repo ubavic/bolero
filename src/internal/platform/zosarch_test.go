@@ -26,10 +26,10 @@ func TestGenerated(t *testing.T) {
 	// Here we use 'go run cmd/dist' instead of 'go tool dist' in case the
 	// installed cmd/dist is stale or missing. We don't want to miss a
 	// skew in the data due to a stale binary.
-	cmd := testenv.Command(t, "go", "run", "cmd/dist", "list", "-json", "-broken")
+	cmd := testenv.Command(t, "bolero", "run", "cmd/dist", "list", "-json", "-broken")
 
 	// cmd/dist requires GOROOT to be set explicitly in the environment.
-	cmd.Env = append(cmd.Environ(), "GOROOT="+testenv.GOROOT(t))
+	cmd.Env = append(cmd.Environ(), "BOLERO_ROOT="+testenv.GOROOT(t))
 
 	out, err := cmd.Output()
 	if err != nil {
@@ -57,7 +57,7 @@ func TestGenerated(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cmd = testenv.Command(t, "gofmt")
+	cmd = testenv.Command(t, "bolerofmt")
 	cmd.Stdin = bytes.NewReader(tmplOut.Bytes())
 	want, err := cmd.Output()
 	if err != nil {

@@ -1,5 +1,5 @@
 # Run chatty tests. Assert on CONT lines.
-go test chatty_test.go -v -bench . chatty_bench
+bolero test chatty_test.go -v -bench . chatty_bench
 
 # Sanity check that output happens. We don't provide -count because the amount
 # of output is variable.

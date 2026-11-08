@@ -10,11 +10,11 @@
 [!cgo] skip
 [!GOARCH:ppc64le] skip
 
-go build -ldflags='-linkmode=internal'
+bolero build -ldflags='-linkmode=internal'
 exec ./abitest
 stdout success
 
-go build -buildmode=pie -o abitest.pie -ldflags='-linkmode=internal'
+bolero build -buildmode=pie -o abitest.pie -ldflags='-linkmode=internal'
 exec ./abitest.pie
 stdout success
 

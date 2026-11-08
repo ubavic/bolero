@@ -55,7 +55,7 @@ func maybeToolchainVersion(name string) string {
 // Startup records the information that went into the startup-time version switch.
 // It is initialized by switchGoToolchain.
 var Startup struct {
-	GOTOOLCHAIN   string // $GOTOOLCHAIN setting
+	GOTOOLCHAIN   string // $BOLERO_TOOLCHAIN setting
 	AutoFile      string // go.mod or go.work file consulted
 	AutoGoVersion string // go line found in file
 	AutoToolchain string // toolchain line found in file
@@ -71,7 +71,7 @@ type TooNewError struct {
 func (e *TooNewError) Error() string {
 	var explain string
 	if Startup.GOTOOLCHAIN != "" && Startup.GOTOOLCHAIN != "auto" {
-		explain = "; GOTOOLCHAIN=" + Startup.GOTOOLCHAIN
+		explain = "; BOLERO_TOOLCHAIN=" + Startup.GOTOOLCHAIN
 	}
 	if Startup.AutoFile != "" && (Startup.AutoGoVersion != "" || Startup.AutoToolchain != "") {
 		explain += fmt.Sprintf("; %s sets ", base.ShortPath(Startup.AutoFile))

@@ -4,11 +4,11 @@
 [short] skip
 
 # Simple test.
-go test -v -cover -count=1
+bolero test -v -cover -count=1
 
 # Make sure test still passes when test executable is built and
-# run outside the go command.
-go test -c -o t.exe -cover
+# run outside the bolero command.
+bolero test -c -o t.exe -cover
 exec ./t.exe
 
 -- go.mod --

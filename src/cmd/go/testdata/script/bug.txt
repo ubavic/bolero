@@ -1,16 +1,16 @@
-# Verify that go bug creates the appropriate URL issue body
+# Verify that bolero bug creates the appropriate URL issue body
 
 [!GOOS:linux] skip
 [short] skip
 
-go install
-go build -o $TMPDIR/go ./go
-env BROWSER=$GOPATH/bin/browser PATH=$TMPDIR:$PATH
-go bug
+bolero install
+bolero build -o $TMPDIR/go ./go
+env BROWSER=$BOLERO_PATH/bin/browser PATH=$TMPDIR:$PATH
+bolero bug
 exists $TMPDIR/browser
-grep '^go version' $TMPDIR/browser
-grep '^GOROOT/bin/go version: go version' $TMPDIR/browser
-grep '^GOROOT/bin/go tool compile -V: compile version' $TMPDIR/browser
+grep '^bolero version' $TMPDIR/browser
+grep '^BOLERO_ROOT/bin/bolero version: bolero version' $TMPDIR/browser
+grep '^BOLERO_ROOT/bin/bolero tool compile -V: compile version' $TMPDIR/browser
 grep '^uname -sr: Linux' $TMPDIR/browser
 
 -- go.mod --

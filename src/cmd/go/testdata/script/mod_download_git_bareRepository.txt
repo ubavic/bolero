@@ -9,9 +9,9 @@ env HOME=$WORK${/}home${/}gopher
 exec git config --global --show-origin user.name
 stdout 'Go Gopher'
 
-env GOPRIVATE=vcs-test.golang.org
+env BOLERO_PRIVATE=vcs-test.golang.org
 
-go mod download -x
+bolero mod download -x
 
 -- go.mod --
 module test

@@ -1,93 +1,93 @@
-# GO111MODULE=auto should trigger any time a go.mod exists in a parent directory.
-env GO111MODULE=auto
+# BOLERO_MODULE=auto should trigger any time a go.mod exists in a parent directory.
+env BOLERO_MODULE=auto
 
-cd $GOPATH/src/x/y/z
-go env GOMOD
-stdout $GOPATH[/\\]src[/\\]x[/\\]y[/\\]z[/\\]go.mod
-go list -m -f {{.GoMod}}
-stdout $GOPATH[/\\]src[/\\]x[/\\]y[/\\]z[/\\]go.mod
+cd $BOLERO_PATH/src/x/y/z
+bolero env BOLERO_MOD
+stdout $BOLERO_PATH[/\\]src[/\\]x[/\\]y[/\\]z[/\\]go.mod
+bolero list -m -f {{.GoMod}}
+stdout $BOLERO_PATH[/\\]src[/\\]x[/\\]y[/\\]z[/\\]go.mod
 
-cd $GOPATH/src/x/y/z/w
-go env GOMOD
-stdout $GOPATH[/\\]src[/\\]x[/\\]y[/\\]z[/\\]go.mod
+cd $BOLERO_PATH/src/x/y/z/w
+bolero env BOLERO_MOD
+stdout $BOLERO_PATH[/\\]src[/\\]x[/\\]y[/\\]z[/\\]go.mod
 
-cd $GOPATH/src/x/y
-go env GOMOD
+cd $BOLERO_PATH/src/x/y
+bolero env BOLERO_MOD
 ! stdout .
 
-cd $GOPATH/foo
-go env GOMOD
+cd $BOLERO_PATH/foo
+bolero env BOLERO_MOD
 stdout foo[/\\]go.mod
-go list -m -f {{.GoMod}}
-stdout foo[/\\]go.mod
-
-cd $GOPATH/foo/bar/baz
-go env GOMOD
+bolero list -m -f {{.GoMod}}
 stdout foo[/\\]go.mod
 
-# GO111MODULE unset should be equivalent to on.
-env GO111MODULE=
+cd $BOLERO_PATH/foo/bar/baz
+bolero env BOLERO_MOD
+stdout foo[/\\]go.mod
 
-cd $GOPATH/src/x/y/z
-go env GOMOD
-stdout $GOPATH[/\\]src[/\\]x[/\\]y[/\\]z[/\\]go.mod
+# BOLERO_MODULE unset should be equivalent to on.
+env BOLERO_MODULE=
 
-cd $GOPATH/src/x/y
-go env GOMOD
+cd $BOLERO_PATH/src/x/y/z
+bolero env BOLERO_MOD
+stdout $BOLERO_PATH[/\\]src[/\\]x[/\\]y[/\\]z[/\\]go.mod
+
+cd $BOLERO_PATH/src/x/y
+bolero env BOLERO_MOD
 stdout 'NUL|/dev/null'
 
-# GO111MODULE=on should trigger everywhere
-env GO111MODULE=on
+# BOLERO_MODULE=on should trigger everywhere
+env BOLERO_MODULE=on
 
-cd $GOPATH/src/x/y/z
-go env GOMOD
+cd $BOLERO_PATH/src/x/y/z
+bolero env BOLERO_MOD
 stdout z[/\\]go.mod
 
-cd $GOPATH/src/x/y/z/w
-go env GOMOD
+cd $BOLERO_PATH/src/x/y/z/w
+bolero env BOLERO_MOD
 stdout z[/\\]go.mod
 
-cd $GOPATH/src/x/y
-go env GOMOD
+cd $BOLERO_PATH/src/x/y
+bolero env BOLERO_MOD
 stdout 'NUL|/dev/null'
-go list -m
+bolero list -m
 stdout '^command-line-arguments$'
 
-cd $GOPATH/foo
-go env GOMOD
+cd $BOLERO_PATH/foo
+bolero env BOLERO_MOD
 stdout foo[/\\]go.mod
 
-cd $GOPATH/foo/bar/baz
-go env GOMOD
+cd $BOLERO_PATH/foo/bar/baz
+bolero env BOLERO_MOD
 stdout foo[/\\]go.mod
 
-# GO111MODULE=off should trigger nowhere
-env GO111MODULE=off
+# BOLERO_MODULE=off should trigger nowhere
+env BOLERO_MODULE=off
 
-cd $GOPATH/src/x/y/z
-go env GOMOD
+cd $BOLERO_PATH/src/x/y/z
+bolero env BOLERO_MOD
 ! stdout .+
 
-cd $GOPATH/foo
-go env GOMOD
+cd $BOLERO_PATH/foo
+bolero env BOLERO_MOD
 ! stdout .+
 
-cd $GOPATH/foo/bar/baz
-go env GOMOD
+cd $BOLERO_PATH/foo/bar/baz
+bolero env BOLERO_MOD
 ! stdout .+
 
-# GO111MODULE=auto should ignore and warn about /tmp/go.mod
-env GO111MODULE=auto
-cp $GOPATH/src/x/y/z/go.mod $WORK/tmp/go.mod
+# BOLERO_MODULE=auto should ignore and warn about /tmp/go.mod
+env BOLERO_MODULE=auto
+cp $BOLERO_PATH/src/x/y/z/go.mod $WORK/tmp/go.mod
 mkdir $WORK/tmp/mydir
 cd $WORK/tmp/mydir
-go env GOMOD
+bolero env BOLERO_MOD
 ! stdout .+
-stderr '^go: warning: ignoring go.mod in system temp root '
+stderr '^bolero: warning: ignoring go.mod in system temp root '
 
--- $GOPATH/src/x/y/z/go.mod --
+-- $BOLERO_PATH/src/x/y/z/go.mod --
 module x/y/z
--- $GOPATH/src/x/y/z/w/w.txt --
--- $GOPATH/foo/go.mod --
+-- $BOLERO_PATH/src/x/y/z/w/w.txt --
+-- $BOLERO_PATH/foo/go.mod --
 module example.com/mod
--- $GOPATH/foo/bar/baz/quux.txt --
+-- $BOLERO_PATH/foo/bar/baz/quux.txt --

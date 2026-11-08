@@ -4,7 +4,7 @@
 # coverdep2/p1's xtest imports coverdep2/p2 which imports coverdep2/p1.
 # Make sure that coverage on coverdep2/p2 recompiles coverdep2/p2.
 
-go test -short -cover coverdep2/p1
+bolero test -short -cover coverdep2/p1
 stdout 'coverage: 100.0% of statements' # expect 100.0% coverage
 
 -- go.mod --

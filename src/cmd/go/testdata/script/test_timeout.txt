@@ -1,14 +1,14 @@
 [short] skip
-env GO111MODULE=off
+env BOLERO_MODULE=off
 cd a
 
-# If no timeout is set explicitly, 'go test' should set
+# If no timeout is set explicitly, 'bolero test' should set
 # -test.timeout to its internal deadline.
-go test -v . --
+bolero test -v . --
 stdout '10m0s'
 
 # An explicit -timeout argument should be propagated to -test.timeout.
-go test -v -timeout 30m . --
+bolero test -v -timeout 30m . --
 stdout '30m0s'
 
 -- a/timeout_test.go --

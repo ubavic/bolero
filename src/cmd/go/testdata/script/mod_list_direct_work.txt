@@ -1,4 +1,4 @@
-# Test that ModuleDirect.Public is correctly set on go list output.
+# Test that ModuleDirect.Public is correctly set on bolero list output.
 # This is a regression test for issue #66789.
 
 # In this test, the workspace contains modules example.com/a and
@@ -8,17 +8,17 @@
 # requirement on example.com/c which is incorrectly marked as indirect
 # in module example.com/b's go.mod file.
 
-# Check that go list -m processes the indirect annotations in the
+# Check that bolero list -m processes the indirect annotations in the
 # go.mod file.
-go list -f '{{.Path}} {{.Indirect}}' -m all
+bolero list -f '{{.Path}} {{.Indirect}}' -m all
 stdout 'example.com/a false'
 stdout 'example.com/b false'
 stdout 'rsc.io/sampler false'
 stdout 'golang.org/x/text true'
 stdout 'example.com/c true' # Uses the information in go.mod without checking imports.
 
-# Check that 'go list all' correctly populates "indirect" module annotation.
-go list -f '{{.ImportPath}} {{with .Module}}{{.Indirect}}{{end}}' all
+# Check that 'bolero list all' correctly populates "indirect" module annotation.
+bolero list -f '{{.ImportPath}} {{with .Module}}{{.Indirect}}{{end}}' all
 stdout 'example.com/a false'
 stdout 'example.com/b false'
 stdout 'rsc.io/sampler false'

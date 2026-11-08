@@ -4,6 +4,6 @@
 # of cmd/go, which imports approximately everything
 # in std (certainly everything relevant).
 [!GOOS:darwin] skip
-go list -deps cmd/go
+bolero list -deps cmd/go
 ! stdout runtime/cgo
 

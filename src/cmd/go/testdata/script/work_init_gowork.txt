@@ -1,17 +1,17 @@
-# Test that the GOWORK environment variable flag is used by go work init.
+# Test that the BOLERO_WORK environment variable flag is used by bolero work init.
 
 ! exists go.work
-go work init
+bolero work init
 exists go.work
 
-env GOWORK=$GOPATH/src/foo/foo.work
+env BOLERO_WORK=$BOLERO_PATH/src/foo/foo.work
 ! exists foo/foo.work
-go work init
+bolero work init
 exists foo/foo.work
 
-env GOWORK=
+env BOLERO_WORK=
 cd foo/bar
-! go work init
+! bolero work init
 stderr 'already exists'
 
 # Create directories to make go.work files in.

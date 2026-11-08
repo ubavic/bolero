@@ -1,4 +1,4 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
 # Coverage analysis should use 'set' mode by default,
 # and should merge coverage profiles correctly.
@@ -6,7 +6,7 @@ env GO111MODULE=off
 [short] skip
 [compiler:gccgo] skip # gccgo has no cover tool
 
-go test -short -cover encoding/binary errors -coverprofile=$WORK/cover.out
+bolero test -short -cover encoding/binary errors -coverprofile=$WORK/cover.out
 ! stderr '[^0-9]0\.0%'
 ! stdout '[^0-9]0\.0%'
 
@@ -16,7 +16,7 @@ grep 'binary\.go' $WORK/cover.out
 
 [!race] stop
 
-go test -short -race -cover encoding/binary errors -coverprofile=$WORK/cover.out
+bolero test -short -race -cover encoding/binary errors -coverprofile=$WORK/cover.out
 ! stderr '[^0-9]0\.0%'
 ! stdout '[^0-9]0\.0%'
 

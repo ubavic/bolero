@@ -1,7 +1,7 @@
 # Issue 33871.
 
 cd m/a.0
-go build
+bolero build
 
 -- m/go.mod --
 module m

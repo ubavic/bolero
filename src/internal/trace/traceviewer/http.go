@@ -298,7 +298,7 @@ var templTrace = `
 function onTraceViewerImportFail() {
   document.addEventListener('DOMContentLoaded', function() {
     document.body.textContent =
-    '/static/trace_viewer_full.html is missing. File a bug in https://golang.org/issue';
+    '/static/trace_viewer_full.html is missing. File a bug in https://github.com/ubavic/bolero/issues';
   });
 }
 </script>

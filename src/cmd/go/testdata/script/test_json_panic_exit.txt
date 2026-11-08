@@ -2,24 +2,24 @@
 
 [short] skip
 
-# 'go test -json' should say a test passes if it says it passes.
-go test -json ./pass
+# 'bolero test -json' should say a test passes if it says it passes.
+bolero test -json ./pass
 stdout '"Action":"pass","Package":"[^"]*","Elapsed":[^"]*}\n\z'
 ! stdout '"Test":.*\n\z'
 
-# 'go test -json' should say a test passes if it exits 0 and prints nothing.
+# 'bolero test -json' should say a test passes if it exits 0 and prints nothing.
 # TODO(golang.org/issue/29062): this should fail in the future.
-go test -json ./exit0main
+bolero test -json ./exit0main
 stdout '"Action":"pass".*\n\z'
 ! stdout '"Test":.*\n\z'
 
-# 'go test -json' should say a test fails if it exits 1 and prints nothing.
-! go test -json ./exit1main
+# 'bolero test -json' should say a test fails if it exits 1 and prints nothing.
+! bolero test -json ./exit1main
 stdout '"Action":"fail".*\n\z'
 ! stdout '"Test":.*\n\z'
 
-# 'go test -json' should say a test fails if it panics.
-! go test -json ./panic
+# 'bolero test -json' should say a test fails if it panics.
+! bolero test -json ./panic
 stdout '"Action":"fail".*\n\z'
 ! stdout '"Test":.*\n\z'
 

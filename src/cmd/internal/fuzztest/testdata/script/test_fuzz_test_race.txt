@@ -5,20 +5,20 @@
 [short] skip
 [!fuzz] skip
 [!race] skip
-env GOCACHE=$WORK/cache
+env BOLERO_CACHE=$WORK/cache
 
 # Test with coverage instrumentation enabled (-fuzz) and race instrumentation
 # but without actually fuzzing the target (by using a non-matching pattern)
-go test -fuzz=xxx -race -v
+bolero test -fuzz=xxx -race -v
 ! stderr 'race detected during execution of test'
 
 # Test with just race instrumentation enabled
-go test -race -v
+bolero test -race -v
 ! stderr 'race detected during execution of test'
 
 # Test with coverage and race instrumentation enabled, and a matching fuzz
 # pattern
-go test -fuzz=FuzzRace -race -v -fuzztime=200x
+bolero test -fuzz=FuzzRace -race -v -fuzztime=200x
 ! stderr 'race detected during execution of test'
 
 -- go.mod --

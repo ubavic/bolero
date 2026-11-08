@@ -57,20 +57,20 @@ type embedAlias1 struct { // implicitly notinheap
 type embedAlias2 [1]nihAlias // implicitly notinheap
 
 func g() {
-	y = new(nih)              // ERROR "can't be allocated in Go"
-	y2 = new(struct{ x nih }) // ERROR "can't be allocated in Go"
-	y3 = new([1]nih)          // ERROR "can't be allocated in Go"
-	z = make([]nih, 1)        // ERROR "can't be allocated in Go"
-	z = append(z, x)          // ERROR "can't be allocated in Go"
+	y = new(nih)              // ERROR "can't be allocated"
+	y2 = new(struct{ x nih }) // ERROR "can't be allocated"
+	y3 = new([1]nih)          // ERROR "can't be allocated"
+	z = make([]nih, 1)        // ERROR "can't be allocated"
+	z = append(z, x)          // ERROR "can't be allocated"
 
-	sink = new(embed1)      // ERROR "can't be allocated in Go"
-	sink = new(embed2)      // ERROR "can't be allocated in Go"
-	sink = new(embed3)      // ERROR "can't be allocated in Go"
-	sink = new(embedAlias1) // ERROR "can't be allocated in Go"
-	sink = new(embedAlias2) // ERROR "can't be allocated in Go"
+	sink = new(embed1)      // ERROR "can't be allocated"
+	sink = new(embed2)      // ERROR "can't be allocated"
+	sink = new(embed3)      // ERROR "can't be allocated"
+	sink = new(embedAlias1) // ERROR "can't be allocated"
+	sink = new(embedAlias2) // ERROR "can't be allocated"
 
 	// Test for special case of OMAKESLICECOPY
-	x := make([]nih, n) // ERROR "can't be allocated in Go"
+	x := make([]nih, n) // ERROR "can't be allocated"
 	copy(x, z)
 	z = x
 }

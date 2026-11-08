@@ -1,7 +1,7 @@
-# Regression test for https://go.dev/issue/60490: 'go get' should not cause an
+# Regression test for https://go.dev/issue/60490: 'bolero get' should not cause an
 # infinite loop for cycles introduced in the pruned module graph.
 
-go get example.net/c@v0.1.0
+bolero get example.net/c@v0.1.0
 
 -- go.mod --
 module example

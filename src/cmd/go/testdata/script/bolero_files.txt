@@ -1,51 +1,51 @@
 # Bolero source files (*.bo) are built, run, tested, vetted, covered,
 # formatted and listed like Go source files.
 
-go list -f '{{.GoFiles}} {{.TestGoFiles}} {{.XTestGoFiles}}' ./colors
+bolero list -f '{{.GoFiles}} {{.TestGoFiles}} {{.XTestGoFiles}}' ./colors
 stdout '^\[colors.bo hex.go\] \[colors_test.bo\] \[go_test.go\]$'
 
-go build . ./colors ./relay
-go run .
+bolero build . ./colors ./relay
+bolero run .
 stdout '^F00 3$'
-go run main.bo
+bolero run main.bo
 stdout '^F00 3$'
 
-go test ./colors
+bolero test ./colors
 stdout '^ok'
-go test -cover ./colors
+bolero test -cover ./colors
 stdout 'coverage: [0-9.]+% of statements'
 
-go vet . ./colors ./relay
-go fmt ./colors
+bolero vet . ./colors ./relay
+bolero fmt ./colors
 ! stdout .
 
-# go mod tidy finds the imports of Bolero source files.
+# bolero mod tidy finds the imports of Bolero source files.
 ! grep 'rsc.io/quote' go.mod
-go mod tidy -e
+bolero mod tidy -e
 grep 'rsc.io/quote' go.mod
 
 # cgo is not supported in Bolero source files.
-! go build ./cgo
+! bolero build ./cgo
 stderr 'use of cgo in Bolero file .*c.bo not supported'
 
 # Go source files cannot use declarations from Bolero source files:
 # not in the same package,
-! go build ./mixed
+! bolero build ./mixed
 stderr 'BoFunc is declared in a Bolero file and cannot be used in Go files'
 
 # not from another package, including methods declared in Bolero source
 # files on types declared in Go source files,
-! go build ./gouser
+! bolero build ./gouser
 stderr 'Red is declared in a Bolero file and cannot be used in Go files'
 stderr 'Size is declared in a Bolero file and cannot be used in Go files'
 ! stderr 'HexOf'
 
 # and not through a package that only re-exports Go declarations.
-! go build ./gorelay
+! bolero build ./gorelay
 stderr 'Size is declared in a Bolero file and cannot be used in Go files'
 
-# go vet (go/types) enforces the same rule from export data.
-! go vet ./gouser
+# bolero vet (go/types) enforces the same rule from export data.
+! bolero vet ./gouser
 stderr 'Red is declared in a Bolero file and cannot be used in Go files'
 
 -- go.mod --

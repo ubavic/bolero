@@ -37,14 +37,14 @@
 setlocal
 
 if not exist make.bat (
-	echo Must run make.bat from Go src directory.
+	echo Must run make.bat from Bolero src directory.
 	exit /b 1
 )
 
 :: Clean old generated file that will cause problems in the build.
 del /F ".\pkg\runtime\runtime_defs.go" 2>NUL
 
-:: Set GOROOT for build.
+:: Set BOLERO_ROOT for build.
 cd ..
 set GOROOT_TEMP=%CD%
 set GOROOT=
@@ -82,14 +82,14 @@ if not exist "%GOROOT_BOOTSTRAP%\bin\go.exe" (
 	echo Set GOROOT_BOOTSTRAP to a working Go tree ^>= Go %bootgo%.
 	exit /b 1
 )
-set GOROOT=%GOROOT_TEMP%
+set BOLERO_ROOT=%GOROOT_TEMP%
 set GOROOT_TEMP=
 
 setlocal
 call :nogoenv
 for /f "tokens=*" %%g IN ('"%GOROOT_BOOTSTRAP%\bin\go" version') do (set GOROOT_BOOTSTRAP_VERSION=%%g)
 set GOROOT_BOOTSTRAP_VERSION=%GOROOT_BOOTSTRAP_VERSION:go version =%
-echo Building Go cmd/dist using %GOROOT_BOOTSTRAP%. (%GOROOT_BOOTSTRAP_VERSION%)
+echo Building cmd/dist using %GOROOT_BOOTSTRAP%. (%GOROOT_BOOTSTRAP_VERSION%)
 if x%vflag==x-v echo cmd/dist
 set GOROOT=%GOROOT_BOOTSTRAP%
 set GOBIN=
@@ -101,11 +101,11 @@ del env.bat
 if x%vflag==x-v echo.
 
 if x%1==x--dist-tool (
-	mkdir "%GOTOOLDIR%" 2>NUL
+	mkdir "%BOLERO_TOOLDIR%" 2>NUL
 	if not x%2==x (
 		copy cmd\dist\dist.exe "%2"
 	)
-	move cmd\dist\dist.exe "%GOTOOLDIR%\dist.exe"
+	move cmd\dist\dist.exe "%BOLERO_TOOLDIR%\dist.exe"
 	goto :eof
 )
 

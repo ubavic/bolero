@@ -24,7 +24,7 @@ func main() {
 }
 
 func test(linkmode string) {
-	out, err := exec.Command("go", "run", "-ldflags", "-B=0x12345678 -linkmode="+linkmode, filepath.Join("fixedbugs", "issue10607a.go")).CombinedOutput()
+	out, err := exec.Command("bolero", "run", "-ldflags", "-B=0x12345678 -linkmode="+linkmode, filepath.Join("fixedbugs", "issue10607a.go")).CombinedOutput()
 	if err != nil {
 		fmt.Printf("BUG: linkmode=%s %v\n%s\n", linkmode, err, out)
 		os.Exit(1)

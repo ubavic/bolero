@@ -1,8 +1,8 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-# go list -compiled -test must handle test-only packages
+# bolero list -compiled -test must handle test-only packages
 # golang.org/issue/27097.
-go list -compiled -test
+bolero list -compiled -test
 stdout -count=4 '^.' # 4 lines
 stdout '^m$'
 stdout '^m\.test$'
@@ -10,7 +10,7 @@ stdout '^m \[m\.test\]$'
 stdout '^m_test \[m\.test\]$'
 
 # https://golang.org/issue/39974: test packages should have the Module field populated.
-go list -test -f '{{.ImportPath}}{{with .Module}}: {{.Path}}{{end}}'
+bolero list -test -f '{{.ImportPath}}{{with .Module}}: {{.Path}}{{end}}'
 stdout -count=4 '^.' # 4 lines
 stdout '^m: m$'
 stdout '^m\.test: m$'

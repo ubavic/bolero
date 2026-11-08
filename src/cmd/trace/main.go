@@ -27,15 +27,15 @@ import (
 )
 
 const usageMessage = "" +
-	`Usage of 'go tool trace':
-Given a trace file produced by 'go test':
-	go test -trace=trace.out pkg
+	`Usage of 'bolero tool trace':
+Given a trace file produced by 'bolero test':
+	bolero test -trace=trace.out pkg
 
 Open a web browser displaying trace:
-	go tool trace [flags] [pkg.test] trace.out
+	bolero tool trace [flags] [pkg.test] trace.out
 
 Generate a pprof-like profile from the trace:
-    go tool trace -pprof=TYPE [pkg.test] trace.out
+    bolero tool trace -pprof=TYPE [pkg.test] trace.out
 
 [pkg.test] argument is required for traces produced by Go 1.6 and below.
 Go 1.7 does not require the binary argument.
@@ -52,7 +52,7 @@ Flags:
 	-d=mode: print debug info and exit (modes: wire, parsed, footprint)
 
 Note that while the various profiles available when launching
-'go tool trace' work on every browser, the trace viewer itself
+'bolero tool trace' work on every browser, the trace viewer itself
 (the 'view trace' page) comes from the Chrome/Chromium project
 and is only actively tested on that browser.
 `

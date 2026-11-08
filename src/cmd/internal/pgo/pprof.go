@@ -97,7 +97,7 @@ func createNamedEdgeMap(g *profile.Graph) (edgeMap NamedEdgeMap, totalWeight int
 		// TODO(prattmic): If Function.start_line is missing we could
 		// fall back to using absolute line numbers, which is better
 		// than nothing.
-		return NamedEdgeMap{}, 0, fmt.Errorf("profile missing Function.start_line data (Go version of profiled application too old? Go 1.20+ automatically adds this to profiles)")
+		return NamedEdgeMap{}, 0, fmt.Errorf("profile missing Function.start_line data (profiled application built with an older toolchain?)")
 	}
 	return postProcessNamedEdgeMap(weight, totalWeight)
 }

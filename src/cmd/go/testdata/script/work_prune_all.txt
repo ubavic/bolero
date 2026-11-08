@@ -13,7 +13,7 @@
 # when loading p, we would end up loading q v1.0.0, rather than v1.1.0,
 # which is selected by MVS.
 
-go list -m all
+bolero list -m all
 stdout 'example.com/w v1.0.0'
 stdout 'example.com/q v1.1.0'
 stdout 'example.com/z v1.1.0'

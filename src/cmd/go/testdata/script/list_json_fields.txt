@@ -1,43 +1,43 @@
 # Test using -json flag to specify specific fields.
 
 # Test -json produces "full" output by looking for multiple fields present.
-go list -json .
+bolero list -json .
 stdout '"Name": "a"'
 stdout '"Stale": true'
 # Same thing for -json=true
-go list -json=true .
+bolero list -json=true .
 stdout '"Name": "a"'
 stdout '"Stale": true'
 
 # Test -json=false produces non-json output.
-go list -json=false
+bolero list -json=false
 cmp stdout want-non-json.txt
 
 # Test -json=<field> keeps only that field.
-go list -json=Name
+bolero list -json=Name
 cmp stdout want-json-name.txt
 
 # Test -json=<field> with multiple fields.
-go list -json=ImportPath,Name,GoFiles,Imports
+bolero list -json=ImportPath,Name,GoFiles,Imports
 cmp stdout want-json-multiple.txt
 
 # Test -json=<field> with Deps outputs the Deps field.
-go list -json=Deps
+bolero list -json=Deps
 stdout '"Deps": \['
 stdout '"errors",'
 
 # Test -json=<field> with *EmbedPatterns outputs embed patterns.
 cd embed
-go list -json=EmbedPatterns,TestEmbedPatterns,XTestEmbedPatterns
+bolero list -json=EmbedPatterns,TestEmbedPatterns,XTestEmbedPatterns
 stdout '"EmbedPatterns": \['
 stdout '"TestEmbedPatterns": \['
 stdout '"XTestEmbedPatterns": \['
 # Test -json=<field> with *EmbedFiles fails due to broken file reference.
-! go list -json=EmbedFiles
+! bolero list -json=EmbedFiles
 stderr 'no matching files found'
-! go list -json=TestEmbedFiles
+! bolero list -json=TestEmbedFiles
 stderr 'no matching files found'
-! go list -json=XTestEmbedFiles
+! bolero list -json=XTestEmbedFiles
 stderr 'no matching files found'
 cd ..
 
@@ -47,10 +47,10 @@ cd ..
 cd repo
 exec git init
 # Control case: with -json=Stale cmd/go executes git status to compute buildinfo
-go list -json=Stale -x
+bolero list -json=Stale -x
 stderr 'git status'
 # Test case: without -json=Stale cmd/go skips git status
-go list -json=Name -x
+bolero list -json=Name -x
 ! stderr 'git status'
 
 -- go.mod --

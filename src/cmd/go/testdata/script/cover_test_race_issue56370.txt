@@ -1,7 +1,7 @@
 [short] skip
 [!race] skip
 
-go test -race -cover issue.56370/filter
+bolero test -race -cover issue.56370/filter
 
 -- go.mod --
 module issue.56370

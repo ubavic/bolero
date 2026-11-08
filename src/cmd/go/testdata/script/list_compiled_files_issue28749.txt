@@ -1,4 +1,4 @@
-go list -compiled -f {{.CompiledGoFiles}} .
+bolero list -compiled -f {{.CompiledGoFiles}} .
 ! stdout 'foo.s'
 
 -- go.mod --

@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Link, typically invoked as “go tool link”, reads the Go archive or object
+Link, typically invoked as “bolero tool link”, reads the Go archive or object
 for a package main, along with its dependencies, and combines them
 into an executable binary.
 
@@ -11,7 +11,7 @@ into an executable binary.
 
 Usage:
 
-	go tool link [flags] main.a
+	bolero tool link [flags] main.a
 
 Flags:
 
@@ -30,7 +30,7 @@ Flags:
 		Set the ELF dynamic linker to use.
 	-L dir1 -L dir2
 		Search for imported packages in dir1, dir2, etc,
-		after consulting $GOROOT/pkg/$GOOS_$GOARCH.
+		after consulting $BOLERO_ROOT/pkg/$GOOS_$GOARCH.
 	-R quantum
 		Set address rounding quantum.
 	-T address
@@ -91,8 +91,8 @@ Flags:
 		Read import configuration from file.
 		In the file, set packagefile, packageshlib to specify import resolution.
 	-installsuffix suffix
-		Look for packages in $GOROOT/pkg/$GOOS_$GOARCH_suffix
-		instead of $GOROOT/pkg/$GOOS_$GOARCH.
+		Look for packages in $BOLERO_ROOT/pkg/$GOOS_$GOARCH_suffix
+		instead of $BOLERO_ROOT/pkg/$GOOS_$GOARCH.
 	-k symbol
 		Set field tracking symbol. Use this flag when GOEXPERIMENT=fieldtrack is set.
 	-libgcc file

@@ -1,15 +1,15 @@
 
 cd a
-! go build
+! bolero build
 stderr '^ambiguous import: found package image in multiple modules:\s+image\s+.+\s.+image.+\s$'
 
 
 cd ../b
-! go build -mod=vendor
+! bolero build -mod=vendor
 stderr '^main.go:4:5: ambiguous import: found package image in multiple directories:\s+.+image\s+.+image\s+$'
 
 cd ../c
-! go build -mod=vendor
+! bolero build -mod=vendor
 stderr 'main.go:4:5: package p is not in std'
 
 -- a/go.mod --

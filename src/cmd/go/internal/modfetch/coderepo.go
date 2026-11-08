@@ -297,8 +297,8 @@ func (r *codeRepo) appendIncompatibleVersions(ctx context.Context, origin *codeh
 			// versions for this major version.
 			//
 			// If we're wrong about a minor version in the middle, users will still be
-			// able to 'go get' specific tags for that version explicitly — they just
-			// won't appear in 'go list' or as the results for queries with inequality
+			// able to 'bolero get' specific tags for that version explicitly — they just
+			// won't appear in 'bolero list' or as the results for queries with inequality
 			// bounds.
 			continue
 		}
@@ -956,7 +956,7 @@ func isMajor(mpath, pathMajor string) bool {
 
 // canReplaceMismatchedVersionDueToBug reports whether versions of r
 // could replace versions of mpath with otherwise-mismatched major versions
-// due to a historical bug in the Go command (golang.org/issue/34254).
+// due to a historical bug in the Bolero command (golang.org/issue/34254).
 func (r *codeRepo) canReplaceMismatchedVersionDueToBug(mpath string) bool {
 	// The bug caused us to erroneously accept unversioned paths as replacements
 	// for versioned gopkg.in paths.

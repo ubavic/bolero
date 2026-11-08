@@ -49,19 +49,19 @@ const (
 	// toolchain version during the toolchain switch by the parent
 	// process and cleared in the child process. When set, that indicates
 	// to the child to confirm that it provides the expected toolchain version.
-	targetEnv = "GOTOOLCHAIN_INTERNAL_SWITCH_VERSION"
+	targetEnv = "BOLERO_TOOLCHAIN_INTERNAL_SWITCH_VERSION"
 
 	// countEnv is a special environment variable
 	// that is incremented during each toolchain switch, to detect loops.
-	// It is cleared before invoking programs in 'go run', 'go test', 'go generate', and 'go tool'
+	// It is cleared before invoking programs in 'bolero run', 'bolero test', 'bolero generate', and 'bolero tool'
 	// by invoking them in an environment filtered with FilterEnv,
 	// so user programs should not see this in their environment.
-	countEnv = "GOTOOLCHAIN_INTERNAL_SWITCH_COUNT"
+	countEnv = "BOLERO_TOOLCHAIN_INTERNAL_SWITCH_COUNT"
 
 	// maxSwitch is the maximum toolchain switching depth.
 	// Most uses should never see more than three.
-	// (Perhaps one for the initial GOTOOLCHAIN dispatch,
-	// a second for go get doing an upgrade, and a third if
+	// (Perhaps one for the initial BOLERO_TOOLCHAIN dispatch,
+	// a second for bolero get doing an upgrade, and a third if
 	// for some reason the chosen upgrade version is too small
 	// by a little.)
 	// When the count reaches maxSwitch - 10, we start logging
@@ -71,7 +71,7 @@ const (
 	maxSwitch = 100
 )
 
-// FilterEnv returns a copy of env with internal GOTOOLCHAIN environment
+// FilterEnv returns a copy of env with internal BOLERO_TOOLCHAIN environment
 // variables filtered out.
 func FilterEnv(env []string) []string {
 	// Note: Don't need to filter out targetEnv because Switch does that.
@@ -91,50 +91,50 @@ var (
 )
 
 // Select invokes a different Go toolchain if directed by
-// the GOTOOLCHAIN environment variable or the user's configuration
+// the BOLERO_TOOLCHAIN environment variable or the user's configuration
 // or go.mod file.
 // It must be called early in startup.
 // See https://go.dev/doc/toolchain#select.
 func Select() {
 	moduleLoaderState := modload.NewState()
-	log.SetPrefix("go: ")
+	log.SetPrefix("bolero: ")
 	defer log.SetPrefix("")
 
 	if !moduleLoaderState.WillBeEnabled() {
 		return
 	}
 
-	// As a special case, let "go env GOTOOLCHAIN" and "go env -w GOTOOLCHAIN=..."
+	// As a special case, let "bolero env BOLERO_TOOLCHAIN" and "bolero env -w BOLERO_TOOLCHAIN=..."
 	// be handled by the local toolchain, since an older toolchain may not understand it.
-	// This provides an easy way out of "go env -w GOTOOLCHAIN=go1.19" and makes
-	// sure that "go env GOTOOLCHAIN" always prints the local go command's interpretation of it.
+	// This provides an easy way out of "bolero env -w BOLERO_TOOLCHAIN=go1.19" and makes
+	// sure that "bolero env BOLERO_TOOLCHAIN" always prints the local bolero command's interpretation of it.
 	// We look for these specific command lines in order to avoid mishandling
 	//
-	//	GOTOOLCHAIN=go1.999 go env -newflag GOTOOLCHAIN
+	//	BOLERO_TOOLCHAIN=go1.999 bolero env -newflag BOLERO_TOOLCHAIN
 	//
 	// where -newflag is a flag known to Go 1.999 but not known to us.
-	if (len(os.Args) == 3 && os.Args[1] == "env" && os.Args[2] == "GOTOOLCHAIN") ||
-		(len(os.Args) == 4 && os.Args[1] == "env" && os.Args[2] == "-w" && strings.HasPrefix(os.Args[3], "GOTOOLCHAIN=")) {
+	if (len(os.Args) == 3 && os.Args[1] == "env" && os.Args[2] == "BOLERO_TOOLCHAIN") ||
+		(len(os.Args) == 4 && os.Args[1] == "env" && os.Args[2] == "-w" && strings.HasPrefix(os.Args[3], "BOLERO_TOOLCHAIN=")) {
 		return
 	}
 
-	// As a special case, let "go env GOMOD" and "go env GOWORK" be handled by
-	// the local toolchain. Users expect to be able to look up GOMOD and GOWORK
+	// As a special case, let "bolero env BOLERO_MOD" and "bolero env BOLERO_WORK" be handled by
+	// the local toolchain. Users expect to be able to look up BOLERO_MOD and BOLERO_WORK
 	// since the go.mod and go.work file need to be determined to determine
 	// the minimum toolchain. See issue #61455.
-	if len(os.Args) == 3 && os.Args[1] == "env" && (os.Args[2] == "GOMOD" || os.Args[2] == "GOWORK") {
+	if len(os.Args) == 3 && os.Args[1] == "env" && (os.Args[2] == "BOLERO_MOD" || os.Args[2] == "BOLERO_WORK") {
 		return
 	}
 
-	// Interpret GOTOOLCHAIN to select the Go toolchain to run.
-	gotoolchain := cfg.Getenv("GOTOOLCHAIN")
+	// Interpret BOLERO_TOOLCHAIN to select the Go toolchain to run.
+	gotoolchain := cfg.Getenv("BOLERO_TOOLCHAIN")
 	gover.Startup.GOTOOLCHAIN = gotoolchain
 	if gotoolchain == "" {
-		// cfg.Getenv should fall back to $GOROOT/go.env,
+		// cfg.Getenv should fall back to $BOLERO_ROOT/bolero.env,
 		// so this should not happen, unless a packager
-		// has deleted the GOTOOLCHAIN line from go.env.
-		// It can also happen if GOROOT is missing or broken,
-		// in which case best to let the go command keep running
+		// has deleted the BOLERO_TOOLCHAIN line from bolero.env.
+		// It can also happen if BOLERO_ROOT is missing or broken,
+		// in which case best to let the bolero command keep running
 		// and diagnose the problem.
 		return
 	}
@@ -154,19 +154,19 @@ func Select() {
 			v := gover.FromToolchain(min)
 			if v == "" {
 				if plus {
-					base.Fatalf("invalid GOTOOLCHAIN %q: invalid minimum toolchain %q", gotoolchain, min)
+					base.Fatalf("invalid BOLERO_TOOLCHAIN %q: invalid minimum toolchain %q", gotoolchain, min)
 				}
-				base.Fatalf("invalid GOTOOLCHAIN %q", gotoolchain)
+				base.Fatalf("invalid BOLERO_TOOLCHAIN %q", gotoolchain)
 			}
 			minToolchain = min
 			minVers = v
 		}
 		if plus && suffix != "auto" && suffix != "path" {
-			base.Fatalf("invalid GOTOOLCHAIN %q: only version suffixes are +auto and +path", gotoolchain)
+			base.Fatalf("invalid BOLERO_TOOLCHAIN %q: only version suffixes are +auto and +path", gotoolchain)
 		}
 		mode = suffix
 		if toolchainTrace {
-			fmt.Fprintf(&toolchainTraceBuffer, "go: default toolchain set to %s from GOTOOLCHAIN=%s\n", minToolchain, gotoolchain)
+			fmt.Fprintf(&toolchainTraceBuffer, "bolero: default toolchain set to %s from BOLERO_TOOLCHAIN=%s\n", minToolchain, gotoolchain)
 		}
 	}
 
@@ -179,7 +179,7 @@ func Select() {
 			// "default" means always use the default toolchain,
 			// which is already set, so nothing to do here.
 			// Note that if we have Go 1.21 installed originally,
-			// GOTOOLCHAIN=go1.30.0+auto or GOTOOLCHAIN=go1.30.0,
+			// BOLERO_TOOLCHAIN=go1.30.0+auto or BOLERO_TOOLCHAIN=go1.30.0,
 			// and the go.mod  says "toolchain default", we use Go 1.30, not Go 1.21.
 			// That is, default overrides the "auto" part of the calculation
 			// but not the minimum that the user has set.
@@ -187,7 +187,7 @@ func Select() {
 			// will provoke an error about the toolchain being too old.
 			// That's what people who use toolchain default want:
 			// only ever use the toolchain configured by the user
-			// (including its environment and go env -w file).
+			// (including its environment and bolero env -w file).
 			gover.Startup.AutoToolchain = toolchain
 		} else {
 			if toolchain != "" {
@@ -202,10 +202,10 @@ func Select() {
 				if gover.Compare(toolVers, minVers) > 0 {
 					if toolchainTrace {
 						modeFormat := mode
-						if strings.Contains(cfg.Getenv("GOTOOLCHAIN"), "+") { // go1.2.3+auto
+						if strings.Contains(cfg.Getenv("BOLERO_TOOLCHAIN"), "+") { // go1.2.3+auto
 							modeFormat = fmt.Sprintf("<name>+%s", mode)
 						}
-						fmt.Fprintf(&toolchainTraceBuffer, "go: upgrading toolchain to %s (required by toolchain line in %s; upgrade allowed by GOTOOLCHAIN=%s)\n", toolchain, base.ShortPath(file), modeFormat)
+						fmt.Fprintf(&toolchainTraceBuffer, "bolero: upgrading toolchain to %s (required by toolchain line in %s; upgrade allowed by BOLERO_TOOLCHAIN=%s)\n", toolchain, base.ShortPath(file), modeFormat)
 					}
 					gotoolchain = toolchain
 					minVers = toolVers
@@ -226,10 +226,10 @@ func Select() {
 				gover.Startup.AutoToolchain = "" // in case we are overriding it for being too old
 				if toolchainTrace {
 					modeFormat := mode
-					if strings.Contains(cfg.Getenv("GOTOOLCHAIN"), "+") { // go1.2.3+auto
+					if strings.Contains(cfg.Getenv("BOLERO_TOOLCHAIN"), "+") { // go1.2.3+auto
 						modeFormat = fmt.Sprintf("<name>+%s", mode)
 					}
-					fmt.Fprintf(&toolchainTraceBuffer, "go: upgrading toolchain to %s (required by go line in %s; upgrade allowed by GOTOOLCHAIN=%s)\n", gotoolchain, base.ShortPath(file), modeFormat)
+					fmt.Fprintf(&toolchainTraceBuffer, "bolero: upgrading toolchain to %s (required by go line in %s; upgrade allowed by BOLERO_TOOLCHAIN=%s)\n", gotoolchain, base.ShortPath(file), modeFormat)
 				}
 			}
 		}
@@ -250,8 +250,8 @@ func Select() {
 		// then target == gotoolchain here, as a sanity check that
 		// the child has made the same version determination as the parent.
 		// This turns out not always to be the case. Specifically, if we are
-		// running Go 1.21 with GOTOOLCHAIN=go1.22+auto, which invokes
-		// Go 1.22, then 'go get go@1.23.0' or 'go get needs_go_1_23'
+		// running Go 1.21 with BOLERO_TOOLCHAIN=go1.22+auto, which invokes
+		// Go 1.22, then 'bolero get go@1.23.0' or 'bolero get needs_go_1_23'
 		// will invoke Go 1.23, but as the Go 1.23 child the reason for that
 		// will not be apparent here: it will look like we should be using Go 1.22.
 		// We rely on the targetEnv being set to know not to downgrade.
@@ -271,17 +271,17 @@ func Select() {
 	if gotoolchain == "local" || gotoolchain == gover.LocalToolchain() {
 		// Let the current binary handle the command.
 		if toolchainTrace {
-			fmt.Fprintf(os.Stderr, "go: using local toolchain %s\n", gover.LocalToolchain())
+			fmt.Fprintf(os.Stderr, "bolero: using local toolchain %s\n", gover.LocalToolchain())
 		}
 		return
 	}
 
-	// Minimal sanity check of GOTOOLCHAIN setting before search.
+	// Minimal sanity check of BOLERO_TOOLCHAIN setting before search.
 	// We want to allow things like go1.20.3 but also gccgo-go1.20.3.
-	// We want to disallow mistakes / bad ideas like GOTOOLCHAIN=bash,
+	// We want to disallow mistakes / bad ideas like BOLERO_TOOLCHAIN=bash,
 	// since we will find that in the path lookup.
 	if !strings.HasPrefix(gotoolchain, "go1") && !strings.Contains(gotoolchain, "-go1") {
-		base.Fatalf("invalid GOTOOLCHAIN %q", gotoolchain)
+		base.Fatalf("invalid BOLERO_TOOLCHAIN %q", gotoolchain)
 	}
 
 	counterSelectExec.Inc()
@@ -300,24 +300,24 @@ var counterSelectExec = counter.New("go/toolchain/select-exec")
 var TestVersionSwitch string
 
 // Exec invokes the specified Go toolchain or else prints an error and exits the process.
-// If $GOTOOLCHAIN is set to path or min+path, Exec only considers the PATH
+// If $BOLERO_TOOLCHAIN is set to path or min+path, Exec only considers the PATH
 // as a source of Go toolchains. Otherwise Exec tries the PATH but then downloads
 // a toolchain if necessary.
 func Exec(s *modload.State, gotoolchain string) {
-	log.SetPrefix("go: ")
+	log.SetPrefix("bolero: ")
 
 	writeBits = sysWriteBits()
 
 	count, _ := strconv.Atoi(os.Getenv(countEnv))
 	if count >= maxSwitch-10 {
-		fmt.Fprintf(os.Stderr, "go: switching from go%v to %v [depth %d]\n", gover.Local(), gotoolchain, count)
+		fmt.Fprintf(os.Stderr, "bolero: switching from go%v to %v [depth %d]\n", gover.Local(), gotoolchain, count)
 	}
 	if count >= maxSwitch {
 		base.Fatalf("too many toolchain switches")
 	}
 	os.Setenv(countEnv, fmt.Sprint(count+1))
 
-	env := cfg.Getenv("GOTOOLCHAIN")
+	env := cfg.Getenv("BOLERO_TOOLCHAIN")
 	pathOnly := env == "path" || strings.HasSuffix(env, "+path")
 
 	// For testing, if TESTGO_VERSION is already in use
@@ -338,24 +338,24 @@ func Exec(s *modload.State, gotoolchain string) {
 		if err != nil {
 			base.Fatalf("%v", err)
 		}
-		execGoToolchain(gotoolchain, os.Getenv("GOROOT"), exe)
+		execGoToolchain(gotoolchain, os.Getenv("BOLERO_ROOT"), exe)
 	}
 
 	// Look in PATH for the toolchain before we download one.
 	// This allows custom toolchains as well as reuse of toolchains
-	// already installed using go install golang.org/dl/go1.2.3@latest.
+	// already installed using bolero install golang.org/dl/go1.2.3@latest.
 	if exe, err := pathcache.LookPath(gotoolchain); err == nil {
 		execGoToolchain(gotoolchain, "", exe)
 	}
 
-	// GOTOOLCHAIN=auto looks in PATH and then falls back to download.
-	// GOTOOLCHAIN=path only looks in PATH.
+	// BOLERO_TOOLCHAIN=auto looks in PATH and then falls back to download.
+	// BOLERO_TOOLCHAIN=path only looks in PATH.
 	if pathOnly {
 		base.Fatalf("cannot find %q in PATH", gotoolchain)
 	}
 
 	// Download and unpack toolchain module into module cache.
-	// Note that multiple go commands might be doing this at the same time,
+	// Note that multiple bolero commands might be doing this at the same time,
 	// and that's OK: the module cache handles that case correctly.
 	m := module.Version{
 		Path:    gotoolchainModule,
@@ -374,10 +374,10 @@ func Exec(s *modload.State, gotoolchain string) {
 	}
 
 	// On first use after download, set the execute bits on the commands
-	// so that we can run them. Note that multiple go commands might be
+	// so that we can run them. Note that multiple bolero commands might be
 	// doing this at the same time, but if so no harm done.
 	if runtime.GOOS != "windows" {
-		info, err := os.Stat(filepath.Join(dir, "bin/go"))
+		info, err := os.Stat(filepath.Join(dir, "bin/bolero"))
 		if err != nil {
 			base.Fatalf("download %s: %v", gotoolchain, err)
 		}
@@ -411,17 +411,17 @@ func Exec(s *modload.State, gotoolchain string) {
 				}
 			}
 
-			// Set the bits in pkg/tool before bin/go.
-			// If we are racing with another go command and do bin/go first,
-			// then the check of bin/go above might succeed, the other go command
-			// would skip its own mode-setting, and then the go command might
+			// Set the bits in pkg/tool before bin/bolero.
+			// If we are racing with another bolero command and do bin/bolero first,
+			// then the check of bin/bolero above might succeed, the other bolero command
+			// would skip its own mode-setting, and then the bolero command might
 			// try to run a tool before we get to setting the bits on pkg/tool.
-			// Setting pkg/tool and lib before bin/go avoids that ordering problem.
-			// The only other tool the go command invokes is gofmt,
-			// so we set that one explicitly before handling bin (which will include bin/go).
+			// Setting pkg/tool and lib before bin/bolero avoids that ordering problem.
+			// The only other tool the bolero command invokes is bolerofmt,
+			// so we set that one explicitly before handling bin (which will include bin/bolero).
 			allowExec(filepath.Join(dir, "pkg/tool"), "")
 			allowExec(filepath.Join(dir, "lib"), "go_?*_?*_exec")
-			allowExec(filepath.Join(dir, "bin/gofmt"), "")
+			allowExec(filepath.Join(dir, "bin/bolerofmt"), "")
 			allowExec(filepath.Join(dir, "bin"), "")
 		}
 	}
@@ -434,7 +434,7 @@ func Exec(s *modload.State, gotoolchain string) {
 				return err
 			}
 			if path == srcUGoMod {
-				// Leave for last, in case we are racing with another go command.
+				// Leave for last, in case we are racing with another bolero command.
 				return nil
 			}
 			if pdir, name := filepath.Split(path); name == "_go.mod" {
@@ -444,7 +444,7 @@ func Exec(s *modload.State, gotoolchain string) {
 			}
 			return nil
 		})
-		// Handle src/go.mod; this is the signal to other racing go commands
+		// Handle src/go.mod; this is the signal to other racing bolero commands
 		// that everything is okay and they can skip this step.
 		if err == nil {
 			err = raceSafeCopy(srcUGoMod, srcGoMod)
@@ -454,8 +454,8 @@ func Exec(s *modload.State, gotoolchain string) {
 		}
 	}
 
-	// Reinvoke the go command.
-	execGoToolchain(gotoolchain, dir, filepath.Join(dir, "bin/go"))
+	// Reinvoke the bolero command.
+	execGoToolchain(gotoolchain, dir, filepath.Join(dir, "bin/bolero"))
 }
 
 func size(path string) int64 {
@@ -469,11 +469,11 @@ func size(path string) int64 {
 var writeBits fs.FileMode
 
 // raceSafeCopy copies the file old to the file new, being careful to ensure
-// that if multiple go commands call raceSafeCopy(old, new) at the same time,
+// that if multiple bolero commands call raceSafeCopy(old, new) at the same time,
 // they don't interfere with each other: both will succeed and return and
 // later observe the correct content in new. Like in the build cache, we arrange
 // this by opening new without truncation and then writing the content.
-// Both go commands can do this simultaneously and will write the same thing
+// Both bolero commands can do this simultaneously and will write the same thing
 // (old never changes content).
 func raceSafeCopy(old, new string) error {
 	oldInfo, err := os.Stat(old)
@@ -501,11 +501,11 @@ func raceSafeCopy(old, new string) error {
 		return err
 	}
 	defer os.Chmod(dir, info.Mode())
-	// Note: create the file writable, so that a racing go command
+	// Note: create the file writable, so that a racing bolero command
 	// doesn't get an error before we store the actual data.
 	f, err := os.OpenFile(new, os.O_CREATE|os.O_WRONLY, writeBits&^0o111)
 	if err != nil {
-		// If OpenFile failed because a racing go command completed our work
+		// If OpenFile failed because a racing bolero command completed our work
 		// (and then OpenFile failed because the directory or file is now read-only),
 		// count that as a success.
 		if size(old) == size(new) {
@@ -527,7 +527,7 @@ func raceSafeCopy(old, new string) error {
 func modGoToolchain(loaderstate *modload.State) (file, goVers, toolchain string) {
 	wd := base.UncachedCwd()
 	file = loaderstate.FindGoWork(wd)
-	// $GOWORK can be set to a file that does not yet exist, if we are running 'go work init'.
+	// $BOLERO_WORK can be set to a file that does not yet exist, if we are running 'bolero work init'.
 	// Do not try to load the file in that case
 	if _, err := os.Stat(file); err != nil {
 		file = ""
@@ -546,7 +546,7 @@ func modGoToolchain(loaderstate *modload.State) (file, goVers, toolchain string)
 	return file, gover.GoModLookup(data, "go"), gover.GoModLookup(data, "toolchain")
 }
 
-// maybeSwitchForGoInstallVersion reports whether the command line is go install m@v or go run m@v.
+// maybeSwitchForGoInstallVersion reports whether the command line is bolero install m@v or bolero run m@v.
 // If so, switch to the go version required to build m@v if it's higher than minVers.
 func maybeSwitchForGoInstallVersion(loaderstate *modload.State, minVers string) {
 	// Note: We assume there are no flags between 'go' and 'install' or 'run'.
@@ -639,7 +639,7 @@ func maybeSwitchForGoInstallVersion(loaderstate *modload.State, minVers string) 
 				return
 			}
 
-			// We would like to let 'go install -newflag pkg@version' work even
+			// We would like to let 'bolero install -newflag pkg@version' work even
 			// across a toolchain switch. To make that work, assume by default that
 			// the pkg@version is the last argument and skip the remaining args unless
 			// we spot a plausible "-modcacherw" flag.
@@ -669,7 +669,7 @@ func maybeSwitchForGoInstallVersion(loaderstate *modload.State, minVers string) 
 	}
 	path, version, _, err := modload.ParsePathVersion(pkgArg)
 	if err != nil {
-		base.Fatalf("go: %v", err)
+		base.Fatalf("bolero: %v", err)
 	}
 	if path == "" || version == "" || gover.IsToolchain(path) {
 		return
@@ -681,14 +681,14 @@ func maybeSwitchForGoInstallVersion(loaderstate *modload.State, minVers string) 
 		base.SetFromGOFLAGS(fs)
 	}
 
-	// It would be correct to do nothing here, and let "go run" or "go install"
+	// It would be correct to do nothing here, and let "bolero run" or "bolero install"
 	// do the toolchain switch.
 	// Our goal instead is, since we have gone to the trouble of handling
 	// unknown flags to some degree, to run the switch now, so that
 	// these commands can switch to a newer toolchain directed by the
 	// go.mod which may actually understand the flag.
 	// This was brought up during the go.dev/issue/57001 proposal discussion
-	// and may end up being common in self-contained "go install" or "go run"
+	// and may end up being common in self-contained "bolero install" or "bolero run"
 	// command lines if we add new flags in the future.
 
 	// Set up modules without an explicit go.mod, to download go.mod.
@@ -707,7 +707,7 @@ func maybeSwitchForGoInstallVersion(loaderstate *modload.State, minVers string) 
 	noneSelected := func(path string) (version string) { return "none" }
 	_, err = modload.QueryPackages(loaderstate, ctx, path, version, noneSelected, allowed)
 	if errors.Is(err, gover.ErrTooNew) {
-		// Run early switch, same one go install or go run would eventually do,
+		// Run early switch, same one bolero install or bolero run would eventually do,
 		// if it understood all the command-line flags.
 		s := NewSwitcher(loaderstate)
 		s.Error(err)

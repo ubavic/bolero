@@ -1,7 +1,7 @@
 # Regression test for https://go.dev/issue/54712: the "unix" build constraint
 # was not applied consistently during package loading.
 
-go list -x -f '{{if .Module}}{{.ImportPath}}{{end}}' -deps .
+bolero list -x -f '{{if .Module}}{{.ImportPath}}{{end}}' -deps .
 stdout 'example.com/version'
 
 -- go.mod --

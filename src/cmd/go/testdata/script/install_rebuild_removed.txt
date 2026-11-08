@@ -1,7 +1,7 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-# go command should detect package staleness as source file set changes
-go install mypkg
+# bolero command should detect package staleness as source file set changes
+bolero install mypkg
 ! stale mypkg
 
 # z.go was not compiled; removing it should NOT make mypkg stale
@@ -12,8 +12,8 @@ rm mypkg/z.go
 rm mypkg/y.go
 stale mypkg
 
-# go command should detect executable staleness too
-go install mycmd
+# bolero command should detect executable staleness too
+bolero install mycmd
 ! stale mycmd
 rm mycmd/z.go
 ! stale mycmd

@@ -3,7 +3,7 @@
 # Test that cgo package can't contain a go assembly file.
 
 # Ensure the build fails and reports that the package has a Go assembly file.
-! go build cgoasm
+! bolero build cgoasm
 stderr 'package using cgo has Go assembly file'
 
 -- go.mod --

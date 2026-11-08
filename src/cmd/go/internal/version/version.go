@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package version implements the “go version” command.
+// Package version implements the “bolero version” command.
 package version
 
 import (
@@ -22,29 +22,29 @@ import (
 )
 
 var CmdVersion = &base.Command{
-	UsageLine: "go version [-m] [-v] [-json] [file ...]",
-	Short:     "print Go version",
-	Long: `Version prints the build information for Go binary files.
+	UsageLine: "bolero version [-m] [-v] [-json] [file ...]",
+	Short:     "print Bolero version",
+	Long: `Version prints the build information for Bolero binary files.
 
-Go version reports the Go version used to build each of the named files.
+Version reports the toolchain version used to build each of the named files.
 
-If no files are named on the command line, go version prints its own
+If no files are named on the command line, bolero version prints its own
 version information.
 
-If a directory is named, go version walks that directory, recursively,
-looking for recognized Go binaries and reporting their versions.
-By default, go version does not report unrecognized files found
+If a directory is named, bolero version walks that directory, recursively,
+looking for recognized Bolero binaries and reporting their versions.
+By default, bolero version does not report unrecognized files found
 during a directory scan. The -v flag causes it to report unrecognized files.
 
-The -m flag causes go version to print each file's embedded
+The -m flag causes bolero version to print each file's embedded
 module version information, when available. In the output, the module
 information consists of multiple lines following the version line, each
 indented by a leading tab character.
 
 The -json flag is similar to -m but outputs the runtime/debug.BuildInfo in JSON format.
-If flag -json is specified without -m, go version reports an error.
+If flag -json is specified without -m, bolero version reports an error.
 
-See also: go doc runtime/debug.BuildInfo.
+See also: bolero doc runtime/debug.BuildInfo.
 `,
 }
 
@@ -64,10 +64,10 @@ func runVersion(ctx context.Context, cmd *base.Command, args []string) {
 		// If any of this command's flags were passed explicitly, error
 		// out, because they only make sense with arguments.
 		//
-		// Don't error if the flags came from GOFLAGS, since that can be
-		// a reasonable use case. For example, imagine GOFLAGS=-v to
-		// turn "verbose mode" on for all Go commands, which should not
-		// break "go version".
+		// Don't error if the flags came from BOLERO_FLAGS, since that can be
+		// a reasonable use case. For example, imagine BOLERO_FLAGS=-v to
+		// turn "verbose mode" on for all Bolero commands, which should not
+		// break "bolero version".
 		var argOnlyFlag string
 		if !base.InGOFLAGS("-m") && *versionM {
 			argOnlyFlag = "-m"
@@ -80,7 +80,7 @@ func runVersion(ctx context.Context, cmd *base.Command, args []string) {
 			argOnlyFlag = "-json"
 		}
 		if argOnlyFlag != "" {
-			fmt.Fprintf(os.Stderr, "go: 'go version' only accepts %s flag with arguments\n", argOnlyFlag)
+			fmt.Fprintf(os.Stderr, "bolero: 'bolero version' only accepts %s flag with arguments\n", argOnlyFlag)
 			base.SetExitStatus(2)
 			return
 		}
@@ -88,12 +88,12 @@ func runVersion(ctx context.Context, cmd *base.Command, args []string) {
 		if gover.TestVersion != "" {
 			v = gover.TestVersion + " (TESTGO_VERSION)"
 		}
-		fmt.Printf("go version %s %s/%s\n", v, runtime.GOOS, runtime.GOARCH)
+		fmt.Printf("bolero version %s %s/%s\n", v, runtime.GOOS, runtime.GOARCH)
 		return
 	}
 
 	if !*versionM && *versionJson {
-		fmt.Fprintf(os.Stderr, "go: 'go version' with -json flag requires -m flag\n")
+		fmt.Fprintf(os.Stderr, "bolero: 'bolero version' with -json flag requires -m flag\n")
 		base.SetExitStatus(2)
 		return
 	}
@@ -193,7 +193,7 @@ func scanFile(file string, info fs.FileInfo, mustPrint bool) bool {
 	}
 
 	fmt.Printf("%s: %s\n", file, bi.GoVersion)
-	bi.GoVersion = "" // suppress printing go version again
+	bi.GoVersion = "" // suppress printing bolero version again
 	mod := bi.String()
 	if *versionM && len(mod) > 0 {
 		fmt.Printf("\t%s\n", strings.ReplaceAll(mod[:len(mod)-1], "\n", "\n\t"))

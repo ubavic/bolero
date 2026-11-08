@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// go work edit
+// bolero work edit
 
 package workcmd
 
@@ -23,7 +23,7 @@ import (
 )
 
 var cmdEdit = &base.Command{
-	UsageLine: "go work edit [editing flags] [go.work]",
+	UsageLine: "bolero work edit [editing flags] [go.work]",
 	Short:     "edit go.work from tools or scripts",
 	Long: `Edit provides a command-line interface for editing go.work,
 for use primarily by tools or scripts. It only reads go.work;
@@ -36,7 +36,7 @@ The editing flags specify a sequence of editing operations.
 The -fmt flag reformats the go.work file without making other changes.
 This reformatting is also implied by any other modifications that use or
 rewrite the go.mod file. The only time this flag is needed is if no other
-flags are specified, as in 'go work edit -fmt'.
+flags are specified, as in 'bolero work edit -fmt'.
 
 The -godebug=key=value flag adds a godebug key=value line,
 replacing any existing godebug lines with the given key.
@@ -64,7 +64,7 @@ editing flags may be repeated, and the changes are applied in the order given.
 
 The -go=version flag sets the expected Go language version.
 
-The -toolchain=name flag sets the Go toolchain to use.
+The -toolchain=name flag sets the Bolero toolchain to use.
 
 The -print flag prints the final go.work in its text format instead of
 writing it back to go.mod.
@@ -73,7 +73,7 @@ The -json flag prints the final go.work file in JSON format instead of
 writing it back to go.mod. The JSON output corresponds to these Go types:
 
 	type GoWork struct {
-		Go        string
+		Bolero        string
 		Toolchain string
 		Godebug   []Godebug
 		Use       []Use
@@ -134,11 +134,11 @@ func init() {
 func runEditwork(ctx context.Context, cmd *base.Command, args []string) {
 	moduleLoaderState := modload.NewState()
 	if *editJSON && *editPrint {
-		base.Fatalf("go: cannot use both -json and -print")
+		base.Fatalf("bolero: cannot use both -json and -print")
 	}
 
 	if len(args) > 1 {
-		base.Fatalf("go: 'go help work edit' accepts at most one argument")
+		base.Fatalf("bolero: 'bolero help work edit' accepts at most one argument")
 	}
 	var gowork string
 	if len(args) == 1 {
@@ -148,17 +148,17 @@ func runEditwork(ctx context.Context, cmd *base.Command, args []string) {
 		gowork = modload.WorkFilePath(moduleLoaderState)
 	}
 	if gowork == "" {
-		base.Fatalf("go: no go.work file found\n\t(run 'go work init' first or specify path using GOWORK environment variable)")
+		base.Fatalf("bolero: no go.work file found\n\t(run 'bolero work init' first or specify path using BOLERO_WORK environment variable)")
 	}
 
 	if *editGo != "" && *editGo != "none" {
 		if !modfile.GoVersionRE.MatchString(*editGo) {
-			base.Fatalf(`go work: invalid -go option; expecting something like "-go %s"`, gover.Local())
+			base.Fatalf(`bolero work: invalid -go option; expecting something like "-go %s"`, gover.Local())
 		}
 	}
 	if *editToolchain != "" && *editToolchain != "none" {
 		if !modfile.ToolchainRE.MatchString(*editToolchain) {
-			base.Fatalf(`go work: invalid -toolchain option; expecting something like "-toolchain go%s"`, gover.Local())
+			base.Fatalf(`bolero work: invalid -toolchain option; expecting something like "-toolchain go%s"`, gover.Local())
 		}
 	}
 
@@ -170,26 +170,26 @@ func runEditwork(ctx context.Context, cmd *base.Command, args []string) {
 		len(workedits) > 0
 
 	if !anyFlags {
-		base.Fatalf("go: no flags specified (see 'go help work edit').")
+		base.Fatalf("bolero: no flags specified (see 'bolero help work edit').")
 	}
 
 	workFile, err := modload.ReadWorkFile(gowork)
 	if err != nil {
-		base.Fatalf("go: errors parsing %s:\n%s", base.ShortPath(gowork), err)
+		base.Fatalf("bolero: errors parsing %s:\n%s", base.ShortPath(gowork), err)
 	}
 
 	if *editGo == "none" {
 		workFile.DropGoStmt()
 	} else if *editGo != "" {
 		if err := workFile.AddGoStmt(*editGo); err != nil {
-			base.Fatalf("go: internal error: %v", err)
+			base.Fatalf("bolero: internal error: %v", err)
 		}
 	}
 	if *editToolchain == "none" {
 		workFile.DropToolchainStmt()
 	} else if *editToolchain != "" {
 		if err := workFile.AddToolchainStmt(*editToolchain); err != nil {
-			base.Fatalf("go: internal error: %v", err)
+			base.Fatalf("bolero: internal error: %v", err)
 		}
 	}
 
@@ -225,11 +225,11 @@ func runEditwork(ctx context.Context, cmd *base.Command, args []string) {
 func flagEditworkGodebug(arg string) {
 	key, value, ok := strings.Cut(arg, "=")
 	if !ok || strings.ContainsAny(arg, "\"`',") {
-		base.Fatalf("go: -godebug=%s: need key=value", arg)
+		base.Fatalf("bolero: -godebug=%s: need key=value", arg)
 	}
 	workedits = append(workedits, func(f *modfile.WorkFile) {
 		if err := f.AddGodebug(key, value); err != nil {
-			base.Fatalf("go: -godebug=%s: %v", arg, err)
+			base.Fatalf("bolero: -godebug=%s: %v", arg, err)
 		}
 	})
 }
@@ -238,7 +238,7 @@ func flagEditworkGodebug(arg string) {
 func flagEditworkDropGodebug(arg string) {
 	workedits = append(workedits, func(f *modfile.WorkFile) {
 		if err := f.DropGodebug(arg); err != nil {
-			base.Fatalf("go: -dropgodebug=%s: %v", arg, err)
+			base.Fatalf("bolero: -dropgodebug=%s: %v", arg, err)
 		}
 	})
 }
@@ -253,7 +253,7 @@ func flagEditworkUse(arg string) {
 		}
 		f.AddUse(modload.ToDirectoryPath(arg), modulePath)
 		if err := f.AddUse(modload.ToDirectoryPath(arg), ""); err != nil {
-			base.Fatalf("go: -use=%s: %v", arg, err)
+			base.Fatalf("bolero: -use=%s: %v", arg, err)
 		}
 	})
 }
@@ -262,7 +262,7 @@ func flagEditworkUse(arg string) {
 func flagEditworkDropUse(arg string) {
 	workedits = append(workedits, func(f *modfile.WorkFile) {
 		if err := f.DropUse(modload.ToDirectoryPath(arg)); err != nil {
-			base.Fatalf("go: -dropdirectory=%s: %v", arg, err)
+			base.Fatalf("bolero: -dropdirectory=%s: %v", arg, err)
 		}
 	})
 }
@@ -270,7 +270,7 @@ func flagEditworkDropUse(arg string) {
 // allowedVersionArg returns whether a token may be used as a version in go.mod.
 // We don't call modfile.CheckPathVersion, because that insists on versions
 // being in semver form, but here we want to allow versions like "master" or
-// "1234abcdef", which the go command will resolve the next time it runs (or
+// "1234abcdef", which the bolero command will resolve the next time it runs (or
 // during -fix).  Even so, we need to make sure the version is a valid token.
 func allowedVersionArg(arg string) bool {
 	return !modfile.MustQuote(arg)
@@ -303,27 +303,27 @@ func parsePathVersionOptional(adj, arg string, allowDirPath bool) (path, version
 func flagEditworkReplace(arg string) {
 	before, after, found := strings.Cut(arg, "=")
 	if !found {
-		base.Fatalf("go: -replace=%s: need old[@v]=new[@w] (missing =)", arg)
+		base.Fatalf("bolero: -replace=%s: need old[@v]=new[@w] (missing =)", arg)
 	}
 	old, new := strings.TrimSpace(before), strings.TrimSpace(after)
 	if strings.HasPrefix(new, ">") {
-		base.Fatalf("go: -replace=%s: separator between old and new is =, not =>", arg)
+		base.Fatalf("bolero: -replace=%s: separator between old and new is =, not =>", arg)
 	}
 	oldPath, oldVersion, err := parsePathVersionOptional("old", old, false)
 	if err != nil {
-		base.Fatalf("go: -replace=%s: %v", arg, err)
+		base.Fatalf("bolero: -replace=%s: %v", arg, err)
 	}
 	newPath, newVersion, err := parsePathVersionOptional("new", new, true)
 	if err != nil {
-		base.Fatalf("go: -replace=%s: %v", arg, err)
+		base.Fatalf("bolero: -replace=%s: %v", arg, err)
 	}
 	if newPath == new && !modfile.IsDirectoryPath(new) {
-		base.Fatalf("go: -replace=%s: unversioned new path must be local directory", arg)
+		base.Fatalf("bolero: -replace=%s: unversioned new path must be local directory", arg)
 	}
 
 	workedits = append(workedits, func(f *modfile.WorkFile) {
 		if err := f.AddReplace(oldPath, oldVersion, newPath, newVersion); err != nil {
-			base.Fatalf("go: -replace=%s: %v", arg, err)
+			base.Fatalf("bolero: -replace=%s: %v", arg, err)
 		}
 	})
 }
@@ -332,11 +332,11 @@ func flagEditworkReplace(arg string) {
 func flagEditworkDropReplace(arg string) {
 	path, version, err := parsePathVersionOptional("old", arg, true)
 	if err != nil {
-		base.Fatalf("go: -dropreplace=%s: %v", arg, err)
+		base.Fatalf("bolero: -dropreplace=%s: %v", arg, err)
 	}
 	workedits = append(workedits, func(f *modfile.WorkFile) {
 		if err := f.DropReplace(path, version); err != nil {
-			base.Fatalf("go: -dropreplace=%s: %v", arg, err)
+			base.Fatalf("bolero: -dropreplace=%s: %v", arg, err)
 		}
 	})
 }
@@ -361,7 +361,7 @@ func editPrintJSON(workFile *modfile.WorkFile) {
 	}
 	data, err := json.MarshalIndent(&f, "", "\t")
 	if err != nil {
-		base.Fatalf("go: internal error: %v", err)
+		base.Fatalf("bolero: internal error: %v", err)
 	}
 	data = append(data, '\n')
 	os.Stdout.Write(data)

@@ -1,63 +1,63 @@
-# go doc --help
-! go doc --help
-stderr 'go doc'
-stderr 'go doc <pkg>'
-stderr 'go doc <sym>\[\.<methodOrField>\]'
-stderr 'go doc \[<pkg>\.\]<sym>\[\.<methodOrField>\]'
-stderr 'go doc \[<pkg>\.\]\[<sym>\.\]<methodOrField>'
-stderr 'go doc <pkg> <sym>\[\.<methodOrField>\]'
+# bolero doc --help
+! bolero doc --help
+stderr 'bolero doc'
+stderr 'bolero doc <pkg>'
+stderr 'bolero doc <sym>\[\.<methodOrField>\]'
+stderr 'bolero doc \[<pkg>\.\]<sym>\[\.<methodOrField>\]'
+stderr 'bolero doc \[<pkg>\.\]\[<sym>\.\]<methodOrField>'
+stderr 'bolero doc <pkg> <sym>\[\.<methodOrField>\]'
 
-# go help doc
-go help doc
-stdout 'go doc'
-stdout 'go doc <pkg>'
-stdout 'go doc <sym>\[\.<methodOrField>\]'
-stdout 'go doc \[<pkg>\.\]<sym>\[\.<methodOrField>\]'
-stdout 'go doc \[<pkg>\.\]\[<sym>\.\]<methodOrField>'
-stdout 'go doc <pkg> <sym>\[\.<methodOrField>\]'
+# bolero help doc
+bolero help doc
+stdout 'bolero doc'
+stdout 'bolero doc <pkg>'
+stdout 'bolero doc <sym>\[\.<methodOrField>\]'
+stdout 'bolero doc \[<pkg>\.\]<sym>\[\.<methodOrField>\]'
+stdout 'bolero doc \[<pkg>\.\]\[<sym>\.\]<methodOrField>'
+stdout 'bolero doc <pkg> <sym>\[\.<methodOrField>\]'
 
-# go doc <pkg>
-go doc p/v2
+# bolero doc <pkg>
+bolero doc p/v2
 stdout .
 
-# go doc <pkg> <sym>
-go doc p/v2 Symbol
+# bolero doc <pkg> <sym>
+bolero doc p/v2 Symbol
 stdout .
 
-# go doc <pkg> <sym> <method>
-! go doc p/v2 Symbol Method
+# bolero doc <pkg> <sym> <method>
+! bolero doc p/v2 Symbol Method
 stderr .
 
-# go doc <pkg>.<sym>
-go doc p/v2.Symbol
+# bolero doc <pkg>.<sym>
+bolero doc p/v2.Symbol
 stdout .
 
-# go doc <pkg>.<sym>.<method>
-go doc p/v2.Symbol.Method
+# bolero doc <pkg>.<sym>.<method>
+bolero doc p/v2.Symbol.Method
 stdout .
 
-# go doc <sym>
-go doc Symbol
+# bolero doc <sym>
+bolero doc Symbol
 stdout .
 
-# go doc <sym> <method>
-! go doc Symbol Method
+# bolero doc <sym> <method>
+! bolero doc Symbol Method
 stderr .
 
-# go doc <sym>.<method>
-go doc Symbol.Method
+# bolero doc <sym>.<method>
+bolero doc Symbol.Method
 stdout .
 
-# go doc <pkg>.<method>
-go doc p/v2.Method
+# bolero doc <pkg>.<method>
+bolero doc p/v2.Method
 stdout .
 
-# go doc <pkg> <method>
-go doc p/v2 Method
+# bolero doc <pkg> <method>
+bolero doc p/v2 Method
 stdout .
 
-# go doc <method>
-go doc Method
+# bolero doc <method>
+bolero doc Method
 stdout .
 
 -- go.mod --

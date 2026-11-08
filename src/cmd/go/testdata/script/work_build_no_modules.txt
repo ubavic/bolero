@@ -1,5 +1,5 @@
-! go build .
-stderr 'go: no modules were found in the current workspace; see ''go help work'''
+! bolero build .
+stderr 'bolero: no modules were found in the current workspace; see ''bolero help work'''
 
 -- go.work --
 go 1.18

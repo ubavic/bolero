@@ -39,7 +39,7 @@ func main() {
 	defer os.RemoveAll(f.Name())
 
 	// compile and test output
-	cmd := exec.Command("go", "tool", "compile", "-p=main", "-importcfg="+os.Getenv("STDLIB_IMPORTCFG"), f.Name())
+	cmd := exec.Command("bolero", "tool", "compile", "-p=main", "-importcfg="+os.Getenv("STDLIB_IMPORTCFG"), f.Name())
 	out, err := cmd.CombinedOutput()
 	if err == nil {
 		log.Fatalf("expected cmd/compile to fail")

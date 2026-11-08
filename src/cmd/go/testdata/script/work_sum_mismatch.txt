@@ -1,6 +1,6 @@
 # Test mismatched sums in go.sum files
 
-! go run ./a
+! bolero run ./a
 cmpenv stderr want-error
 
 -- want-error --
@@ -13,7 +13,7 @@ This download does NOT match an earlier download recorded in go.sum.
 The bits may have been replaced on the origin server, or an attacker may
 have intercepted the download attempt.
 
-For more information, see 'go help module-auth'.
+For more information, see 'bolero help module-auth'.
 -- go.work --
 go 1.18
 

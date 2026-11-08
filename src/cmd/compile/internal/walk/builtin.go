@@ -432,7 +432,7 @@ func walkMakeSlice(n *ir.MakeExpr, init *ir.Nodes) ir.Node {
 	}
 	t := n.Type()
 	if t.Elem().NotInHeap() {
-		base.Errorf("%v can't be allocated in Go; it is incomplete (or unallocatable)", t.Elem())
+		base.Errorf("%v can't be allocated; it is incomplete (or unallocatable)", t.Elem())
 	}
 
 	tryStack := false
@@ -555,7 +555,7 @@ func walkMakeSliceCopy(n *ir.MakeExpr, init *ir.Nodes) ir.Node {
 
 	t := n.Type()
 	if t.Elem().NotInHeap() {
-		base.Errorf("%v can't be allocated in Go; it is incomplete (or unallocatable)", t.Elem())
+		base.Errorf("%v can't be allocated; it is incomplete (or unallocatable)", t.Elem())
 	}
 
 	length := typecheck.Conv(n.Len, types.Types[types.TINT])
@@ -602,7 +602,7 @@ func walkMakeSliceCopy(n *ir.MakeExpr, init *ir.Nodes) ir.Node {
 func walkNew(n *ir.UnaryExpr, init *ir.Nodes) ir.Node {
 	t := n.Type().Elem()
 	if t.NotInHeap() {
-		base.Errorf("%v can't be allocated in Go; it is incomplete (or unallocatable)", n.Type().Elem())
+		base.Errorf("%v can't be allocated; it is incomplete (or unallocatable)", n.Type().Elem())
 	}
 	if n.Esc() == ir.EscNone {
 		if t.Size() > ir.MaxImplicitStackVarSize {

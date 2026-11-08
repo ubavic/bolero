@@ -1,13 +1,13 @@
-# Elementary test of each analyzer in the "go fix" suite.
+# Elementary test of each analyzer in the "bolero fix" suite.
 # This is simply to prove that they are running at all;
 # detailed behavior is tested in x/tools.
 #
 # Each assertion matches the expected diff.
 #
 # Tip: to see the actual stdout,
-# temporarily remove the "! " prefix from the go command.
+# temporarily remove the "! " prefix from the bolero command.
 
-! go fix -diff example.com/x
+! bolero fix -diff example.com/x
 
 # buildtag
 stdout '-// \+build go1.26'

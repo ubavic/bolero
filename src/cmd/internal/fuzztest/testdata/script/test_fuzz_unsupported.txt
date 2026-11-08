@@ -1,6 +1,6 @@
 [fuzz] skip
 
-! go test -fuzz=. -fuzztime=1x
+! bolero test -fuzz=. -fuzztime=1x
 ! stdout .
 stderr '^-fuzz flag is not supported on '$GOOS'/'$GOARCH'$'
 

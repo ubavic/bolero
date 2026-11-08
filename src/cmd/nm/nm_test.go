@@ -56,7 +56,7 @@ func TestNonGoExecs(t *testing.T) {
 		cmd := testenv.Command(t, testenv.Executable(t), exepath)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			t.Errorf("go tool nm %v: %v\n%s", exepath, err, string(out))
+			t.Errorf("bolero tool nm %v: %v\n%s", exepath, err, string(out))
 		}
 	}
 }
@@ -120,7 +120,7 @@ func testGoExec(t *testing.T, iscgo, isexternallinker bool) {
 
 	out, err = testenv.Command(t, testenv.Executable(t), exe).CombinedOutput()
 	if err != nil {
-		t.Fatalf("go tool nm: %v\n%s", err, string(out))
+		t.Fatalf("bolero tool nm: %v\n%s", err, string(out))
 	}
 
 	relocated := func(code string) bool {
@@ -218,7 +218,7 @@ func testGoLib(t *testing.T, iscgo bool) {
 
 	cmd := testenv.Command(t, testenv.GoToolPath(t), "build", "-buildmode=archive", "-o", "mylib.a", ".")
 	cmd.Dir = libpath
-	cmd.Env = append(os.Environ(), "GOPATH="+gopath)
+	cmd.Env = append(os.Environ(), "BOLERO_PATH="+gopath)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("building test lib failed: %s %s", err, out)
@@ -227,7 +227,7 @@ func testGoLib(t *testing.T, iscgo bool) {
 
 	out, err = testenv.Command(t, testenv.Executable(t), mylib).CombinedOutput()
 	if err != nil {
-		t.Fatalf("go tool nm: %v\n%s", err, string(out))
+		t.Fatalf("bolero tool nm: %v\n%s", err, string(out))
 	}
 	type symType struct {
 		Type  string

@@ -30,8 +30,8 @@ cmp stdout $WORK/.git-trees
 rm .git/objects/66/400c89b45cc96da36d232844dbf9ea5daa6bcf
 
 # Build the module, which should succeed
-go build -v -buildvcs=true -o test
-go version -m test
+bolero build -v -buildvcs=true -o test
+bolero version -m test
 stdout '^\tbuild\tvcs.revision=fe3c8204d2332a731166269932dd23760c1b576a$'
 
 -- $WORK/repo/go.mod --

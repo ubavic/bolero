@@ -1,10 +1,10 @@
 # golang.org/issue/14176#issuecomment-179895769
 # golang.org/issue/14192
-# -I arguments to compiler could end up not in GOPATH order,
+# -I arguments to compiler could end up not in BOLERO_PATH order,
 # leading to unexpected import resolution in the compiler.
 
-env GO111MODULE=off
-env GOPATH=$WORK/p1${:}$WORK/p2
+env BOLERO_MODULE=off
+env BOLERO_PATH=$WORK/p1${:}$WORK/p2
 mkdir $WORK/p1/src/foo $WORK/p2/src/baz
 mkdir $WORK/p2/pkg/${GOOS}_${GOARCH} $WORK/p1/src/bar
 cp foo.go $WORK/p1/src/foo/foo.go
@@ -12,15 +12,15 @@ cp baz.go $WORK/p2/src/baz/baz.go
 cp foo.a $WORK/p2/pkg/${GOOS}_${GOARCH}/foo.a
 cp bar.go $WORK/p1/src/bar/bar.go
 
-go install -x bar
+bolero install -x bar
 
 # add in baz.a to the mix
 mkdir $WORK/p1/pkg/${GOOS}_${GOARCH}
 cp baz.a $WORK/p1/pkg/${GOOS}_${GOARCH}/baz.a
-env GOPATH=$WORK/p1${:}$WORK/p2
-go install -x bar
-env GOPATH=$WORK/p2${:}$WORK/p1
-go install -x bar
+env BOLERO_PATH=$WORK/p1${:}$WORK/p2
+bolero install -x bar
+env BOLERO_PATH=$WORK/p2${:}$WORK/p1
+bolero install -x bar
 
 -- foo.go --
 package foo

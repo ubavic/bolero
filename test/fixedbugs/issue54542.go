@@ -61,7 +61,7 @@ func main() {
 }
 
 func runInDir(dir string, args ...string) ([]byte, error) {
-	cmd := exec.Command("go", args...)
+	cmd := exec.Command("bolero", args...)
 	cmd.Dir = dir
 	return cmd.CombinedOutput()
 }

@@ -1,11 +1,11 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-# Issue 30296. Verify that "go vet" uses only immediate dependencies.
+# Issue 30296. Verify that "bolero vet" uses only immediate dependencies.
 
 # First run fills the cache.
-go vet a
+bolero vet a
 
-go vet -x a
+bolero vet -x a
 ! stderr 'transitive'
 
 -- a/a.go --

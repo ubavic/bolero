@@ -91,7 +91,7 @@ func (e *MatchError) Unwrap() error {
 }
 
 // MatchPackages sets m.Pkgs to a non-nil slice containing all the packages that
-// can be found under the $GOPATH directories and $GOROOT that match the
+// can be found under the $BOLERO_PATH directories and $BOLERO_ROOT that match the
 // pattern. The pattern must be either "all" (all packages), "std" (standard
 // packages), "cmd" (standard commands), or a path including "...".
 //
@@ -142,7 +142,7 @@ func (m *Match) MatchPackages() {
 				return err // Likely a permission error, which could interfere with matching.
 			}
 			if path == src {
-				return nil // GOROOT/src and GOPATH/src cannot contain packages.
+				return nil // BOLERO_ROOT/src and BOLERO_PATH/src cannot contain packages.
 			}
 
 			want := true
@@ -360,7 +360,7 @@ func (m *Match) MatchDirs(modRoots []string) {
 			// The initial case is not Cleaned, though, so we do this explicitly.
 			//
 			// This converts a path like "./io/" to "io". Without this step, running
-			// "cd $GOROOT/src; go list ./io/..." would incorrectly skip the io
+			// "cd $BOLERO_ROOT/src; bolero list ./io/..." would incorrectly skip the io
 			// package, because prepending the prefix "./" to the unclean path would
 			// result in "././io", and match("././io") returns false.
 			top = true
@@ -425,7 +425,7 @@ func (m *Match) MatchDirs(modRoots []string) {
 func WarnUnmatched(matches []*Match) {
 	for _, m := range matches {
 		if len(m.Pkgs) == 0 && len(m.Errs) == 0 {
-			fmt.Fprintf(os.Stderr, "go: warning: %q matched no packages\n", m.pattern)
+			fmt.Fprintf(os.Stderr, "bolero: warning: %q matched no packages\n", m.pattern)
 		}
 	}
 }
@@ -448,7 +448,7 @@ func ImportPathsQuiet(patterns []string) []*Match {
 			m.MatchDirs(nil)
 
 			// Change the file import path to a regular import path if the package
-			// is in GOPATH or GOROOT. We don't report errors here; LoadImport
+			// is in BOLERO_PATH or BOLERO_ROOT. We don't report errors here; LoadImport
 			// (or something similar) will report them later.
 			m.Pkgs = make([]string, len(m.Dirs))
 			for i, dir := range m.Dirs {
@@ -516,14 +516,14 @@ func CleanPatterns(patterns []string) []string {
 	return out
 }
 
-// IsStandardImportPath reports whether $GOROOT/src/path should be considered
+// IsStandardImportPath reports whether $BOLERO_ROOT/src/path should be considered
 // part of the standard distribution. For historical reasons we allow people to add
-// their own code to $GOROOT instead of using $GOPATH, but we assume that
+// their own code to $BOLERO_ROOT instead of using $BOLERO_PATH, but we assume that
 // code will start with a domain name (dot in the first element).
 //
-// Note that this function is meant to evaluate whether a directory found in GOROOT
+// Note that this function is meant to evaluate whether a directory found in BOLERO_ROOT
 // should be treated as part of the standard library. It should not be used to decide
-// that a directory found in GOPATH should be rejected: directories in GOPATH
+// that a directory found in BOLERO_PATH should be rejected: directories in BOLERO_PATH
 // need not have dots in the first element, and they just take their chances
 // with future collisions in the standard library.
 func IsStandardImportPath(path string) bool {

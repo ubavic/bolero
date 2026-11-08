@@ -13,7 +13,7 @@ import (
 )
 
 func usage() {
-	xprintf(`usage: go tool dist [command]
+	xprintf(`usage: bolero tool dist [command]
 Commands are:
 
 banner                  print installation banner
@@ -22,8 +22,8 @@ clean                   deletes all built files
 env [-p]                print environment (-p: include $PATH)
 install [dir]           install individual directory
 list [-json] [-broken]  list all supported platforms
-test [-h]               run Go test(s)
-version                 print Go version
+test [-h]               run test(s)
+version                 print version
 
 All commands take -v flags to emit extra information.
 `)
@@ -46,8 +46,8 @@ var commands = map[string]func(){
 func main() {
 	os.Setenv("TERM", "dumb") // disable escape codes in clang errors
 
-	// provide -check-armv6k first, before checking for $GOROOT so that
-	// it is possible to run this check without having $GOROOT available.
+	// provide -check-armv6k first, before checking for $BOLERO_ROOT so that
+	// it is possible to run this check without having $BOLERO_ROOT available.
 	if len(os.Args) > 1 && os.Args[1] == "-check-armv6k" {
 		useARMv6K() // might fail with SIGILL
 		println("ARMv6K supported.")
@@ -181,7 +181,7 @@ func xmain() {
 	cmd := os.Args[1]
 	os.Args = os.Args[1:] // for flag parsing during cmd
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "usage: go tool dist %s [options]\n", cmd)
+		fmt.Fprintf(os.Stderr, "usage: bolero tool dist %s [options]\n", cmd)
 		flag.PrintDefaults()
 		os.Exit(2)
 	}

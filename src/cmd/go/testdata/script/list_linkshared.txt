@@ -1,11 +1,11 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-# golang.org/issue/35759: 'go list -linkshared'
+# golang.org/issue/35759: 'bolero list -linkshared'
 # panicked if invoked on a test-only package.
 
 [!buildmode:shared] skip
 
-go list -f '{{.ImportPath}}: {{.Target}} {{.Shlib}}' -linkshared .
+bolero list -f '{{.ImportPath}}: {{.Target}} {{.Shlib}}' -linkshared .
 stdout '^example.com:  $'
 
 -- go.mod --

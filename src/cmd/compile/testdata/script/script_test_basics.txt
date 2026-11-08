@@ -1,7 +1,7 @@
 
 # Test of the linker's script test harness.
 
-go build
+bolero build
 [!cgo] skip
 cc -c testdata/mumble.c
 [GOEXPERIMENT:fieldtrack] help exec

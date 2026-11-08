@@ -6,5 +6,5 @@
 env GOEXPERIMENT=none
 
 env GOMAXPROCS=4
-go build -n -x -a fmt
+bolero build -n -x -a fmt
 stderr ' -c=4 '

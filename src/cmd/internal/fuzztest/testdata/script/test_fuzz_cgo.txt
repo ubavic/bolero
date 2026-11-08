@@ -1,11 +1,11 @@
 [!fuzz] skip
 [!cgo] skip
 [short] skip
-env GOCACHE=$WORK/cache
+env BOLERO_CACHE=$WORK/cache
 
 # Test that fuzzing works with cgo (issue 65169)
 
-go test -fuzz=. -fuzztime=1x
+bolero test -fuzz=. -fuzztime=1x
 stdout ok
 ! stdout FAIL
 

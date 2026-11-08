@@ -1,6 +1,6 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-! go build canonical/d
+! bolero build canonical/d
 stderr '^canonical[/\\]b[/\\]b.go:3:8: non-canonical import path "canonical/a/": should be "canonical/a"$'
 
 -- canonical/a/a.go --

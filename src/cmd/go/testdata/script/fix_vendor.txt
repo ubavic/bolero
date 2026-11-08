@@ -1,14 +1,14 @@
-# Test that go fix skips fixes to non-main and/or vendored packages.
+# Test that bolero fix skips fixes to non-main and/or vendored packages.
 # (It uses the interface{} -> any modernizer.)
 
 # Create vendor tree programmatically to avoid
 # having to hardcode sums in this txtar archive.
-go mod vendor
+bolero mod vendor
 
 # Show fixes on two packages, one in the main module
 # and one in a vendored dependency.
 # Only the main one (a) is shown. Diff => nonzero exit.
-! go fix -diff example.com/a example.com/b
+! bolero fix -diff example.com/a example.com/b
 stdout 'a[/\\]a.go'
 stdout '\-var _ interface\{\}'
 stdout '\+var _ any'
@@ -16,7 +16,7 @@ stdout '\+var _ any'
 
 # Apply fixes to the same two packages.
 # Only the main module was modified.
-go fix example.com/a example.com/b
+bolero fix example.com/a example.com/b
 grep 'var _ any'          a/a.go
 grep 'var _ interface{}'  b/b.go
 grep 'var _ interface{}'  vendor/example.com/b/b.go

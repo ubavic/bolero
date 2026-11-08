@@ -1,7 +1,7 @@
 # Regression test for golang.org/issue/34634: permissions for the go.sum and
 # go.mod files should be preserved when overwriting them.
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 [short] skip
 
 # Skip platforms that do not have Unix-style file permissions.
@@ -10,13 +10,13 @@ env GO111MODULE=on
 
 chmod 0640 go.mod
 chmod 0604 go.sum
-go mod edit -module=golang.org/issue/34634
+bolero mod edit -module=golang.org/issue/34634
 
-go get
+bolero get
 cmp go.mod go.mod.want
 cmp go.sum go.sum.want
 
-go run .
+bolero run .
 stdout 'go.mod: 0640'
 stdout 'go.sum: 0604'
 

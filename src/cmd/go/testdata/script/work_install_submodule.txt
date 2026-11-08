@@ -2,7 +2,7 @@
 # Don't check sums for other modules in the workspace.
 
 cd m/sub
-go install -n
+bolero install -n
 
 -- go.work --
 go 1.18

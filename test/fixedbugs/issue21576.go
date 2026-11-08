@@ -50,7 +50,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "go", "run", file)
+	cmd := exec.CommandContext(ctx, "bolero", "run", file)
 	output, err := cmd.CombinedOutput()
 	if err == nil {
 		log.Fatalf("Passed, expected an error")

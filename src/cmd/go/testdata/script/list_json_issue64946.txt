@@ -1,6 +1,6 @@
 cd mod
-go list -e -json=ImportPath,Error ./foo
-stdout '"Err": "no Go files in .*(/|\\\\)src(/|\\\\)mod(/|\\\\)foo"'
+bolero list -e -json=ImportPath,Error ./foo
+stdout '"Err": "no Bolero files in .*(/|\\\\)src(/|\\\\)mod(/|\\\\)foo"'
 
 -- mod/go.mod --
 module example.com/foo

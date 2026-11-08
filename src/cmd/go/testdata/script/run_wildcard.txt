@@ -1,7 +1,7 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
 # Fix for https://github.com/golang/go/issues/28696:
-# go run x/... should not panic when directory x doesn't exist.
+# bolero run x/... should not panic when directory x doesn't exist.
 
-! go run nonexistent/...
-stderr '^go: no packages loaded from nonexistent/...$'
+! bolero run nonexistent/...
+stderr '^bolero: no packages loaded from nonexistent/...$'

@@ -1,16 +1,16 @@
-# Check that 'go get' adds sums for updated modules if we had sums before,
+# Check that 'bolero get' adds sums for updated modules if we had sums before,
 # even if we didn't load packages from them.
 # Verifies #44129.
 
 env fmt='{{.ImportPath}}: {{if .Error}}{{.Error.Err}}{{else}}ok{{end}}'
 
 # Control case: before upgrading, we have the sums we need.
-# go list -deps -e -f $fmt .
+# bolero list -deps -e -f $fmt .
 # stdout '^rsc.io/quote: ok$'
 # ! stdout rsc.io/sampler  # not imported by quote in this version
 cp go.mod.orig go.mod
 cp go.sum.orig go.sum
-go mod tidy
+bolero mod tidy
 cmp go.mod.orig go.mod
 cmp go.sum.orig go.sum
 
@@ -18,12 +18,12 @@ cmp go.sum.orig go.sum
 # Upgrade a module. This also upgrades rsc.io/quote, and though we didn't load
 # a package from it, we had the sum for its old version, so we need the
 # sum for the new version, too.
-go get example.com/upgrade@v0.0.2
+bolero get example.com/upgrade@v0.0.2
 grep '^rsc.io/quote v1.5.2 ' go.sum
 
 # The upgrade still breaks the build because the new version of quote imports
 # rsc.io/sampler, and we don't have its zip sum.
-go list -deps -e -f $fmt
+bolero list -deps -e -f $fmt
 stdout 'rsc.io/quote: ok'
 stdout 'rsc.io/sampler: missing go.sum entry for module providing package rsc.io/sampler'
 cp go.mod.orig go.mod
@@ -33,8 +33,8 @@ cp go.sum.orig go.sum
 # Replace the old version with a directory before upgrading.
 # We didn't need a sum for it before (even though we had one), so we won't
 # fetch a new sum.
-go mod edit -replace rsc.io/quote@v1.0.0=./dummy
-go get example.com/upgrade@v0.0.2
+bolero mod edit -replace rsc.io/quote@v1.0.0=./dummy
+bolero get example.com/upgrade@v0.0.2
 ! grep '^rsc.io/quote v1.5.2 ' go.sum
 cp go.mod.orig go.mod
 cp go.sum.orig go.sum
@@ -42,8 +42,8 @@ cp go.sum.orig go.sum
 
 # Replace the new version with a directory before upgrading.
 # We can't get a sum for a directory.
-go mod edit -replace rsc.io/quote@v1.5.2=./dummy
-go get example.com/upgrade@v0.0.2
+bolero mod edit -replace rsc.io/quote@v1.5.2=./dummy
+bolero get example.com/upgrade@v0.0.2
 ! grep '^rsc.io/quote v1.5.2 ' go.sum
 cp go.mod.orig go.mod
 cp go.sum.orig go.sum
@@ -51,8 +51,8 @@ cp go.sum.orig go.sum
 
 # Replace the new version with a different version.
 # We should get a sum for that version.
-go mod edit -replace rsc.io/quote@v1.5.2=rsc.io/quote@v1.5.1
-go get example.com/upgrade@v0.0.2
+bolero mod edit -replace rsc.io/quote@v1.5.2=rsc.io/quote@v1.5.1
+bolero get example.com/upgrade@v0.0.2
 ! grep '^rsc.io/quote v1.5.2 ' go.sum
 grep '^rsc.io/quote v1.5.1 ' go.sum
 cp go.mod.orig go.mod
@@ -60,11 +60,11 @@ cp go.sum.orig go.sum
 
 
 # Delete the new version's zip (but not mod) from the cache and go offline.
-# 'go get' should fail when fetching the zip.
-rm $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.zip
-env GOPROXY=off
-! go get example.com/upgrade@v0.0.2
-stderr '^go: upgraded rsc.io/quote v1.0.0 => v1.5.2: error finding sum for rsc.io/quote@v1.5.2: module lookup disabled by GOPROXY=off$'
+# 'bolero get' should fail when fetching the zip.
+rm $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.5.2.zip
+env BOLERO_PROXY=off
+! bolero get example.com/upgrade@v0.0.2
+stderr '^bolero: upgraded rsc.io/quote v1.0.0 => v1.5.2: error finding sum for rsc.io/quote@v1.5.2: module lookup disabled by BOLERO_PROXY=off$'
 
 -- go.mod.orig --
 module m

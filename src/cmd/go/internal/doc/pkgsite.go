@@ -53,9 +53,9 @@ func doPkgsite(urlPath, fragment string) error {
 	// exit before exiting ourselves.
 	signal.Ignore(signalsToIgnore...)
 
-	// Prepend the local download cache to GOPROXY to get around deprecation checks.
+	// Prepend the local download cache to BOLERO_PROXY to get around deprecation checks.
 	env := os.Environ()
-	vars, err := runCmd(env, goCmd(), "env", "GOPROXY", "GOMODCACHE")
+	vars, err := runCmd(env, goCmd(), "env", "BOLERO_PROXY", "BOLERO_MODCACHE")
 	fields := strings.Fields(vars)
 	if err == nil && len(fields) == 2 {
 		goproxy, gomodcache := fields[0], fields[1]
@@ -68,7 +68,7 @@ func doPkgsite(urlPath, fragment string) error {
 		} else {
 			gomodcache = "file:///" + filepath.ToSlash(gomodcache)
 		}
-		env = append(env, "GOPROXY="+gomodcache+","+goproxy)
+		env = append(env, "BOLERO_PROXY="+gomodcache+","+goproxy)
 	}
 
 	const version = "v0.0.0-20251223195805-1a3bd3c788fe"

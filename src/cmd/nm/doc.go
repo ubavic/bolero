@@ -6,7 +6,7 @@
 //
 // Usage:
 //
-//	go tool nm [options] file...
+//	bolero tool nm [options] file...
 //
 // The default output prints one line per symbol, with three space-separated
 // fields giving the address (in hexadecimal), type (a character), and name of

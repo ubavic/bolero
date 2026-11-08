@@ -5,7 +5,7 @@
 # This test requires external linking, so use cgo as a proxy 
 [!cgo] skip
 
-! go build -ldflags='-linkmode=external' .
+! bolero build -ldflags='-linkmode=external' .
 ! stderr 'panic'
 stderr '^.*undefined symbol in relocation.*'
 

@@ -4,18 +4,18 @@
 
 [!exec:hg] skip
 [short] skip
-env GOBIN=$WORK/gopath/bin
+env BOLERO_BIN=$WORK/gopath/bin
 env oldpath=$PATH
 env TZ=GMT
 env HGRCPATH=$WORK/hgrc
 cd repo/a
 
 # If there's no local repository, there's no VCS info.
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 ! stdout hgrevision
 stdout '\s+mod\s+example.com/a\s+\(devel\)'
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # If there is a repository, but it can't be used for some reason,
 # there should be an error. It should hint about -buildvcs=false.
@@ -25,9 +25,9 @@ env PATH=$WORK${/}fakebin${:}$oldpath
 chmod 0755 $WORK/fakebin/hg
 ! exec hg help
 cd a
-! go install
+! bolero install
 stderr '^error obtaining VCS status: exit status 1\n\tUse -buildvcs=false to disable VCS stamping.$'
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 cd ..
 env PATH=$oldpath
 rm .hg
@@ -36,8 +36,8 @@ rm .hg
 # and the time is hard set to 1/1/70, regardless of the current time.
 exec hg init
 cd a
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs.revision=0000000000000000000000000000000000000000$'
 stdout '^\tbuild\tvcs.time=1970-01-01T00:00:00Z$'
 stdout '^\tbuild\tvcs.modified=true$'
@@ -52,13 +52,13 @@ exec hg tag a/v1.2.3
 # Tagging a commit causes a new commit to be created. (See https://repo.mercurial-scm.org/hg/help/revsets)
 exec hg update '.~1'
 cd a
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs.revision=eae91df98b5dd3c4451accf64c683ddc3edff6a9$'
 stdout '^\tbuild\tvcs.time=2024-07-31T01:21:27Z$'
 stdout '^\tbuild\tvcs.modified=false$'
 stdout '\s+mod\s+example.com/a\s+v1.2.3\s+'
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # Add an extra commit and then back off of it to show that the hash is
 # from the checked out revision, not the tip revision.
@@ -71,38 +71,38 @@ exec hg bisect -v -g .
 exec hg bisect -v -b '.^^'
 exec hg status
 stdout '^.+'
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs.revision=eae91df98b5dd3c4451accf64c683ddc3edff6a9$'
 stdout '^\tbuild\tvcs.time=2024-07-31T01:21:27Z$'
 stdout '^\tbuild\tvcs.modified=false$'
 stdout '\s+mod\s+example.com/a\s+v1.2.3\s+'
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # Building with -buildvcs=false suppresses the info.
-go install -buildvcs=false
-go version -m $GOBIN/a$GOEXE
+bolero install -buildvcs=false
+bolero version -m $BOLERO_BIN/a$GOEXE
 ! stdout hgrevision
 stdout '\s+mod\s+example.com/a\s+\(devel\)'
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # An untracked file is shown as uncommitted, even if it isn't part of the build.
 cp ../../outside/empty.txt .
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs.modified=true$'
 stdout '\s+mod\s+example.com/a\s+v1.2.3\+dirty\s+'
 rm empty.txt
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # An edited file is shown as uncommitted, even if it isn't part of the build.
 cp ../../outside/empty.txt ../README
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs.modified=true$'
 stdout '\s+mod\s+example.com/a\s+v1.2.3\+dirty\s+'
 exec hg revert ../README
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 -- $WORK/fakebin/hg --
 #!/bin/sh

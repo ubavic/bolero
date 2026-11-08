@@ -1,18 +1,18 @@
-# Test that go vet's caching of vet tool actions replays
+# Test that bolero vet's caching of vet tool actions replays
 # the recorded stderr output even after a cache hit.
 
 [short] skip 'uses a fresh build cache'
 
-# Set up fresh GOCACHE.
-env GOCACHE=$WORK/gocache
+# Set up fresh BOLERO_CACHE.
+env BOLERO_CACHE=$WORK/gocache
 
 # First time is a cache miss.
-! go vet example.com/a
+! bolero vet example.com/a
 stderr 'fmt.Sprint call has possible Printf formatting directive'
 
 # Second time is assumed to be a cache hit for the stdout JSON,
 # but we don't bother to assert it. Same diagnostics again.
-! go vet example.com/a
+! bolero vet example.com/a
 stderr 'fmt.Sprint call has possible Printf formatting directive'
 
 -- go.mod --

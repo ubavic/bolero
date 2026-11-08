@@ -1,25 +1,25 @@
 [!fuzz] skip
 [short] skip
-env GOCACHE=$WORK/cache
+env BOLERO_CACHE=$WORK/cache
 
 # Cleanup should run after F.Skip.
-go test -run=FuzzTargetSkip
+bolero test -run=FuzzTargetSkip
 stdout cleanup
 
 # Cleanup should run after F.Fatal.
-! go test -run=FuzzTargetFatal
+! bolero test -run=FuzzTargetFatal
 stdout cleanup
 
 # Cleanup should run after an unexpected runtime.Goexit.
-! go test -run=FuzzTargetGoexit
+! bolero test -run=FuzzTargetGoexit
 stdout cleanup
 
 # Cleanup should run after panic.
-! go test -run=FuzzTargetPanic
+! bolero test -run=FuzzTargetPanic
 stdout cleanup
 
 # Cleanup should run in fuzz function on seed corpus.
-go test -v -run=FuzzFunction
+bolero test -v -run=FuzzFunction
 stdout '(?s)inner.*outer'
 
 # TODO(jayconrod): test cleanup while fuzzing. For now, the worker process's

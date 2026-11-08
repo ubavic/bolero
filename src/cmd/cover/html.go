@@ -204,7 +204,7 @@ const tmplHTML = `
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>{{$pkg := .PackageName}}{{if $pkg}}{{$pkg}}: {{end}}Go Coverage Report</title>
+		<title>{{$pkg := .PackageName}}{{if $pkg}}{{$pkg}}: {{end}}Coverage Report</title>
 		<style>
 			body {
 				background: black;

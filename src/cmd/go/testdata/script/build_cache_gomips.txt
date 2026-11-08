@@ -1,35 +1,35 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 [short] skip # rebuilds std for mips
 
-# Set up fresh GOCACHE.
-env GOCACHE=$WORK/gocache
-mkdir $GOCACHE
+# Set up fresh BOLERO_CACHE.
+env BOLERO_CACHE=$WORK/gocache
+mkdir $BOLERO_CACHE
 
 # Building for mipsle without setting GOMIPS will use floating point registers.
 env GOARCH=mipsle
 env GOOS=linux
-go build -gcflags=-S f.go
+bolero build -gcflags=-S f.go
 stderr ADDD.F[0-9]+,.F[0-9]+,.F[0-9]+
 
 # Clean cache
-go clean -cache
+bolero clean -cache
 
 # Building with GOMIPS=softfloat will not use floating point registers
 env GOMIPS=softfloat
-go build -gcflags=-S f.go
+bolero build -gcflags=-S f.go
 ! stderr ADDD.F[0-9]+,.F[0-9]+,.F[0-9]+
 
 # Clean cache
-go clean -cache
+bolero clean -cache
 
 # Build without setting GOMIPS
 env GOMIPS=
-go build -gcflags=-S f.go
+bolero build -gcflags=-S f.go
 stderr ADDD.F[0-9]+,.F[0-9]+,.F[0-9]+
 
 # Building with GOMIPS should still not use floating point registers.
 env GOMIPS=softfloat
-go build -gcflags=-S f.go
+bolero build -gcflags=-S f.go
 ! stderr ADDD.F[0-9]+,.F[0-9]+,.F[0-9]+
 
 -- f.go --

@@ -1,23 +1,23 @@
 # Test listing with overlays
 
 # Overlay in an existing directory
-go list -overlay overlay.json  -f '{{.GoFiles}}' .
+bolero list -overlay overlay.json  -f '{{.GoFiles}}' .
 stdout '^\[f.go\]$'
 
 # Overlays in a non-existing directory
-go list -overlay overlay.json -f '{{.GoFiles}}' ./dir
+bolero list -overlay overlay.json -f '{{.GoFiles}}' ./dir
 stdout '^\[g.go\]$'
 
 # Overlays in an existing directory with already existing files
-go list -overlay overlay.json -f '{{.GoFiles}}' ./dir2
+bolero list -overlay overlay.json -f '{{.GoFiles}}' ./dir2
 stdout '^\[h.go i.go\]$'
 
 # Overlay that removes a file from a directory
-! go list ./dir3 # contains a file without a package statement
-go list -overlay overlay.json -f '{{.GoFiles}}' ./dir3 # overlay removes that file
+! bolero list ./dir3 # contains a file without a package statement
+bolero list -overlay overlay.json -f '{{.GoFiles}}' ./dir3 # overlay removes that file
 
 # Walking through an overlay
-go list -overlay overlay.json ./...
+bolero list -overlay overlay.json ./...
 cmp stdout want-list.txt
 
 # TODO(#39958): assembly files, C files, files that require cgo preprocessing

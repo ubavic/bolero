@@ -1,22 +1,22 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # golang.org/issue/31248: required modules imposed by dependency versions
 # older than the selected version must still be taken into account.
 
-env GOFLAGS=-mod=readonly
+env BOLERO_FLAGS=-mod=readonly
 
 # Indirect dependencies required via older-than-selected versions must exist in
 # the module graph, but do not need to be listed explicitly in the go.mod file
 # (since they are implied).
-go mod graph
+bolero mod graph
 stdout i@v0.1.0
 
 # The modules must also appear in the build list, not just the graph.
-go list -m all
+bolero list -m all
 stdout '^i v0.1.0'
 
 # The packages provided by those dependencies must resolve.
-go list all
+bolero list all
 stdout '^i$'
 
 -- go.mod --

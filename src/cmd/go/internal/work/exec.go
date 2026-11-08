@@ -80,7 +80,7 @@ func (b *Builder) Do(ctx context.Context, root *Action) {
 		c := cache.Default()
 		defer func() {
 			if err := c.Close(); err != nil {
-				base.Fatalf("go: failed to trim cache: %v", err)
+				base.Fatalf("bolero: failed to trim cache: %v", err)
 			}
 		}()
 	}
@@ -91,7 +91,7 @@ func (b *Builder) Do(ctx context.Context, root *Action) {
 	// distracted by low-level leaf actions to the detriment
 	// of completing higher-level actions. The order of
 	// work does not matter much to overall execution time,
-	// but when running "go test std" it is nice to see each test
+	// but when running "bolero test std" it is nice to see each test
 	// results as soon as possible. The priorities assigned
 	// ensure that, all else being equal, the execution prefers
 	// to do what it would have done first in a simple depth-first
@@ -106,12 +106,12 @@ func (b *Builder) Do(ctx context.Context, root *Action) {
 		if file := cfg.DebugActiongraph; file != "" {
 			if bolero.IsGoOrBoleroFile(file) {
 				// Do not overwrite Go source code in:
-				//	go build -debug-actiongraph x.go
-				base.Fatalf("go: refusing to write action graph to %v\n", file)
+				//	bolero build -debug-actiongraph x.go
+				base.Fatalf("bolero: refusing to write action graph to %v\n", file)
 			}
 			js := actionGraphJSON(root)
 			if err := os.WriteFile(file, []byte(js), 0666); err != nil {
-				fmt.Fprintf(os.Stderr, "go: writing action graph: %v\n", err)
+				fmt.Fprintf(os.Stderr, "bolero: writing action graph: %v\n", err)
 				base.SetExitStatus(1)
 			}
 		}
@@ -280,10 +280,10 @@ func (b *Builder) buildActionID(a *Action) cache.ActionID {
 			fmt.Fprintf(h, "module %s@%s\n", p.Module.Path, p.Module.Version)
 		}
 	} else if p.Goroot {
-		// The Go compiler always hides the exact value of $GOROOT
-		// when building things in GOROOT.
+		// The Go compiler always hides the exact value of $BOLERO_ROOT
+		// when building things in BOLERO_ROOT.
 		//
-		// The C compiler does not, but for packages in GOROOT we rewrite the path
+		// The C compiler does not, but for packages in BOLERO_ROOT we rewrite the path
 		// as though -trimpath were set. This used to be so that we did not invalidate
 		// the build cache (and especially precompiled archive files) when changing
 		// GOROOT_FINAL, but we no longer ship precompiled archive files as of Go 1.20
@@ -292,7 +292,7 @@ func (b *Builder) buildActionID(a *Action) cache.ActionID {
 		// TODO(bcmills): Figure out whether this behavior is still useful.
 		//
 		// b.WorkDir is always either trimmed or rewritten to
-		// the literal string "/tmp/go-build".
+		// the literal string "/tmp/bolero-build".
 	} else if !strings.HasPrefix(p.Dir, b.WorkDir) {
 		// -trimpath is not set and no other rewrite rules apply,
 		// so the object file may refer to the absolute directory
@@ -378,7 +378,7 @@ func (b *Builder) buildActionID(a *Action) cache.ActionID {
 		// TODO(rsc): Convince compiler team not to add more magic environment variables,
 		// or perhaps restrict the environment variables passed to subprocesses.
 		// Because these are clumsy, undocumented special-case hacks
-		// for debugging the compiler, they are not settable using 'go env -w',
+		// for debugging the compiler, they are not settable using 'bolero env -w',
 		// and so here we use os.Getenv, not cfg.Getenv.
 		magic := []string{
 			"GOCLOBBERDEADHASH",
@@ -560,7 +560,7 @@ func (b *Builder) checkCacheForBuild(a, buildAction *Action, covMetaFileName str
 		}
 
 		// Source files might be cached, even if the full action is not
-		// (e.g., go list -compiled -find).
+		// (e.g., bolero list -compiled -find).
 		if !cachedBuild && need&needCompiledGoFiles != 0 {
 			if err := b.loadCachedCompiledGoFiles(buildAction); err == nil {
 				need &^= needCompiledGoFiles
@@ -597,7 +597,7 @@ func (b *Builder) checkCacheForBuild(a, buildAction *Action, covMetaFileName str
 	}
 
 	if p.Module != nil && !allowedVersion(p.Module.GoVersion) {
-		return nil, errors.New("module requires Go " + p.Module.GoVersion + " or later")
+		return nil, errors.New("module requires Bolero " + p.Module.GoVersion + " or later")
 	}
 
 	if err := b.checkDirectives(buildAction); err != nil {
@@ -848,7 +848,7 @@ func (b *Builder) build(ctx context.Context, a *Action) (err error) {
 	}
 	if need&needCompiledGoFiles != 0 {
 		if err := b.loadCachedCompiledGoFiles(a); err != nil {
-			return fmt.Errorf("loading compiled Go files from cache: %w", err)
+			return fmt.Errorf("loading compiled Bolero files from cache: %w", err)
 		}
 		need &^= needCompiledGoFiles
 	}
@@ -1216,7 +1216,7 @@ func buildVetConfig(a *Action, srcfiles []string, vetDeps []*Action) {
 	// Pass list of absolute paths to vet,
 	// so that vet's error messages will use absolute paths,
 	// so that we can reformat them relative to the directory
-	// in which the go command is invoked.
+	// in which the bolero command is invoked.
 	vcfg := &vetConfig{
 		ID:           a.Package.ImportPath,
 		Compiler:     cfg.BuildToolchainName,
@@ -1285,7 +1285,7 @@ var VetFlags []string
 
 // VetHandleStdout determines how the stdout output of each vet tool
 // invocation should be handled. The default behavior is to copy it to
-// the go command's stdout, atomically.
+// the bolero command's stdout, atomically.
 var VetHandleStdout = copyToStdout
 
 // VetExplicit records whether the vet flags (which may include
@@ -1312,7 +1312,7 @@ func (b *Builder) vet(ctx context.Context, a *Action) error {
 
 	sh := b.Shell(a)
 
-	// We use "vet" terminology even when building action graphs for go fix.
+	// We use "vet" terminology even when building action graphs for bolero fix.
 	vcfg.VetxOnly = a.VetxOnly
 	vcfg.VetxOutput = a.Objdir + "vet.out"
 	vcfg.Stdout = a.Objdir + "vet.stdout"
@@ -1326,7 +1326,7 @@ func (b *Builder) vet(ctx context.Context, a *Action) error {
 
 	vetFlags := VetFlags
 
-	// In GOROOT, we enable all the vet tests during 'go test',
+	// In BOLERO_ROOT, we enable all the vet tests during 'bolero test',
 	// not just the high-confidence subset. This gets us extra
 	// checking for the standard library (at some compliance cost)
 	// and helps us gain experience about how well the checks
@@ -1347,17 +1347,17 @@ func (b *Builder) vet(ctx context.Context, a *Action) error {
 		// There's too much unsafe.Pointer code
 		// that vet doesn't like in low-level packages
 		// like runtime, sync, and reflect.
-		// Note that $GOROOT/src/buildall.bash
+		// Note that $BOLERO_ROOT/src/buildall.bash
 		// does the same
 		// and should be updated if these flags are
 		// changed here.
 		vetFlags = []string{"-unsafeptr=false"}
 
-		// Also turn off -unreachable checks during go test.
+		// Also turn off -unreachable checks during bolero test.
 		// During testing it is very common to make changes
 		// like hard-coded forced returns or panics that make
 		// code unreachable. It's unreasonable to insist on files
-		// not having any unreachable code during "go test".
+		// not having any unreachable code during "bolero test".
 		// (buildall.bash still has -unreachable enabled
 		// for the overall whole-tree scan.)
 		if cfg.CmdName == "test" {
@@ -1443,7 +1443,7 @@ cachemiss:
 		return err
 	}
 
-	// TODO(rsc): Why do we pass $GCCGO to go vet?
+	// TODO(rsc): Why do we pass $GCCGO to bolero vet?
 	env := b.cCompilerEnv()
 	if cfg.BuildToolchainName == "gccgo" {
 		env = append(env, "GCCGO="+BuildToolchain.compiler())
@@ -1567,13 +1567,13 @@ func (b *Builder) printLinkerConfig(h io.Writer, p *load.Package) {
 			fmt.Fprintf(h, "GOEXPERIMENT=%q\n", cfg.CleanGOEXPERIMENT)
 		}
 
-		// The linker writes source file paths that refer to GOROOT,
+		// The linker writes source file paths that refer to BOLERO_ROOT,
 		// but only if -trimpath is not specified (see [gctoolchain.ld] in gc.go).
 		gorootFinal := cfg.GOROOT
 		if cfg.BuildTrimpath {
 			gorootFinal = ""
 		}
-		fmt.Fprintf(h, "GOROOT=%s\n", gorootFinal)
+		fmt.Fprintf(h, "BOLERO_ROOT=%s\n", gorootFinal)
 
 		// GO_EXTLINK_ENABLED controls whether the external linker is used.
 		fmt.Fprintf(h, "GO_EXTLINK_ENABLED=%s\n", cfg.Getenv("GO_EXTLINK_ENABLED"))
@@ -1907,14 +1907,14 @@ func (b *Builder) linkShared(ctx context.Context, a *Action) (err error) {
 func BuildInstallFunc(b *Builder, ctx context.Context, a *Action) (err error) {
 	defer func() {
 		if err != nil {
-			// a.Package == nil is possible for the go install -buildmode=shared
+			// a.Package == nil is possible for the bolero install -buildmode=shared
 			// action that installs libmangledname.so, which corresponds to
 			// a list of packages, not just one.
 			sep, path := "", ""
 			if a.Package != nil {
 				sep, path = " ", a.Package.ImportPath
 			}
-			err = fmt.Errorf("go %s%s%s: %v", cfg.CmdName, sep, path, err)
+			err = fmt.Errorf("bolero %s%s%s: %v", cfg.CmdName, sep, path, err)
 		}
 	}()
 	sh := b.Shell(a)
@@ -1940,7 +1940,7 @@ func BuildInstallFunc(b *Builder, ctx context.Context, a *Action) (err error) {
 		// are, as well as potentially the state of the Go build cache.
 		// We don't really want users to be able to infer (or worse start depending on)
 		// those details from whether the modification time changes during
-		// "go install", so do a best-effort update of the file times to make it
+		// "bolero install", so do a best-effort update of the file times to make it
 		// look like we rewrote a.Target even if we did not. Updating the mtime
 		// may also help other mtime-based systems that depend on our
 		// previous mtime updates that happened more often.
@@ -1964,7 +1964,7 @@ func BuildInstallFunc(b *Builder, ctx context.Context, a *Action) (err error) {
 		return nil
 	}
 
-	// If we're building for go list -export,
+	// If we're building for bolero list -export,
 	// never install anything; just keep the cache reference.
 	if b.IsCmdList {
 		a.built = a1.built
@@ -2002,11 +2002,11 @@ func BuildInstallFunc(b *Builder, ctx context.Context, a *Action) (err error) {
 	return sh.moveOrCopyFile(a.Target, a1.built, perm, false)
 }
 
-// AllowInstall returns a non-nil error if this invocation of the go command is
+// AllowInstall returns a non-nil error if this invocation of the bolero command is
 // allowed to install a.Target.
 //
 // The build of cmd/go running under its own test is forbidden from installing
-// to its original GOROOT. The var is exported so it can be set by TestMain.
+// to its original BOLERO_ROOT. The var is exported so it can be set by TestMain.
 var AllowInstall = func(*Action) error { return nil }
 
 // cleanup removes a's object dir to keep the amount of
@@ -2052,7 +2052,7 @@ func (b *Builder) installHeader(ctx context.Context, a *Action) error {
 
 // cover runs, in effect,
 //
-//	go tool cover -pkgcfg=<config file> -mode=b.coverMode -var="varName" -o <outfiles> <infiles>
+//	bolero tool cover -pkgcfg=<config file> -mode=b.coverMode -var="varName" -o <outfiles> <infiles>
 //
 // Return value is an updated output files list; in addition to the
 // regular outputs (instrumented source files) the cover tool also
@@ -2089,7 +2089,7 @@ func (b *Builder) writeCoverPkgInputs(a *Action, pconfigfile string, covoutputsf
 		PkgPath: p.ImportPath,
 		PkgName: p.Name,
 		// Note: coverage granularity is currently hard-wired to
-		// 'perblock'; there isn't a way using "go build -cover" or "go
+		// 'perblock'; there isn't a way using "bolero build -cover" or "go
 		// test -cover" to select it. This may change in the future
 		// depending on user demand.
 		Granularity: "perblock",
@@ -2302,15 +2302,15 @@ func (b *Builder) ccompile(a *Action, outfile string, flags []string, file strin
 			// same situations.
 			var from, toPath string
 			if m := p.Module; m == nil {
-				if p.Root == "" { // command-line-arguments in GOPATH mode, maybe?
+				if p.Root == "" { // command-line-arguments in BOLERO_PATH mode, maybe?
 					from = p.Dir
 					toPath = p.ImportPath
 				} else if p.Goroot {
 					from = p.Root
-					toPath = "GOROOT"
+					toPath = "BOLERO_ROOT"
 				} else {
 					from = p.Root
-					toPath = "GOPATH"
+					toPath = "BOLERO_PATH"
 				}
 			} else if m.Dir == "" {
 				// The module is in the vendor directory. Replace the entire vendor
@@ -2489,9 +2489,9 @@ func (b *Builder) compilerCmd(compiler []string, incdir, workdir string) []strin
 		}
 		workdir = strings.TrimSuffix(workdir, string(filepath.Separator))
 		if b.gccSupportsFlag(compiler, "-ffile-prefix-map=a=b") {
-			a = append(a, "-ffile-prefix-map="+workdir+"=/tmp/go-build")
+			a = append(a, "-ffile-prefix-map="+workdir+"=/tmp/bolero-build")
 		} else {
-			a = append(a, "-fdebug-prefix-map="+workdir+"=/tmp/go-build")
+			a = append(a, "-fdebug-prefix-map="+workdir+"=/tmp/bolero-build")
 		}
 	}
 

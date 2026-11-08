@@ -70,7 +70,7 @@ type Context struct {
 	// The install suffix specifies a suffix to use in the name of the installation
 	// directory. By default it is empty, but custom builds that need to keep
 	// their outputs separate can set InstallSuffix to do so. For example, when
-	// using the race detector, the go command uses InstallSuffix = "race", so
+	// using the race detector, the bolero command uses InstallSuffix = "race", so
 	// that on a Linux/386 system, packages are written to a directory named
 	// "linux_386_race" instead of the usual "linux_386".
 	InstallSuffix string
@@ -239,21 +239,21 @@ func (ctxt *Context) gopath() []string {
 	for _, p := range ctxt.splitPathList(ctxt.GOPATH) {
 		if p == "" || p == ctxt.GOROOT {
 			// Empty paths are uninteresting.
-			// If the path is the GOROOT, ignore it.
-			// People sometimes set GOPATH=$GOROOT.
+			// If the path is the BOLERO_ROOT, ignore it.
+			// People sometimes set BOLERO_PATH=$BOLERO_ROOT.
 			// Do not get confused by this common mistake.
 			continue
 		}
 		if strings.HasPrefix(p, "~") {
 			// Path segments starting with ~ on Unix are almost always
-			// users who have incorrectly quoted ~ while setting GOPATH,
+			// users who have incorrectly quoted ~ while setting BOLERO_PATH,
 			// preventing it from expanding to $HOME.
 			// The situation is made more confusing by the fact that
 			// bash allows quoted ~ in $PATH (most shells do not).
 			// Do not get confused by this, and do not try to use the path.
 			// It does not exist, and printing errors about it confuses
 			// those users even more, because they think "sure ~ exists!".
-			// The go command diagnoses this situation and prints a
+			// The bolero command diagnoses this situation and prints a
 			// useful error.
 			// On Windows, ~ is used in short names, such as c:\progra~1
 			// for c:\program files.
@@ -285,8 +285,8 @@ func (ctxt *Context) SrcDirs() []string {
 }
 
 // Default is the default Context for builds.
-// It uses the GOARCH, GOOS, GOROOT, and GOPATH environment variables
-// if set, or else the compiled code's GOARCH, GOOS, and GOROOT.
+// It uses the GOARCH, GOOS, BOLERO_ROOT, and BOLERO_PATH environment variables
+// if set, or else the compiled code's GOARCH, GOOS, and BOLERO_ROOT.
 var Default Context = defaultContext()
 
 // Keep consistent with cmd/go/internal/cfg.defaultGOPATH.
@@ -298,10 +298,10 @@ func defaultGOPATH() string {
 		env = "home"
 	}
 	if home := os.Getenv(env); home != "" {
-		def := filepath.Join(home, "go")
+		def := filepath.Join(home, "bolero")
 		if filepath.Clean(def) == filepath.Clean(runtime.GOROOT()) {
-			// Don't set the default GOPATH to GOROOT,
-			// as that will trigger warnings from the go tool.
+			// Don't set the default BOLERO_PATH to BOLERO_ROOT,
+			// as that will trigger warnings from the bolero tool.
 			return ""
 		}
 		return def
@@ -339,7 +339,7 @@ func defaultContext() Context {
 	if goroot := runtime.GOROOT(); goroot != "" {
 		c.GOROOT = filepath.Clean(goroot)
 	}
-	c.GOPATH = envOr("GOPATH", defaultGOPATH())
+	c.GOPATH = envOr("BOLERO_PATH", defaultGOPATH())
 	c.Compiler = runtime.Compiler
 	c.ToolTags = append(c.ToolTags, buildcfg.ToolTags...)
 
@@ -415,7 +415,7 @@ const (
 
 	// By default, Import searches vendor directories
 	// that apply in the given source directory before searching
-	// the GOROOT and GOPATH roots.
+	// the BOLERO_ROOT and BOLERO_PATH roots.
 	// If an Import finds and returns a package using a vendor
 	// directory, the resulting ImportPath is the complete path
 	// to the package, including the path elements leading up
@@ -449,7 +449,7 @@ type Package struct {
 	Goroot        bool     // package found in Go root
 	PkgObj        string   // installed .a file
 	AllTags       []string // tags that can influence file selection in this directory
-	ConflictDir   string   // this directory shadows Dir in $GOPATH
+	ConflictDir   string   // this directory shadows Dir in $BOLERO_PATH
 	BinaryOnly    bool     // cannot be rebuilt from source (has //go:binary-only-package comment)
 
 	// Source files
@@ -725,8 +725,8 @@ func (ctxt *Context) Import(path string, srcDir string, mode ImportMode) (*Packa
 
 		// Determine directory from import path.
 		if ctxt.GOROOT != "" {
-			// If the package path starts with "vendor/", only search GOROOT before
-			// GOPATH if the importer is also within GOROOT. That way, if the user has
+			// If the package path starts with "vendor/", only search BOLERO_ROOT before
+			// BOLERO_PATH if the importer is also within BOLERO_ROOT. That way, if the user has
 			// vendored in a package that is subsequently included in the standard
 			// distribution, they'll continue to pick up their own vendored copy.
 			gorootFirst := srcDir == "" || !strings.HasPrefix(path, "vendor/")
@@ -769,8 +769,8 @@ func (ctxt *Context) Import(path string, srcDir string, mode ImportMode) (*Packa
 			tried.gopath = append(tried.gopath, dir)
 		}
 
-		// If we tried GOPATH first due to a "vendor/" prefix, fall back to GOPATH.
-		// That way, the user can still get useful results from 'go list' for
+		// If we tried BOLERO_PATH first due to a "vendor/" prefix, fall back to BOLERO_PATH.
+		// That way, the user can still get useful results from 'bolero list' for
 		// standard-vendored paths passed on the command line.
 		if ctxt.GOROOT != "" && tried.goroot == "" {
 			dir := ctxt.joinPath(ctxt.GOROOT, "src", path)
@@ -795,17 +795,17 @@ func (ctxt *Context) Import(path string, srcDir string, mode ImportMode) (*Packa
 			format = "\t%s"
 		}
 		if tried.goroot != "" {
-			paths = append(paths, fmt.Sprintf("\t%s (from $GOROOT)", tried.goroot))
+			paths = append(paths, fmt.Sprintf("\t%s (from $BOLERO_ROOT)", tried.goroot))
 		} else {
-			paths = append(paths, "\t($GOROOT not set)")
+			paths = append(paths, "\t($BOLERO_ROOT not set)")
 		}
-		format = "\t%s (from $GOPATH)"
+		format = "\t%s (from $BOLERO_PATH)"
 		for _, dir := range tried.gopath {
 			paths = append(paths, fmt.Sprintf(format, dir))
 			format = "\t%s"
 		}
 		if len(tried.gopath) == 0 {
-			paths = append(paths, "\t($GOPATH not set. For more details see: 'go help gopath')")
+			paths = append(paths, "\t($BOLERO_PATH not set. For more details see: 'bolero help gopath')")
 		}
 		return p, fmt.Errorf("cannot find package %q in any of:\n%s", path, strings.Join(paths, "\n"))
 	}
@@ -837,7 +837,7 @@ Found:
 	// We need to do this before we return early on FindOnly flag.
 	if IsLocalImport(path) && !ctxt.isDir(p.Dir) {
 		if ctxt.Compiler == "gccgo" && p.Goroot {
-			// gccgo has no sources for GOROOT packages.
+			// gccgo has no sources for BOLERO_ROOT packages.
 			return p, nil
 		}
 
@@ -853,7 +853,7 @@ Found:
 	}
 
 	if ctxt.Compiler == "gccgo" && p.Goroot {
-		// gccgo has no sources for GOROOT packages.
+		// gccgo has no sources for BOLERO_ROOT packages.
 		return p, nil
 	}
 
@@ -1129,18 +1129,18 @@ func uniq(list []string) []string {
 
 var errNoModules = errors.New("not using modules")
 
-// importGo checks whether it can use the go command to find the directory for path.
-// If using the go command is not appropriate, importGo returns errNoModules.
-// Otherwise, importGo tries using the go command and reports whether that succeeded.
-// Using the go command lets build.Import and build.Context.Import find code
+// importGo checks whether it can use the bolero command to find the directory for path.
+// If using the bolero command is not appropriate, importGo returns errNoModules.
+// Otherwise, importGo tries using the bolero command and reports whether that succeeded.
+// Using the bolero command lets build.Import and build.Context.Import find code
 // in Go modules. In the long term we want tools to use go/packages (currently golang.org/x/tools/go/packages),
-// which will also use the go command.
-// Invoking the go command here is not very efficient in that it computes information
+// which will also use the bolero command.
+// Invoking the bolero command here is not very efficient in that it computes information
 // about the requested package and all dependencies and then only reports about the requested package.
 // Then we reinvoke it for every dependency. But this is still better than not working at all.
 // See golang.org/issue/26504.
 func (ctxt *Context) importGo(p *Package, path, srcDir string, mode ImportMode) error {
-	// To invoke the go command,
+	// To invoke the bolero command,
 	// we must not being doing special things like AllowBinary or IgnoreVendor,
 	// and all the file system callbacks must be nil (we're meant to use the local file system).
 	if mode&AllowBinary != 0 || mode&IgnoreVendor != 0 ||
@@ -1148,18 +1148,18 @@ func (ctxt *Context) importGo(p *Package, path, srcDir string, mode ImportMode) 
 		return errNoModules
 	}
 
-	// If ctxt.GOROOT is not set, we don't know which go command to invoke,
-	// and even if we did we might return packages in GOROOT that we wouldn't otherwise find
-	// (because we don't know to search in 'go env GOROOT' otherwise).
+	// If ctxt.GOROOT is not set, we don't know which bolero command to invoke,
+	// and even if we did we might return packages in BOLERO_ROOT that we wouldn't otherwise find
+	// (because we don't know to search in 'bolero env BOLERO_ROOT' otherwise).
 	if ctxt.GOROOT == "" {
 		return errNoModules
 	}
 
 	// Predict whether module aware mode is enabled by checking the value of
-	// GO111MODULE and looking for a go.mod file in the source directory or
-	// one of its parents. Running 'go env GOMOD' in the source directory would
+	// BOLERO_MODULE and looking for a go.mod file in the source directory or
+	// one of its parents. Running 'bolero env BOLERO_MOD' in the source directory would
 	// give a canonical answer, but we'd prefer not to execute another command.
-	go111Module := os.Getenv("GO111MODULE")
+	go111Module := os.Getenv("BOLERO_MODULE")
 	switch go111Module {
 	case "off":
 		return errNoModules
@@ -1183,8 +1183,8 @@ func (ctxt *Context) importGo(p *Package, path, srcDir string, mode ImportMode) 
 			}
 		}
 
-		// If the source directory is in GOROOT, then the in-process code works fine
-		// and we should keep using it. Moreover, the 'go list' approach below doesn't
+		// If the source directory is in BOLERO_ROOT, then the in-process code works fine
+		// and we should keep using it. Moreover, the 'bolero list' approach below doesn't
 		// take standard-library vendoring into account and will fail.
 		if _, ok := ctxt.hasSubdir(filepath.Join(ctxt.GOROOT, "src"), absSrcDir); ok {
 			return errNoModules
@@ -1196,8 +1196,8 @@ func (ctxt *Context) importGo(p *Package, path, srcDir string, mode ImportMode) 
 		return errNoModules
 	}
 
-	// If GO111MODULE=auto, look to see if there is a go.mod.
-	// Since go1.13, it doesn't matter if we're inside GOPATH.
+	// If BOLERO_MODULE=auto, look to see if there is a go.mod.
+	// Since go1.13, it doesn't matter if we're inside BOLERO_PATH.
 	if go111Module == "auto" {
 		var (
 			parent string
@@ -1235,7 +1235,7 @@ func (ctxt *Context) importGo(p *Package, path, srcDir string, mode ImportMode) 
 		}
 	}
 
-	goCmd := filepath.Join(ctxt.GOROOT, "bin", "go")
+	goCmd := filepath.Join(ctxt.GOROOT, "bin", "bolero")
 	cmd := exec.Command(goCmd, "list", "-e", "-compiler="+ctxt.Compiler, "-tags="+strings.Join(ctxt.BuildTags, ","), "-installsuffix="+ctxt.InstallSuffix, "-f={{.Dir}}\n{{.ImportPath}}\n{{.Root}}\n{{.Goroot}}\n{{if .Error}}{{.Error}}{{end}}\n", "--", path)
 
 	if ctxt.Dir != "" {
@@ -1253,13 +1253,13 @@ func (ctxt *Context) importGo(p *Package, path, srcDir string, mode ImportMode) 
 	cmd.Env = append(cmd.Environ(),
 		"GOOS="+ctxt.GOOS,
 		"GOARCH="+ctxt.GOARCH,
-		"GOROOT="+ctxt.GOROOT,
-		"GOPATH="+ctxt.GOPATH,
+		"BOLERO_ROOT="+ctxt.GOROOT,
+		"BOLERO_PATH="+ctxt.GOPATH,
 		"CGO_ENABLED="+cgo,
 	)
 
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("go/build: go list %s: %v\n%s\n", path, err, stderr.String())
+		return fmt.Errorf("go/build: bolero list %s: %v\n%s\n", path, err, stderr.String())
 	}
 
 	f := strings.SplitN(stdout.String(), "\n", 5)
@@ -1269,12 +1269,12 @@ func (ctxt *Context) importGo(p *Package, path, srcDir string, mode ImportMode) 
 	dir := f[0]
 	errStr := strings.TrimSpace(f[4])
 	if errStr != "" && dir == "" {
-		// If 'go list' could not locate the package (dir is empty),
-		// return the same error that 'go list' reported.
+		// If 'bolero list' could not locate the package (dir is empty),
+		// return the same error that 'bolero list' reported.
 		return errors.New(errStr)
 	}
 
-	// If 'go list' did locate the package, ignore the error.
+	// If 'bolero list' did locate the package, ignore the error.
 	// It was probably related to loading source files, and we'll
 	// encounter it ourselves shortly if the FindOnly flag isn't set.
 	p.Dir = dir

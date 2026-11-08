@@ -1,5 +1,5 @@
-# go test ./... with a bad package should report the error once (#44624).
-! go test ./...
+# bolero test ./... with a bad package should report the error once (#44624).
+! bolero test ./...
 stderr -count=1 undefined
 
 -- go.mod --

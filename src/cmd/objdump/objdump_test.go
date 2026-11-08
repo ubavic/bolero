@@ -146,7 +146,7 @@ func testDisasm(t *testing.T, srcfname string, printCode bool, printGnuAsm bool,
 	t.Logf("Running %v", cmd.Args)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Fatalf("go build %s: %v\n%s", srcfname, err, out)
+		t.Fatalf("bolero build %s: %v\n%s", srcfname, err, out)
 	}
 	need := []string{
 		"TEXT main.main(SB)",
@@ -299,7 +299,7 @@ func TestDisasmGoobj(t *testing.T) {
 	args = append(args, "testdata/fmthello.go")
 	out, err := testenv.Command(t, testenv.GoToolPath(t), args...).CombinedOutput()
 	if err != nil {
-		t.Fatalf("go tool compile fmthello.go: %v\n%s", err, out)
+		t.Fatalf("bolero tool compile fmthello.go: %v\n%s", err, out)
 	}
 	need := []string{
 		"main(SB)",

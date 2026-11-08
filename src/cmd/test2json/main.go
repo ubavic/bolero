@@ -112,7 +112,7 @@ var (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: go tool test2json [-p pkg] [-t] [./pkg.test -test.v]\n")
+	fmt.Fprintf(os.Stderr, "usage: bolero tool test2json [-p pkg] [-t] [./pkg.test -test.v]\n")
 	os.Exit(2)
 }
 

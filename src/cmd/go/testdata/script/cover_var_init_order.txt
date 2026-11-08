@@ -4,7 +4,7 @@
 
 [short] skip
 
-go test -cover example
+bolero test -cover example
 
 -- go.mod --
 module example

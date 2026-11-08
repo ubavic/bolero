@@ -1,24 +1,24 @@
-# 'go list' without -e should fail and print errors on stderr.
-! go list ./p
+# 'bolero list' without -e should fail and print errors on stderr.
+! bolero list ./p
 stderr '^p[/\\]b.go:2:2: expected ''package'', found ''EOF''$'
-! go list -f '{{range .Imports}}{{.}} {{end}}' ./p
+! bolero list -f '{{range .Imports}}{{.}} {{end}}' ./p
 stderr '^p[/\\]b.go:2:2: expected ''package'', found ''EOF''$'
-! go list -test ./t
-stderr '^go: can''t load test package: t[/\\]t_test.go:8:1: expected declaration, found ʕ'
-! go list -test -f '{{range .Imports}}{{.}} {{end}}' ./t
-stderr '^go: can''t load test package: t[/\\]t_test.go:8:1: expected declaration, found ʕ'
+! bolero list -test ./t
+stderr '^bolero: can''t load test package: t[/\\]t_test.go:8:1: expected declaration, found ʕ'
+! bolero list -test -f '{{range .Imports}}{{.}} {{end}}' ./t
+stderr '^bolero: can''t load test package: t[/\\]t_test.go:8:1: expected declaration, found ʕ'
 
-# 'go list -e' should report imports, even if some files have parse errors
+# 'bolero list -e' should report imports, even if some files have parse errors
 # before the import block.
-go list -e -f '{{range .Imports}}{{.}} {{end}}' ./p
+bolero list -e -f '{{range .Imports}}{{.}} {{end}}' ./p
 stdout '^fmt '
 
-# 'go list' should report the position of the error if there's only one.
-go list -e -f '{{.Error.Pos}} => {{.Error.Err}}' ./p
+# 'bolero list' should report the position of the error if there's only one.
+bolero list -e -f '{{.Error.Pos}} => {{.Error.Err}}' ./p
 stdout 'b.go:[0-9:]+ => expected ''package'', found ''EOF'''
 
-# 'go test' should report the position of the error if there's only one.
-go list -e -test -f '{{if .Error}}{{.Error.Pos}} => {{.Error.Err}}{{end}}' ./t
+# 'bolero test' should report the position of the error if there's only one.
+bolero list -e -test -f '{{if .Error}}{{.Error.Pos}} => {{.Error.Err}}{{end}}' ./t
 stdout 't_test.go:[0-9:]+ => expected declaration, found ʕ'
 
 -- go.mod --

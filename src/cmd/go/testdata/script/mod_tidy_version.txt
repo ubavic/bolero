@@ -1,4 +1,4 @@
-# https://golang.org/issue/45094: 'go mod tidy' now accepts a '-go' flag
+# https://golang.org/issue/45094: 'bolero mod tidy' now accepts a '-go' flag
 # to change the language version in use.
 #
 # The package import graph used in this test looks like:
@@ -38,99 +38,99 @@ env TESTGO_VERSION=go${goversion}
 
 # An invalid argument should be rejected.
 
-! go mod tidy -go=bananas
+! bolero mod tidy -go=bananas
 stderr '^invalid value "bananas" for flag -go: expecting a Go version like "'$goversion'"$'
 cmp go.mod go.mod.orig
 
-! go mod tidy -go=0.9
+! bolero mod tidy -go=0.9
 stderr '^invalid value "0.9" for flag -go: expecting a Go version like "'$goversion'"$'
 
-! go mod tidy -go=2000.0
+! bolero mod tidy -go=2000.0
 stderr '^invalid value "2000.0" for flag -go: maximum supported Go version is '$goversion'$'
 
 
 # Supported versions should change the go.mod file to be tidy according to the
 # indicated version.
 
-go mod tidy -go=1.15
+bolero mod tidy -go=1.15
 cmp go.mod go.mod.115
 
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.115
 
 
-go mod tidy -go=1.16
+bolero mod tidy -go=1.16
 cmp go.mod go.mod.116
 
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.116
 
 
-go mod tidy -go=1.17
+bolero mod tidy -go=1.17
 cmp go.mod go.mod.117
 
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.117
 
 
 # If we downgrade back to 1.15, we should re-resolve d to v0.2.0 instead
 # of the original v0.1.0 (because the original requirement is lost).
 
-go mod tidy -go=1.15
+bolero mod tidy -go=1.15
 cmp go.mod go.mod.115-2
 
 
 # -go= (with an empty argument) maintains the existing version or adds the
 #  default version (just like omitting the flag).
 
-go mod tidy -go=''
+bolero mod tidy -go=''
 cmp go.mod go.mod.115-2
 
 cp go.mod.orig go.mod
-go mod tidy -go=''
+bolero mod tidy -go=''
 cmpenv go.mod go.mod.latest
 
-# Repeat with go get go@ instead of mod tidy.
+# Repeat with bolero get go@ instead of mod tidy.
 
 # Go 1.16 -> 1.17 should be a no-op.
 cp go.mod.116 go.mod
-go get go@1.16
+bolero get go@1.16
 cmp go.mod go.mod.116
 
-# Go 1.17 -> 1.16 should leave b (go get is not tidy).
+# Go 1.17 -> 1.16 should leave b (bolero get is not tidy).
 cp go.mod.117 go.mod
-go get go@1.16
+bolero get go@1.16
 cmp go.mod go.mod.116from117
 
-# Go 1.15 -> 1.16 should leave d (go get is not tidy).
+# Go 1.15 -> 1.16 should leave d (bolero get is not tidy).
 cp go.mod.115 go.mod
-go get go@1.16
+bolero get go@1.16
 cmp go.mod go.mod.116from115
 
 # Go 1.16 -> 1.17 should add b.
 cp go.mod.116 go.mod
-go get go@1.17
-stderr '^\tnote: expanded dependencies to upgrade to go 1.17 or higher; run ''go mod tidy'' to clean up'
+bolero get go@1.17
+stderr '^\tnote: expanded dependencies to upgrade to go 1.17 or higher; run ''bolero mod tidy'' to clean up'
 cmp go.mod go.mod.117
 
 # Go 1.16 -> 1.15 should add d,
-# but 'go get' doesn't load enough packages to know that.
-# (This leaves the module untidy, but the user can fix it by running 'go mod tidy'.)
+# but 'bolero get' doesn't load enough packages to know that.
+# (This leaves the module untidy, but the user can fix it by running 'bolero mod tidy'.)
 cp go.mod.116 go.mod
-go get go@1.15 toolchain@none
+bolero get go@1.15 toolchain@none
 cmp go.mod go.mod.115from116
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.115-2
 
 # Updating the go line to 1.21 or higher also updates the toolchain line,
 # only if the toolchain is higher than what would be implied by the go line.
 
 cp go.mod.117 go.mod
-go mod tidy -go=$goversion
+bolero mod tidy -go=$goversion
 cmpenv go.mod go.mod.latest
 
 cp go.mod.117 go.mod
-go mod tidy -go=1.21.0  # lower than $goversion
+bolero mod tidy -go=1.21.0  # lower than $goversion
 cmp go.mod go.mod.121toolchain
 
 

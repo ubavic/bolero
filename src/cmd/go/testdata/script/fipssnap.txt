@@ -7,17 +7,17 @@ env GOFIPS140=$snap
 [GOEXPERIMENT:boringcrypto] skip
 
 # default GODEBUG includes fips140=on
-go list -f '{{.DefaultGODEBUG}}'
+bolero list -f '{{.DefaultGODEBUG}}'
 stdout fips140=on
 
 # std lists fips snapshot and not regular fips
-go list std
+bolero list std
 stdout crypto/internal/fips140/$snap/sha256
 ! stdout crypto/internal/fips140/sha256
 ! stdout crypto/internal/fips140/check
 
 # build does not use regular fips
-go list -json -test
+bolero list -json -test
 stdout crypto/internal/fips140/$snap/sha256
 ! stdout crypto/internal/fips140/sha256
 ! stdout crypto/internal/fips140/check
@@ -26,17 +26,17 @@ stdout crypto/internal/fips140/$snap/sha256
 env GOFIPS140=$alias
 
 # default GODEBUG includes fips140=on
-go list -f '{{.DefaultGODEBUG}}'
+bolero list -f '{{.DefaultGODEBUG}}'
 stdout fips140=on
 
 # std lists fips snapshot and not regular fips
-go list std
+bolero list std
 stdout crypto/internal/fips140/$snap/sha256
 ! stdout crypto/internal/fips140/sha256
 ! stdout crypto/internal/fips140/check
 
 # build does not use regular fips
-go list -json -test
+bolero list -json -test
 stdout crypto/internal/fips140/$snap/sha256
 ! stdout crypto/internal/fips140/sha256
 ! stdout crypto/internal/fips140/check
@@ -44,15 +44,15 @@ stdout crypto/internal/fips140/$snap/sha256
 [short] skip
 
 # build with GOFIPS140=snap is cached
-go build -x -o x.exe
+bolero build -x -o x.exe
 stderr link.*-fipso
-go build -x -o x.exe
+bolero build -x -o x.exe
 ! stderr link.*-fipso
 
 # build test with GOFIPS140=snap is cached
-go test -x -c
+bolero test -x -c
 stderr link.*-fipso
-go test -x -c
+bolero test -x -c
 ! stderr link
 
 -- go.mod --

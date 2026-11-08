@@ -40,7 +40,7 @@ func scriptCommands(interrupt os.Signal, waitDelay time.Duration) map[string]scr
 
 	add("cc", scriptCC(cmdExec))
 	cmdGo := scriptGo(cancel, waitDelay)
-	add("go", cmdGo)
+	add("bolero", cmdGo)
 	add("stale", scriptStale(cmdGo))
 
 	return cmds
@@ -71,12 +71,12 @@ func scriptCC(cmdExec script.Cmd) script.Cmd {
 		})
 }
 
-var scriptGoInvoked sync.Map // testing.TB → go command was invoked
+var scriptGoInvoked sync.Map // testing.TB → bolero command was invoked
 
-// scriptGo runs the go command.
+// scriptGo runs the bolero command.
 func scriptGo(cancel func(*exec.Cmd) error, waitDelay time.Duration) script.Cmd {
 	cmd := script.Program(testGo, cancel, waitDelay)
-	// Inject code to update scriptGoInvoked before invoking the Go command.
+	// Inject code to update scriptGoInvoked before invoking the Bolero command.
 	return script.Command(*cmd.Usage(), func(state *script.State, s ...string) (script.WaitFunc, error) {
 		t, ok := tbFromContext(state.Context())
 		if !ok {

@@ -1,14 +1,14 @@
 # Regression test for https://go.dev/issue/51125:
-# Relative import paths (a holdover from GOPATH) were accidentally allowed in module mode.
+# Relative import paths (a holdover from BOLERO_PATH) were accidentally allowed in module mode.
 
 cd $WORK
 
 # Relative imports should not be allowed with a go.mod file.
 
-! go run driver.go
+! bolero run driver.go
 stderr '^driver.go:3:8: "./mypkg" is relative, but relative import paths are not supported in module mode$'
 
-go list -e -f '{{with .Error}}{{.}}{{end}}' -deps driver.go
+bolero list -e -f '{{with .Error}}{{.}}{{end}}' -deps driver.go
 stdout '^driver.go:3:8: "./mypkg" is relative, but relative import paths are not supported in module mode$'
 ! stderr .
 
@@ -16,20 +16,20 @@ stdout '^driver.go:3:8: "./mypkg" is relative, but relative import paths are not
 # Relative imports should not be allowed in module mode even without a go.mod file.
 rm go.mod
 
-! go run driver.go
+! bolero run driver.go
 stderr '^driver.go:3:8: "./mypkg" is relative, but relative import paths are not supported in module mode$'
 
-go list -e -f '{{with .Error}}{{.}}{{end}}' -deps driver.go
+bolero list -e -f '{{with .Error}}{{.}}{{end}}' -deps driver.go
 stdout '^driver.go:3:8: "./mypkg" is relative, but relative import paths are not supported in module mode$'
 ! stderr .
 
 
-# In GOPATH mode, they're still allowed (but only outside of GOPATH/src).
-env GO111MODULE=off
+# In BOLERO_PATH mode, they're still allowed (but only outside of BOLERO_PATH/src).
+env BOLERO_MODULE=off
 
-[!short] go run driver.go
+[!short] bolero run driver.go
 
-go list -deps driver.go
+bolero list -deps driver.go
 
 
 -- $WORK/go.mod --

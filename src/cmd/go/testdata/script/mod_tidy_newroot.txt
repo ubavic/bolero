@@ -1,4 +1,4 @@
-# https://golang.org/issue/45952: 'go mod tidy' in an eager module failed due
+# https://golang.org/issue/45952: 'bolero mod tidy' in an eager module failed due
 # to an erroneous check on root completeness.
 #
 # Per the issue report:
@@ -12,7 +12,7 @@
 # dependency (or else no new root would be needed). An additional package D
 # in its own module satisfies that condition, reproducing the bug.
 
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.tidy
 
 -- go.mod --

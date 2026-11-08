@@ -1,17 +1,17 @@
 [short] skip
 
 # Control
-! go test example2_test.go example1_test.go
+! bolero test example2_test.go example1_test.go
 
 # This test only passes if the source order is preserved
-go test example1_test.go example2_test.go
+bolero test example1_test.go example2_test.go
 
 -- example1_test.go --
 // Copyright 2013 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Make sure that go test runs Example_z before Example_a, preserving source order.
+// Make sure that bolero test runs Example_z before Example_a, preserving source order.
 
 package p
 
@@ -35,7 +35,7 @@ func Example_a() {
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Make sure that go test runs Example_y before Example_b, preserving source order.
+// Make sure that bolero test runs Example_y before Example_b, preserving source order.
 
 package p
 

@@ -1,16 +1,16 @@
 # Regression test for https://golang.org/issue/34086:
-# 'go mod tidy' produced different go.mod file from other
+# 'bolero mod tidy' produced different go.mod file from other
 # subcommands when certain kinds of cycles were present
 # in the build graph.
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.orig
 
-# If the go.mod file is already tidy, 'go mod graph' should not modify it.
-go mod graph
+# If the go.mod file is already tidy, 'bolero mod graph' should not modify it.
+bolero mod graph
 cmp go.mod go.mod.orig
 
 -- go.mod --

@@ -1,5 +1,5 @@
 # Matches only benchmarks
-go test -run '^$' -bench . standalone_benchmark_test.go
+bolero test -run '^$' -bench . standalone_benchmark_test.go
 ! stdout '^ok.*\[no tests to run\]'
 ! stderr '^ok.*\[no tests to run\]'
 stdout '^ok'

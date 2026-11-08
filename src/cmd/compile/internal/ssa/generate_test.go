@@ -78,7 +78,7 @@ func TestGeneratedFilesUpToDate(t *testing.T) {
 	output, err := testenv.Command(t, testenv.GoToolPath(t), args...).CombinedOutput()
 
 	if err != nil {
-		t.Fatalf("go run in _gen failed: %v\n%s", err, output)
+		t.Fatalf("bolero run in _gen failed: %v\n%s", err, output)
 	}
 
 	// Compare generated files with existing files in the parent directory.
@@ -122,7 +122,7 @@ func TestGeneratedFilesUpToDate(t *testing.T) {
 
 		// and the contents of that file should match.
 		if !bytes.Equal(originalData, generatedData) {
-			t.Errorf("%s is out of date. Please run 'go generate'.", filename)
+			t.Errorf("%s is out of date. Please run 'bolero generate'.", filename)
 		}
 	}
 

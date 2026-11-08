@@ -4,7 +4,7 @@
 
 [short] skip
 
-go test -json
+bolero test -json
 stdout '"Test":"TestWeirdTiming","Output":"[^"]* logging to outer again\\n"'
 
 -- go.mod --

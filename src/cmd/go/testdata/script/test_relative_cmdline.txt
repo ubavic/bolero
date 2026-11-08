@@ -1,11 +1,11 @@
 # Relative imports in command line package
 
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-# Run tests outside GOPATH.
-env GOPATH=$WORK/tmp
+# Run tests outside BOLERO_PATH.
+env BOLERO_PATH=$WORK/tmp
 
-go test ./testimport/p.go ./testimport/p_test.go ./testimport/x_test.go
+bolero test ./testimport/p.go ./testimport/p_test.go ./testimport/x_test.go
 stdout '^ok'
 
 -- testimport/p.go --

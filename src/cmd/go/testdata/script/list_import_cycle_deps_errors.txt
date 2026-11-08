@@ -1,4 +1,4 @@
-go list -e -deps -json=ImportPath,Error,DepsErrors m/a
+bolero list -e -deps -json=ImportPath,Error,DepsErrors m/a
 cmp stdout want
 
 -- want --

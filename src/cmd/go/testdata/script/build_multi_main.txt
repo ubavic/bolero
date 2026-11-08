@@ -1,18 +1,18 @@
 # Verify build -o can output multiple executables to a directory.
 
 mkdir $WORK/bin
-go build -o $WORK/bin ./cmd/c1 ./cmd/c2
+bolero build -o $WORK/bin ./cmd/c1 ./cmd/c2
 ! stderr 'multiple packages'
 
-! go build -o $WORK/bin ./pkg1 ./pkg1
+! bolero build -o $WORK/bin ./pkg1 ./pkg1
 stderr 'no main packages'
 
-! go build ./cmd/c1
+! bolero build ./cmd/c1
 stderr 'already exists and is a directory'
 
 # Verify build -o output correctly local packages
 mkdir $WORK/local
-go build -o $WORK/local ./exec.go
+bolero build -o $WORK/local ./exec.go
 exists $WORK/local/exec$GOEXE
 
 -- go.mod --

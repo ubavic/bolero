@@ -2,7 +2,7 @@
 # Regression test case for bug #72810. Uses a build with
 # Go source files and assembly source files.
 
-go build
+bolero build
 
 -- go.mod --
 module uses.asm

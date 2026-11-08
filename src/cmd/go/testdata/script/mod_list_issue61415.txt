@@ -1,13 +1,13 @@
 [short] skip 'generates a vcstest git repo'
 [!git] skip
 
-env GOPROXY=direct
+env BOLERO_PROXY=direct
 
 # Control case: fetching a nested module at a tag that exists should
 # emit Origin metadata for that tag and commit, and the origin should
 # be reusable for that tag.
 
-go list -json -m --versions -e vcs-test.golang.org/git/issue61415.git/nested@has-nested
+bolero list -json -m --versions -e vcs-test.golang.org/git/issue61415.git/nested@has-nested
 cp stdout has-nested.json
 stdout '"Origin":'
 stdout '"VCS": "git"'
@@ -18,7 +18,7 @@ stdout '"TagSum": "t1:47DEQpj8HBSa\+/TImW\+5JCeuQeRkm5NMpJWZG3hSuFU="'
 stdout '"Ref": "refs/tags/has-nested"'
 stdout '"Hash": "08a4fa6bb9c04ffba03b26ae427b0d6335d90a2a"'
 
-go list -reuse=has-nested.json -json -m --versions -e vcs-test.golang.org/git/issue61415.git/nested@has-nested
+bolero list -reuse=has-nested.json -json -m --versions -e vcs-test.golang.org/git/issue61415.git/nested@has-nested
 stdout '"Origin":'
 stdout '"VCS": "git"'
 stdout '"URL":'  # randomly-chosen vcweb localhost URL
@@ -35,7 +35,7 @@ stdout '"Reuse": true'
 # (HEAD for a repo without version tags) and the hash to which it refers,
 # so that changing the HEAD ref will invalidate the result.
 
-go list -json -m --versions -e vcs-test.golang.org/git/issue61415.git/nested@latest
+bolero list -json -m --versions -e vcs-test.golang.org/git/issue61415.git/nested@latest
 cp stdout no-nested.json
 stdout '"Err": "module vcs-test.golang.org/git/issue61415.git/nested: no matching versions for query \\"latest\\""'
 stdout '"URL":'  # randomly-chosen vcweb localhost URL
@@ -48,7 +48,7 @@ stdout '"Hash": "f213069baa68ec26412fb373c7cf6669db1f8e69"'
 
 # The error result should be reusable.
 
-go list -reuse=no-nested.json -json -m --versions -e vcs-test.golang.org/git/issue61415.git/nested@latest
+bolero list -reuse=no-nested.json -json -m --versions -e vcs-test.golang.org/git/issue61415.git/nested@latest
 
 stdout '"Err": "module vcs-test.golang.org/git/issue61415.git/nested: no matching versions for query \\"latest\\""'
 stdout '"URL":'  # randomly-chosen vcweb localhost URL
@@ -65,7 +65,7 @@ stdout '"Reuse": true'
 
 replace f213069baa68ec26412fb373c7cf6669db1f8e69 08a4fa6bb9c04ffba03b26ae427b0d6335d90a2a no-nested.json
 
-go list -reuse=no-nested.json -json -m --versions -e vcs-test.golang.org/git/issue61415.git/nested@latest
+bolero list -reuse=no-nested.json -json -m --versions -e vcs-test.golang.org/git/issue61415.git/nested@latest
 stdout '"Err": "module vcs-test.golang.org/git/issue61415.git/nested: no matching versions for query \\"latest\\""'
 stdout '"URL":'  # randomly-chosen vcweb localhost URL
 stdout '"Subdir": "nested"'

@@ -1,11 +1,11 @@
 # Install an env command because Windows and plan9 don't have it.
-env GOBIN=$WORK/tmp/bin
-go install env.go
-[GOOS:plan9] env path=$GOBIN${:}$path
-[!GOOS:plan9] env PATH=$GOBIN${:}$PATH
+env BOLERO_BIN=$WORK/tmp/bin
+bolero install env.go
+[GOOS:plan9] env path=$BOLERO_BIN${:}$path
+[!GOOS:plan9] env PATH=$BOLERO_BIN${:}$PATH
 
 # Test generators have access to the environment
-go generate ./printenv.go
+bolero generate ./printenv.go
 stdout '^GOARCH='$GOARCH
 stdout '^GOOS='$GOOS
 stdout '^GOFILE='

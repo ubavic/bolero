@@ -4,17 +4,17 @@
 
 @echo off
 
-if not exist ..\bin\go.exe (
-    echo Must run run.bat from Go src directory after installing cmd/go.
+if not exist ..\bin\bolero.exe (
+    echo Must run run.bat from Bolero src directory after installing cmd/go.
     exit /b 1
 )
 
 setlocal
 
-set GOENV=off
-..\bin\go tool dist env > env.bat || exit /b 1
+set BOLERO_ENV=off
+..\bin\bolero tool dist env > env.bat || exit /b 1
 call .\env.bat
 del env.bat
 
-set GOPATH=c:\nonexist-gopath
-..\bin\go tool dist test --rebuild %* || exit /b 1
+set BOLERO_PATH=c:\nonexist-gopath
+..\bin\bolero tool dist test --rebuild %* || exit /b 1

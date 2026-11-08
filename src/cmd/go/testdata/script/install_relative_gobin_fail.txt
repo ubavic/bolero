@@ -1,6 +1,6 @@
-env GOBIN=.
-! go install
-stderr 'cannot install, GOBIN must be an absolute path'
+env BOLERO_BIN=.
+! bolero install
+stderr 'cannot install, BOLERO_BIN must be an absolute path'
 
 -- go.mod --
 module triv

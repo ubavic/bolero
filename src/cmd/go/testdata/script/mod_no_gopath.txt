@@ -1,12 +1,12 @@
-# https://golang.org/issue/43938: 'go build' should succeed
-# if GOPATH and the variables needed for its default value
+# https://golang.org/issue/43938: 'bolero build' should succeed
+# if BOLERO_PATH and the variables needed for its default value
 # are all unset but not relevant to the specific command.
 
 env HOME=''
 env home=''
-env GOPATH=''
+env BOLERO_PATH=''
 
-go list -deps main.go
+bolero list -deps main.go
 stdout '^io$'
 
 -- main.go --

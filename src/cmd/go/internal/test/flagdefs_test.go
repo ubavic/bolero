@@ -19,8 +19,8 @@ func TestMain(m *testing.M) {
 }
 
 // TestPassFlagToTest ensures that the generated table of flags is
-// consistent with output of "go tool vet -flags", using the installed
-// go command---so if it fails, you may need to re-run make.bash.
+// consistent with output of "bolero tool vet -flags", using the installed
+// bolero command---so if it fails, you may need to re-run make.bash.
 func TestPassFlagToTest(t *testing.T) {
 	wantNames := genflags.ShortTestFlags()
 
@@ -48,7 +48,7 @@ func TestPassFlagToTest(t *testing.T) {
 }
 
 func TestPassAnalyzersToVet(t *testing.T) {
-	testenv.MustHaveGoBuild(t) // runs 'go tool vet -flags'
+	testenv.MustHaveGoBuild(t) // runs 'bolero tool vet -flags'
 
 	wantNames, err := genflags.VetAnalyzers()
 	if err != nil {

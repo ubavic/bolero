@@ -8,16 +8,16 @@
 [!cgo] skip
 
 # Check that the source path appears when -trimpath is not used.
-go build -o hello.exe .
+bolero build -o hello.exe .
 grep -q gopath[/\\]src hello.exe
-go run ./list-dwarf hello.exe
+bolero run ./list-dwarf hello.exe
 stdout gopath[/\\]src
 
 # Check that the source path does not appear when -trimpath is used.
 [GOOS:aix] stop # can't inspect XCOFF binaries
-go build -trimpath -o hello.exe .
+bolero build -trimpath -o hello.exe .
 ! grep -q gopath[/\\]src hello.exe
-go run ./list-dwarf hello.exe
+bolero run ./list-dwarf hello.exe
 ! stdout gopath/src
 
 
@@ -27,18 +27,18 @@ mkdir $WORK/overlay
 cp hello.go $WORK/overlay/hello.go
 mkdir hello_overlay
 cp hello.c hello_overlay/hello.c
-go build -overlay overlay.json -o hello_overlay.exe ./hello_overlay
+bolero build -overlay overlay.json -o hello_overlay.exe ./hello_overlay
 grep -q gopath[/\\]src hello_overlay.exe
 ! grep -q $WORK[/\\]overlay hello_overlay.exe
-go run ./list-dwarf hello_overlay.exe
+bolero run ./list-dwarf hello_overlay.exe
 stdout gopath[/\\]src
 ! stdout $WORK[/\\]overlay
 
 # Check that the source path does not appear when -trimpath is used.
-go build -overlay overlay.json -trimpath -o hello_overlay.exe ./hello_overlay
+bolero build -overlay overlay.json -trimpath -o hello_overlay.exe ./hello_overlay
 ! grep -q gopath[/\\]src hello_overlay.exe
 ! grep -q $WORK[/\\]overlay hello_overlay.exe
-go run ./list-dwarf hello_overlay.exe
+bolero run ./list-dwarf hello_overlay.exe
 ! stdout gopath/src
 ! stdout $WORK[/\\]overlay
 

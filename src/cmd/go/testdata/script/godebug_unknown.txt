@@ -1,4 +1,4 @@
-! go build
+! bolero build
 stderr 'p.go:1:1: invalid //go:debug: unknown //go:debug setting "x"'
 
 -- go.mod --

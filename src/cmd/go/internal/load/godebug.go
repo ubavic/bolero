@@ -51,7 +51,7 @@ func defaultGODEBUG(loaderstate *modload.State, p *Package, directives, testDire
 	}
 	goVersion := loaderstate.MainModules.GoVersion(loaderstate)
 	if loaderstate.RootMode == modload.NoRoot && p.Module != nil {
-		// This is go install pkg@version or go run pkg@version.
+		// This is bolero install pkg@version or bolero run pkg@version.
 		// Use the Go version from the package.
 		// If there isn't one, then assume Go 1.20,
 		// the last version before GODEBUGs were introduced.

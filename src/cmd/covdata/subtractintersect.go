@@ -49,14 +49,14 @@ func (s *sstate) Usage(msg string) {
 	if len(msg) > 0 {
 		fmt.Fprintf(os.Stderr, "error: %s\n", msg)
 	}
-	fmt.Fprintf(os.Stderr, "usage: go tool covdata %s -i=dir1,dir2 -o=<dir>\n\n", s.mode)
+	fmt.Fprintf(os.Stderr, "usage: bolero tool covdata %s -i=dir1,dir2 -o=<dir>\n\n", s.mode)
 	flag.PrintDefaults()
 	fmt.Fprintf(os.Stderr, "\nExamples:\n\n")
 	op := "from"
 	if s.mode == intersectMode {
 		op = "with"
 	}
-	fmt.Fprintf(os.Stderr, "  go tool covdata %s -i=dir1,dir2 -o=outdir\n\n", s.mode)
+	fmt.Fprintf(os.Stderr, "  bolero tool covdata %s -i=dir1,dir2 -o=outdir\n\n", s.mode)
 	fmt.Fprintf(os.Stderr, "  \t%ss dir2 %s dir1, writing result\n", s.mode, op)
 	fmt.Fprintf(os.Stderr, "  \tinto output dir outdir.\n")
 	os.Exit(2)

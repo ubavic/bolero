@@ -1,16 +1,16 @@
-# Test support for go mod edit -toolchain to set toolchain to use
+# Test support for bolero mod edit -toolchain to set toolchain to use
 
-env GOTOOLCHAIN=local
-env GO111MODULE=on
+env BOLERO_TOOLCHAIN=local
+env BOLERO_MODULE=on
 
 ! grep toolchain go.mod
-go mod edit -toolchain=go1.9
+bolero mod edit -toolchain=go1.9
 grep 'toolchain go1.9' go.mod
 
-go mod edit -toolchain=default
+bolero mod edit -toolchain=default
 grep 'toolchain default' go.mod
 
-go mod edit -toolchain=none
+bolero mod edit -toolchain=none
 ! grep toolchain go.mod
 
 -- go.mod --

@@ -1,11 +1,11 @@
 # Test that -modfile=path/to/go.mod is rejected in workspace mode.
 
-! go list -m -modfile=./a/go.alt.mod
-stderr 'go: -modfile cannot be used in workspace mode'
+! bolero list -m -modfile=./a/go.alt.mod
+stderr 'bolero: -modfile cannot be used in workspace mode'
 
-env GOFLAGS=-modfile=./a/go.alt.mod
-! go list -m
-stderr 'go: -modfile cannot be used in workspace mode'
+env BOLERO_FLAGS=-modfile=./a/go.alt.mod
+! bolero list -m
+stderr 'bolero: -modfile cannot be used in workspace mode'
 
 -- go.work --
 go 1.20

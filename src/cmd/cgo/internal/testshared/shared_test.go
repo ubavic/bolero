@@ -66,7 +66,7 @@ func goCmd(t *testing.T, args ...string) string {
 		newargs = append(newargs, "-x", "-ldflags=-v")
 	}
 	newargs = append(newargs, args[1:]...)
-	c := exec.Command(filepath.Join(oldGOROOT, "bin", "go"), newargs...)
+	c := exec.Command(filepath.Join(oldGOROOT, "bin", "bolero"), newargs...)
 	stderr := new(strings.Builder)
 	c.Stderr = stderr
 
@@ -133,7 +133,7 @@ func testMain(m *testing.M) (int, error) {
 	// but first need to figure out a replacement that covers the small subset
 	// of use-cases where -buildmode=shared still works today.
 	// For now, run the tests in GOPATH mode only.
-	os.Setenv("GO111MODULE", "off")
+	os.Setenv("BOLERO_MODULE", "off")
 
 	// Some tests need to edit the source in GOPATH, so copy this directory to a
 	// temporary directory and chdir to that.
@@ -143,12 +143,12 @@ func testMain(m *testing.M) (int, error) {
 		return 0, err
 	}
 	if testing.Verbose() {
-		fmt.Printf("+ export GOPATH=%s\n", gopath)
+		fmt.Printf("+ export BOLERO_PATH=%s\n", gopath)
 		fmt.Printf("+ cd %s\n", modRoot)
 	}
-	os.Setenv("GOPATH", gopath)
+	os.Setenv("BOLERO_PATH", gopath)
 	// Explicitly override GOBIN as well, in case it was set through a GOENV file.
-	os.Setenv("GOBIN", filepath.Join(gopath, "bin"))
+	os.Setenv("BOLERO_BIN", filepath.Join(gopath, "bin"))
 	os.Chdir(modRoot)
 	os.Setenv("PWD", modRoot)
 
@@ -162,9 +162,9 @@ func testMain(m *testing.M) (int, error) {
 		return 0, err
 	}
 	if testing.Verbose() {
-		fmt.Fprintf(os.Stderr, "+ export GOROOT=%s\n", goroot)
+		fmt.Fprintf(os.Stderr, "+ export BOLERO_ROOT=%s\n", goroot)
 	}
-	os.Setenv("GOROOT", goroot)
+	os.Setenv("BOLERO_ROOT", goroot)
 
 	myContext := build.Default
 	myContext.GOROOT = goroot
@@ -590,7 +590,7 @@ func TestGopathShlib(t *testing.T) {
 	AssertHasRPath(t, "../../bin/exe", gorootInstallDir)
 	AssertHasRPath(t, "../../bin/exe", filepath.Dir(gopathInstallDir))
 	// And check it runs.
-	run(t, "executable linked to GOPATH library", "../../bin/exe")
+	run(t, "executable linked to BOLERO_PATH library", "../../bin/exe")
 }
 
 // The shared library contains a note listing the packages it contains in a section
@@ -719,7 +719,7 @@ func TestTwoGopathShlibs(t *testing.T) {
 	goCmd(t, "install", "-buildmode=shared", "-linkshared", "./depBase")
 	goCmd(t, "install", "-buildmode=shared", "-linkshared", "./dep2")
 	goCmd(t, "install", "-linkshared", "./exe2")
-	run(t, "executable linked to GOPATH library", "../../bin/exe2")
+	run(t, "executable linked to BOLERO_PATH library", "../../bin/exe2")
 }
 
 func TestThreeGopathShlibs(t *testing.T) {
@@ -728,7 +728,7 @@ func TestThreeGopathShlibs(t *testing.T) {
 	goCmd(t, "install", "-buildmode=shared", "-linkshared", "./dep2")
 	goCmd(t, "install", "-buildmode=shared", "-linkshared", "./dep3")
 	goCmd(t, "install", "-linkshared", "./exe3")
-	run(t, "executable linked to GOPATH library", "../../bin/exe3")
+	run(t, "executable linked to BOLERO_PATH library", "../../bin/exe3")
 }
 
 // If gccgo is not available or not new enough, call t.Skip.
@@ -764,9 +764,9 @@ func requireGccgo(t *testing.T) {
 		t.Skipf("gccgo too old (%s)", strings.TrimSpace(string(output)))
 	}
 
-	gomod, err := exec.Command("go", "env", "GOMOD").Output()
+	gomod, err := exec.Command("bolero", "env", "BOLERO_MOD").Output()
 	if err != nil {
-		t.Fatalf("go env GOMOD: %v", err)
+		t.Fatalf("bolero env BOLERO_MOD: %v", err)
 	}
 	if len(bytes.TrimSpace(gomod)) > 0 {
 		t.Skipf("gccgo not supported in module mode; see golang.org/issue/30344")
@@ -950,7 +950,7 @@ func TestRebuilding(t *testing.T) {
 	goCmd(t, "install", "-linkshared", "./exe")
 	info := strings.Fields(goCmd(t, "list", "-buildmode=shared", "-linkshared", "-f", "{{.Target}} {{.Shlib}}", "./depBase"))
 	if len(info) != 2 {
-		t.Fatalf("go list failed to report Target and/or Shlib")
+		t.Fatalf("bolero list failed to report Target and/or Shlib")
 	}
 	target := info[0]
 	shlib := info[1]
@@ -1175,10 +1175,10 @@ func TestStd(t *testing.T) {
 	tmpDir := t.TempDir()
 	// Use a temporary pkgdir to not interfere with other tests, and not write to GOROOT.
 	// Cannot use goCmd as it runs with cloned GOROOT which is incomplete.
-	runWithEnv(t, "building std", []string{"GOROOT=" + oldGOROOT},
-		filepath.Join(oldGOROOT, "bin", "go"), "install", "-buildmode=shared", "-pkgdir="+tmpDir, "std")
+	runWithEnv(t, "building std", []string{"BOLERO_ROOT=" + oldGOROOT},
+		filepath.Join(oldGOROOT, "bin", "bolero"), "install", "-buildmode=shared", "-pkgdir="+tmpDir, "std")
 
 	// Issue #58966.
-	runWithEnv(t, "testing issue #58966", []string{"GOROOT=" + oldGOROOT},
-		filepath.Join(oldGOROOT, "bin", "go"), "run", "-linkshared", "-pkgdir="+tmpDir, "./issue58966/main.go")
+	runWithEnv(t, "testing issue #58966", []string{"BOLERO_ROOT=" + oldGOROOT},
+		filepath.Join(oldGOROOT, "bin", "bolero"), "run", "-linkshared", "-pkgdir="+tmpDir, "./issue58966/main.go")
 }

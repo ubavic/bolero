@@ -1,71 +1,71 @@
-# go doc should find module documentation
+# bolero doc should find module documentation
 
-env GO111MODULE=on
-env GOFLAGS=-mod=mod
+env BOLERO_MODULE=on
+env BOLERO_FLAGS=-mod=mod
 [short] skip
 
-# Check when module x is inside GOPATH/src.
-go doc y
+# Check when module x is inside BOLERO_PATH/src.
+bolero doc y
 stdout 'Package y is.*alphabet'
 stdout 'import "x/y"'
-go doc x/y
+bolero doc x/y
 stdout 'Package y is.*alphabet'
-! go doc quote.Hello
+! bolero doc quote.Hello
 stderr 'doc: symbol quote is not a type' # because quote is not in local cache
-go list rsc.io/quote # now it is
-go doc quote.Hello
+bolero list rsc.io/quote # now it is
+bolero doc quote.Hello
 stdout 'Hello returns a greeting'
-go doc quote
+bolero doc quote
 stdout 'Package quote collects pithy sayings.'
 
-# Double-check when module x is outside GOPATH/src.
-env GOPATH=$WORK/emptygopath
-go doc x/y
+# Double-check when module x is outside BOLERO_PATH/src.
+env BOLERO_PATH=$WORK/emptygopath
+bolero doc x/y
 stdout 'Package y is.*alphabet'
-go doc y
+bolero doc y
 stdout 'Package y is.*alphabet'
 
-# Triple-check when module x is outside GOPATH/src,
-# but other packages with same import paths are in GOPATH/src.
-# Since go doc is running in module mode here, packages in active module
-# should be preferred over packages in GOPATH. See golang.org/issue/28992.
-env GOPATH=$WORK/gopath2
-go doc x/y
-! stdout 'Package y is.*GOPATH'
+# Triple-check when module x is outside BOLERO_PATH/src,
+# but other packages with same import paths are in BOLERO_PATH/src.
+# Since bolero doc is running in module mode here, packages in active module
+# should be preferred over packages in BOLERO_PATH. See golang.org/issue/28992.
+env BOLERO_PATH=$WORK/gopath2
+bolero doc x/y
+! stdout 'Package y is.*BOLERO_PATH'
 stdout 'Package y is.*alphabet'
-go doc rsc.io/quote
-! stdout 'Package quote is located in a GOPATH workspace.'
+bolero doc rsc.io/quote
+! stdout 'Package quote is located in a BOLERO_PATH workspace.'
 stdout 'Package quote collects pithy sayings.'
 
 # Check that a sensible error message is printed when a package is not found.
-env GOPROXY=off
-! go doc example.com/hello
-stderr '^doc: cannot find module providing package example.com/hello: module lookup disabled by GOPROXY=off$'
+env BOLERO_PROXY=off
+! bolero doc example.com/hello
+stderr '^doc: cannot find module providing package example.com/hello: module lookup disabled by BOLERO_PROXY=off$'
 
 # When in a module with a vendor directory, doc should use the vendored copies
 # of the packages. 'std' and 'cmd' are convenient examples of such modules.
 #
 # When in those modules, the "// import" comment should refer to the same import
-# path used in source code, not to the absolute path relative to GOROOT.
+# path used in source code, not to the absolute path relative to BOLERO_ROOT.
 
-cd $GOROOT/src
-env GOFLAGS=
-env GOWORK=off
-go doc cryptobyte
+cd $BOLERO_ROOT/src
+env BOLERO_FLAGS=
+env BOLERO_WORK=off
+bolero doc cryptobyte
 stdout '// import "golang.org/x/crypto/cryptobyte"'
 
-cd $GOROOT/src/cmd/go
-go doc modfile
+cd $BOLERO_ROOT/src/cmd/go
+bolero doc modfile
 stdout '// import "golang.org/x/mod/modfile"'
 
 # When outside of the 'std' module, its vendored packages
 # remain accessible using the 'vendor/' prefix, but report
 # the correct "// import" comment as used within std.
-cd $GOPATH
-go doc vendor/golang.org/x/crypto/cryptobyte
+cd $BOLERO_PATH
+bolero doc vendor/golang.org/x/crypto/cryptobyte
 stdout '// import "vendor/golang.org/x/crypto/cryptobyte"'
 
-go doc cmd/vendor/golang.org/x/mod/modfile
+bolero doc cmd/vendor/golang.org/x/mod/modfile
 stdout '// import "cmd/vendor/golang.org/x/mod/modfile"'
 
 -- go.mod --
@@ -80,11 +80,11 @@ package y
 package x
 
 -- $WORK/gopath2/src/x/y/y.go --
-// Package y is located in a GOPATH workspace.
+// Package y is located in a BOLERO_PATH workspace.
 package y
 -- $WORK/gopath2/src/rsc.io/quote/quote.go --
-// Package quote is located in a GOPATH workspace.
+// Package quote is located in a BOLERO_PATH workspace.
 package quote
 
-// Hello is located in a GOPATH workspace.
+// Hello is located in a BOLERO_PATH workspace.
 func Hello() string { return "" }

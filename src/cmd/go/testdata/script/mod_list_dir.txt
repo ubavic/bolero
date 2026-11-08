@@ -1,29 +1,29 @@
 [short] skip
 
-# go list with path to directory should work
+# bolero list with path to directory should work
 
 # populate go.sum
-go get
+bolero get
 
-env GO111MODULE=off
-go list -f '{{.ImportPath}}' $GOROOT/src/math
+env BOLERO_MODULE=off
+bolero list -f '{{.ImportPath}}' $BOLERO_ROOT/src/math
 stdout ^math$
 
-env GO111MODULE=on
-go list -f '{{.ImportPath}}' $GOROOT/src/math
+env BOLERO_MODULE=on
+bolero list -f '{{.ImportPath}}' $BOLERO_ROOT/src/math
 stdout ^math$
-go list -f '{{.ImportPath}}' .
+bolero list -f '{{.ImportPath}}' .
 stdout ^x$
 
-go mod download rsc.io/quote@v1.5.2
-go list -f '{{.ImportPath}}' $GOPATH/pkg/mod/rsc.io/quote@v1.5.2
+bolero mod download rsc.io/quote@v1.5.2
+bolero list -f '{{.ImportPath}}' $BOLERO_PATH/pkg/mod/rsc.io/quote@v1.5.2
 stdout '^rsc.io/quote$'
-go list -f '{{.ImportPath}}' $GOPATH/pkg/mod/rsc.io/sampler@v1.3.0
+bolero list -f '{{.ImportPath}}' $BOLERO_PATH/pkg/mod/rsc.io/sampler@v1.3.0
 stdout '^rsc.io/sampler$'
-go get rsc.io/sampler@v1.3.1
-go list -f '{{.ImportPath}}' $GOPATH/pkg/mod/rsc.io/sampler@v1.3.1
+bolero get rsc.io/sampler@v1.3.1
+bolero list -f '{{.ImportPath}}' $BOLERO_PATH/pkg/mod/rsc.io/sampler@v1.3.1
 stdout '^rsc.io/sampler$'
-! go list -f '{{.ImportPath}}' $GOPATH/pkg/mod/rsc.io/sampler@v1.3.0
+! bolero list -f '{{.ImportPath}}' $BOLERO_PATH/pkg/mod/rsc.io/sampler@v1.3.0
 stderr 'outside main module or its selected dependencies'
 
 -- go.mod --

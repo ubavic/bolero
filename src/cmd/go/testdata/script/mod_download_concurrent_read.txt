@@ -13,7 +13,7 @@
 [!GOOS:windows] skip
 [short] skip
 
-go run downloader.go
+bolero run downloader.go
 
 -- go.mod --
 module example.com/m
@@ -69,11 +69,11 @@ func run() (err error) {
 	return nil
 }
 
-// download downloads a module into the given cache using 'go mod download'.
+// download downloads a module into the given cache using 'bolero mod download'.
 func download(gopath string) error {
-	cmd := exec.Command("go", "mod", "download", "-modcacherw", "rsc.io/quote@v1.5.2")
+	cmd := exec.Command("bolero", "mod", "download", "-modcacherw", "rsc.io/quote@v1.5.2")
 	cmd.Stderr = os.Stderr
-	cmd.Env = append(os.Environ(), "GOPATH="+gopath)
+	cmd.Env = append(os.Environ(), "BOLERO_PATH="+gopath)
 	return cmd.Run()
 }
 

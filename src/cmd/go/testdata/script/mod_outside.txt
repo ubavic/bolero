@@ -1,243 +1,243 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 [short] skip
 
 # This script tests commands in module mode outside of any module.
 #
 # First, ensure that we really are in module mode, and that we really don't have
 # a go.mod file.
-go env GOMOD
+bolero env BOLERO_MOD
 stdout 'NUL|/dev/null'
 
 
-# 'go list' without arguments implicitly operates on the current directory,
+# 'bolero list' without arguments implicitly operates on the current directory,
 # which is not in a module.
-! go list
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
-go list -m
+! bolero list
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
+bolero list -m
 stdout '^command-line-arguments$'
-# 'go list' in the working directory should fail even if there is a a 'package
+# 'bolero list' in the working directory should fail even if there is a a 'package
 # main' present: without a main module, we do not know its package path.
-! go list ./needmod
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+! bolero list ./needmod
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
-# 'go list all' lists the transitive import graph of the main module,
+# 'bolero list all' lists the transitive import graph of the main module,
 # which is empty if there is no main module.
-go list all
+bolero list all
 ! stdout .
 stderr 'warning: "all" matched no packages'
 
-# 'go list' on standard-library packages should work, since they do not depend
+# 'bolero list' on standard-library packages should work, since they do not depend
 # on the contents of any module.
-go list -deps cmd
+bolero list -deps cmd
 stdout '^fmt$'
 stdout '^cmd/go$'
 
-go list $GOROOT/src/fmt
+bolero list $BOLERO_ROOT/src/fmt
 stdout '^fmt$'
 
-# 'go list' should work with file arguments.
-go list ./needmod/needmod.go
+# 'bolero list' should work with file arguments.
+bolero list ./needmod/needmod.go
 stdout 'command-line-arguments'
 
-# 'go list' on a package from a module should fail.
-! go list example.com/printversion
-stderr '^no required module provides package example.com/printversion: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero list' on a package from a module should fail.
+! bolero list example.com/printversion
+stderr '^no required module provides package example.com/printversion: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
 
-# 'go list -m' with an explicit version should resolve that version.
-go list -m example.com/version@latest
+# 'bolero list -m' with an explicit version should resolve that version.
+bolero list -m example.com/version@latest
 stdout 'example.com/version v1.1.0'
 
-# 'go list -m -versions' should succeed even without an explicit version.
-go list -m -versions example.com/version
+# 'bolero list -m -versions' should succeed even without an explicit version.
+bolero list -m -versions example.com/version
 stdout 'v1.0.0\s+v1.0.1\s+v1.1.0'
 
-# 'go list -m all' should fail. "all" is not meaningful outside of a module.
-! go list -m all
-stderr 'go: cannot match "all": go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero list -m all' should fail. "all" is not meaningful outside of a module.
+! bolero list -m all
+stderr 'bolero: cannot match "all": go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
-# 'go list -m <mods> all' should also fail.
-! go list -m example.com/printversion@v1.0.0 all
-stderr 'go: cannot match "all": go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero list -m <mods> all' should also fail.
+! bolero list -m example.com/printversion@v1.0.0 all
+stderr 'bolero: cannot match "all": go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 ! stdout 'example.com/version'
 
-# 'go list -m <mods>' should fail if any of the mods lacks an explicit version.
-! go list -m example.com/printversion
-stderr 'go: cannot match "example.com/printversion" without -versions or an explicit version: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero list -m <mods>' should fail if any of the mods lacks an explicit version.
+! bolero list -m example.com/printversion
+stderr 'bolero: cannot match "example.com/printversion" without -versions or an explicit version: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 ! stdout 'example.com/version'
 
-# 'go list -m' with wildcards should fail. Wildcards match modules in the
+# 'bolero list -m' with wildcards should fail. Wildcards match modules in the
 # build list, so they aren't meaningful outside a module.
-! go list -m ...
-stderr 'go: cannot match "...": go.mod file not found in current directory or any parent directory; see ''go help modules''$'
-! go list -m rsc.io/quote/...
-stderr 'go: cannot match "rsc.io/quote/...": go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+! bolero list -m ...
+stderr 'bolero: cannot match "...": go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
+! bolero list -m rsc.io/quote/...
+stderr 'bolero: cannot match "rsc.io/quote/...": go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
 
-# 'go clean' should skip the current directory if it isn't in a module.
-go clean -n
+# 'bolero clean' should skip the current directory if it isn't in a module.
+bolero clean -n
 ! stdout .
 ! stderr .
 
-# 'go mod graph' should fail, since there's no module graph.
-! go mod graph
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero mod graph' should fail, since there's no module graph.
+! bolero mod graph
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
-# 'go mod why' should fail, since there is no main module to depend on anything.
-! go mod why -m example.com/version
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero mod why' should fail, since there is no main module to depend on anything.
+! bolero mod why -m example.com/version
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
-# 'go mod edit', 'go mod tidy', and 'go mod fmt' should fail:
+# 'bolero mod edit', 'bolero mod tidy', and 'bolero mod fmt' should fail:
 # there is no go.mod file to edit.
-! go mod tidy
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
-! go mod edit -fmt
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
-! go mod edit -require example.com/version@v1.0.0
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+! bolero mod tidy
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
+! bolero mod edit -fmt
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
+! bolero mod edit -require example.com/version@v1.0.0
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
 
-# 'go mod download' without arguments should report an error.
-! go mod download
+# 'bolero mod download' without arguments should report an error.
+! bolero mod download
 stderr 'no modules specified'
 
-# 'go mod download' should download exactly the requested module without dependencies.
-rm -r $GOPATH/pkg/mod/cache/download/example.com
-go mod download example.com/printversion@v1.0.0
-exists $GOPATH/pkg/mod/cache/download/example.com/printversion/@v/v1.0.0.zip
-! exists $GOPATH/pkg/mod/cache/download/example.com/version/@v/v1.0.0.zip
+# 'bolero mod download' should download exactly the requested module without dependencies.
+rm -r $BOLERO_PATH/pkg/mod/cache/download/example.com
+bolero mod download example.com/printversion@v1.0.0
+exists $BOLERO_PATH/pkg/mod/cache/download/example.com/printversion/@v/v1.0.0.zip
+! exists $BOLERO_PATH/pkg/mod/cache/download/example.com/version/@v/v1.0.0.zip
 
-# 'go mod download all' should fail. "all" is not meaningful outside of a module.
-! go mod download all
-stderr 'go: cannot match "all": go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero mod download all' should fail. "all" is not meaningful outside of a module.
+! bolero mod download all
+stderr 'bolero: cannot match "all": go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
 
-# 'go mod vendor' should fail: it starts by clearing the existing vendor
+# 'bolero mod vendor' should fail: it starts by clearing the existing vendor
 # directory, and we don't know where that is.
-! go mod vendor
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+! bolero mod vendor
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
 
-# 'go mod verify' should fail: we have no modules to verify.
-! go mod verify
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero mod verify' should fail: we have no modules to verify.
+! bolero mod verify
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
 
-# 'go get' has no go.mod file to update outside a module and should fail.
-! go get
-stderr '^go: go.mod file not found in current directory or any parent directory.$'
-stderr '^\t''go get'' is no longer supported outside a module.$'
-! go get -u
-stderr '^go: go.mod file not found in current directory or any parent directory.$'
-stderr '^\t''go get'' is no longer supported outside a module.$'
-! go get -u ./needmod
-stderr '^go: go.mod file not found in current directory or any parent directory.$'
-stderr '^\t''go get'' is no longer supported outside a module.$'
-! go get -u all
-stderr '^go: go.mod file not found in current directory or any parent directory.$'
-stderr '^\t''go get'' is no longer supported outside a module.$'
-! go get example.com/printversion@v1.0.0 example.com/version@none
-stderr '^go: go.mod file not found in current directory or any parent directory.$'
-stderr '^\t''go get'' is no longer supported outside a module.$'
+# 'bolero get' has no go.mod file to update outside a module and should fail.
+! bolero get
+stderr '^bolero: go.mod file not found in current directory or any parent directory.$'
+stderr '^\t''bolero get'' is no longer supported outside a module.$'
+! bolero get -u
+stderr '^bolero: go.mod file not found in current directory or any parent directory.$'
+stderr '^\t''bolero get'' is no longer supported outside a module.$'
+! bolero get -u ./needmod
+stderr '^bolero: go.mod file not found in current directory or any parent directory.$'
+stderr '^\t''bolero get'' is no longer supported outside a module.$'
+! bolero get -u all
+stderr '^bolero: go.mod file not found in current directory or any parent directory.$'
+stderr '^\t''bolero get'' is no longer supported outside a module.$'
+! bolero get example.com/printversion@v1.0.0 example.com/version@none
+stderr '^bolero: go.mod file not found in current directory or any parent directory.$'
+stderr '^\t''bolero get'' is no longer supported outside a module.$'
 
-# 'go get' should not download anything.
-go clean -modcache
-! go get example.com/printversion@v1.0.0
-stderr '^go: go.mod file not found in current directory or any parent directory.$'
-stderr '^\t''go get'' is no longer supported outside a module.$'
-! exists $GOPATH/pkg/mod/example.com/printversion@v1.0.0
-! exists $GOPATH/pkg/mod/example.com/version@v1.0.0
+# 'bolero get' should not download anything.
+bolero clean -modcache
+! bolero get example.com/printversion@v1.0.0
+stderr '^bolero: go.mod file not found in current directory or any parent directory.$'
+stderr '^\t''bolero get'' is no longer supported outside a module.$'
+! exists $BOLERO_PATH/pkg/mod/example.com/printversion@v1.0.0
+! exists $BOLERO_PATH/pkg/mod/example.com/version@v1.0.0
 
 
-# 'go build' without arguments implicitly operates on the current directory, and should fail.
+# 'bolero build' without arguments implicitly operates on the current directory, and should fail.
 cd needmod
-! go build
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+! bolero build
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 cd ..
 
-# 'go build' of a non-module directory should fail too.
-! go build ./needmod
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero build' of a non-module directory should fail too.
+! bolero build ./needmod
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
-# 'go build' of source files should fail if they import anything outside std.
-! go build -n ./needmod/needmod.go
-stderr '^needmod[/\\]needmod.go:10:2: no required module provides package example.com/version: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero build' of source files should fail if they import anything outside std.
+! bolero build -n ./needmod/needmod.go
+stderr '^needmod[/\\]needmod.go:10:2: no required module provides package example.com/version: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
-# 'go build' of source files should succeed if they do not import anything outside std.
-go build -n -o ignore ./stdonly/stdonly.go
+# 'bolero build' of source files should succeed if they do not import anything outside std.
+bolero build -n -o ignore ./stdonly/stdonly.go
 
-# 'go build' should succeed for standard-library packages.
-go build -n fmt
+# 'bolero build' should succeed for standard-library packages.
+bolero build -n fmt
 
-# 'go build' should use the latest version of the Go language.
-go build ./newgo/newgo.go
+# 'bolero build' should use the latest version of the Go language.
+bolero build ./newgo/newgo.go
 
-# 'go doc' without arguments implicitly operates on the current directory, and should fail.
+# 'bolero doc' without arguments implicitly operates on the current directory, and should fail.
 # TODO(golang.org/issue/32027): currently, it succeeds.
 cd needmod
-go doc
+bolero doc
 cd ..
 
-# 'go doc' of a non-module directory should also succeed.
-go doc ./needmod
+# 'bolero doc' of a non-module directory should also succeed.
+bolero doc ./needmod
 
-# 'go doc' should succeed for standard-library packages.
-go doc fmt
+# 'bolero doc' should succeed for standard-library packages.
+bolero doc fmt
 
-# 'go doc' should fail for a package path outside a module.
-! go doc example.com/version
-stderr 'doc: no required module provides package example.com/version: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero doc' should fail for a package path outside a module.
+! bolero doc example.com/version
+stderr 'doc: no required module provides package example.com/version: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
-# 'go install' with a version should succeed if all constraints are met.
+# 'bolero install' with a version should succeed if all constraints are met.
 # See mod_install_pkg_version.
-rm $GOPATH/bin
-go install example.com/printversion@v0.1.0
-exists $GOPATH/bin/printversion$GOEXE
+rm $BOLERO_PATH/bin
+bolero install example.com/printversion@v0.1.0
+exists $BOLERO_PATH/bin/printversion$GOEXE
 
-# 'go install' should fail if a package argument must be resolved to a module.
-! go install example.com/printversion
-stderr '^go: ''go install'' requires a version when current directory is not in a module\n\tTry ''go install example.com/printversion@latest'' to install the latest version$'
+# 'bolero install' should fail if a package argument must be resolved to a module.
+! bolero install example.com/printversion
+stderr '^bolero: ''bolero install'' requires a version when current directory is not in a module\n\tTry ''bolero install example.com/printversion@latest'' to install the latest version$'
 
-# 'go install' should fail if a source file imports a package that must be
+# 'bolero install' should fail if a source file imports a package that must be
 # resolved to a module.
-! go install ./needmod/needmod.go
-stderr 'needmod[/\\]needmod.go:10:2: no required module provides package example.com/version: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+! bolero install ./needmod/needmod.go
+stderr 'needmod[/\\]needmod.go:10:2: no required module provides package example.com/version: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
-# 'go run' should fail if a package argument must be resolved to a module.
-! go run example.com/printversion
-stderr '^no required module provides package example.com/printversion: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+# 'bolero run' should fail if a package argument must be resolved to a module.
+! bolero run example.com/printversion
+stderr '^no required module provides package example.com/printversion: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
-# 'go run' should fail if a source file imports a package that must be
+# 'bolero run' should fail if a source file imports a package that must be
 # resolved to a module.
-! go run ./needmod/needmod.go
-stderr '^needmod[/\\]needmod.go:10:2: no required module provides package example.com/version: go.mod file not found in current directory or any parent directory; see ''go help modules''$'
+! bolero run ./needmod/needmod.go
+stderr '^needmod[/\\]needmod.go:10:2: no required module provides package example.com/version: go.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 
 
-# 'go fmt' should be able to format files outside of a module.
-go fmt needmod/needmod.go
+# 'bolero fmt' should be able to format files outside of a module.
+bolero fmt needmod/needmod.go
 
 
 # The remainder of the test checks dependencies by linking and running binaries.
 
-# 'go run' should work with file arguments if they don't import anything
+# 'bolero run' should work with file arguments if they don't import anything
 # outside std.
-go run ./stdonly/stdonly.go
+bolero run ./stdonly/stdonly.go
 stdout 'path is command-line-arguments$'
 stdout 'main is  $'
 
-# 'go generate' should work with file arguments.
-[exec:touch] go generate ./needmod/needmod.go
+# 'bolero generate' should work with file arguments.
+[exec:touch] bolero generate ./needmod/needmod.go
 [exec:touch] exists ./needmod/gen.txt
 
-# 'go install' should work with file arguments.
-go install ./stdonly/stdonly.go
+# 'bolero install' should work with file arguments.
+bolero install ./stdonly/stdonly.go
 
-# 'go test' should work with file arguments.
-go test -v ./stdonly/stdonly_test.go
+# 'bolero test' should work with file arguments.
+bolero test -v ./stdonly/stdonly_test.go
 stdout 'stdonly was tested'
 
-# 'go vet' should work with file arguments.
-go vet ./stdonly/stdonly.go
+# 'bolero vet' should work with file arguments.
+bolero vet ./stdonly/stdonly.go
 
 
 -- README.txt --

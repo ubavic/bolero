@@ -1,6 +1,6 @@
-# Test that GOPATH/pkg/mod is excluded
-env GO111MODULE=off
-! go list mod/foo
+# Test that BOLERO_PATH/pkg/mod is excluded
+env BOLERO_MODULE=off
+! bolero list mod/foo
 stderr 'disallowed import path'
 
 -- mod/foo/foo.go --

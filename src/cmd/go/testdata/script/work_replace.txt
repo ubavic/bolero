@@ -1,12 +1,12 @@
 # Support replace statement in go.work file
 
 # Replacement in go.work file, and none in go.mod file.
-go list -m example.com/dep
+bolero list -m example.com/dep
 stdout 'example.com/dep v1.0.0 => ./dep'
 
 # Wildcard replacement in go.work file overrides version replacement in go.mod
 # file.
-go list -m example.com/other
+bolero list -m example.com/other
 stdout 'example.com/other v1.0.0 => ./other2'
 
 -- go.work --

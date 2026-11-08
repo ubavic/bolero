@@ -1,34 +1,34 @@
-# go mod tidy should skip 'ignore' directives
+# bolero mod tidy should skip 'ignore' directives
 # See golang.org/issue/42965
 env ROOT=$WORK${/}gopath${/}src
 
 # no ignore directive; should not skip any directories.
 cp go.mod.orig go.mod
-go mod tidy -x
+bolero mod tidy -x
 ! stderr 'ignoring directory'
 
 # ignored ./foo should be skipped.
 cp go.mod.relative go.mod
-go mod tidy -x
+bolero mod tidy -x
 stderr 'ignoring directory '$ROOT''${/}'foo'
 ! stderr 'ignoring directory '$ROOT''${/}'pkg'${/}'foo'
 ! stderr 'ignoring directory '$ROOT''${/}'pkg'${/}'fo$'
 
 # ignored foo; any foo should be skipped.
 cp go.mod.any go.mod
-go mod tidy -x
+bolero mod tidy -x
 stderr 'ignoring directory '$ROOT''${/}'foo'
 stderr 'ignoring directory '$ROOT''${/}'pkg'${/}'foo'
 ! stderr 'ignoring directory '$ROOT''${/}'pkg'${/}'fo$'
 
 # non-existent ignore; should not skip any directories.
 cp go.mod.dne go.mod
-go mod tidy -x
+bolero mod tidy -x
 ! stderr 'ignoring directory'
 
 # ignored fo; should not skip foo/ but should skip fo/
 cp go.mod.partial go.mod
-go mod tidy -x
+bolero mod tidy -x
 stderr 'ignoring directory '$ROOT''${/}'pkg'${/}'fo$'
 ! stderr 'ignoring directory '$ROOT''${/}'pkg'${/}'foo'
 -- foo/secret/secret.go --

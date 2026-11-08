@@ -1,38 +1,38 @@
-# Test in GOPATH mode first.
-env GO111MODULE=off
+# Test in BOLERO_PATH mode first.
+env BOLERO_MODULE=off
 cd m
 
 # Import comment matches
-go build -n works.go
+bolero build -n works.go
 
 # Import comment mismatch
-! go build -n wrongplace.go
+! bolero build -n wrongplace.go
 stderr 'wrongplace expects import "my/x"'
 
 # Import comment syntax error
-! go build -n bad.go
+! bolero build -n bad.go
 stderr 'cannot parse import comment'
 
 # Import comment conflict
-! go build -n conflict.go
+! bolero build -n conflict.go
 stderr 'found import comments'
 
 
 # Test in module mode.
 # We ignore import comments, so these commands should succeed.
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # Import comment matches
-go build -n works.go
+bolero build -n works.go
 
 # Import comment mismatch
-go build -n wrongplace.go
+bolero build -n wrongplace.go
 
 # Import comment syntax error
-go build -n bad.go
+bolero build -n bad.go
 
 # Import comment conflict
-go build -n conflict.go
+bolero build -n conflict.go
 
 -- m/go.mod --
 module m

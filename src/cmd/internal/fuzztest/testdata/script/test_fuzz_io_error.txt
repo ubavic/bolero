@@ -7,11 +7,11 @@
 # due to ^C and EOF errors which are more common. We don't report those.
 [short] skip
 [!fuzz] skip
-env GOCACHE=$WORK/cache
+env BOLERO_CACHE=$WORK/cache
 
 # If the I/O error occurs before F.Fuzz is called, the coordinator should
 # stop the worker and say that.
-! go test -fuzz=FuzzClosePipeBefore -parallel=1
+! bolero test -fuzz=FuzzClosePipeBefore -parallel=1
 stdout '\s*fuzzing process terminated without fuzzing:'
 ! stdout 'communicating with fuzzing process'
 ! exists testdata
@@ -19,7 +19,7 @@ stdout '\s*fuzzing process terminated without fuzzing:'
 # If the I/O error occurs after F.Fuzz is called (unlikely), just exit.
 # It's hard to distinguish this case from the worker being interrupted by ^C
 # or exiting with status 0 (which it should do when interrupted by ^C).
-! go test -fuzz=FuzzClosePipeAfter -parallel=1
+! bolero test -fuzz=FuzzClosePipeAfter -parallel=1
 stdout '^\s*communicating with fuzzing process: invalid character ''!'' looking for beginning of value$'
 ! exists testdata
 

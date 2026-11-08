@@ -5,11 +5,11 @@
 # was replaced in a transitive dependency with another
 # version.
 
-go list example.com/dep
+bolero list example.com/dep
 
 cp replace_main_module.go.work go.work
-! go list example.com/dep
-stderr 'go: workspace module example.com/mainmoda is replaced at all versions in the go.work file. To fix, remove the replacement from the go.work file or specify the version at which to replace the module.'
+! bolero list example.com/dep
+stderr 'bolero: workspace module example.com/mainmoda is replaced at all versions in the go.work file. To fix, remove the replacement from the go.work file or specify the version at which to replace the module.'
 
 -- replace_main_module.go.work --
 go 1.18

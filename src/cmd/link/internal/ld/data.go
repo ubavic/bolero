@@ -1385,7 +1385,7 @@ func (p *GCProg) AddSym(s loader.Sym) {
 			// the address function.
 			return
 		}
-		p.ctxt.Errorf(p.sym.Sym(), "missing Go type information for global symbol %s: size %d", ldr.SymName(s), ldr.SymSize(s))
+		p.ctxt.Errorf(p.sym.Sym(), "missing type information for global symbol %s: size %d", ldr.SymName(s), ldr.SymSize(s))
 		return
 	}
 

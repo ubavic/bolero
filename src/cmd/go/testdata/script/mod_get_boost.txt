@@ -1,9 +1,9 @@
-# If 'go get -u' finds an upgrade candidate that isn't viable,
+# If 'bolero get -u' finds an upgrade candidate that isn't viable,
 # but some other upgraded module's requirement moves past it
 # (for example, to a higher prerelease), then we should accept
 # the transitive upgrade instead of trying lower roots.
 
-go get -v -u . example.net/b@v0.1.0
+bolero get -v -u . example.net/b@v0.1.0
 cmp go.mod go.mod.want
 
 -- go.mod --

@@ -10,12 +10,12 @@
 //     meaning whether they default to GODEBUG=fips140=on or =off.
 //
 //   - Which copy of the crypto/internal/fips140 source code to use.
-//     The default is obviously GOROOT/src/crypto/internal/fips140,
+//     The default is obviously BOLERO_ROOT/src/crypto/internal/fips140,
 //     but earlier snapshots that have differing levels of external
-//     validation and certification are stored in GOROOT/lib/fips140
+//     validation and certification are stored in BOLERO_ROOT/lib/fips140
 //     and can be substituted into the build instead.
 //
-// This package provides the logic needed by the rest of the go command
+// This package provides the logic needed by the rest of the bolero command
 // to make those decisions and implement the resulting policy.
 //
 // [Init] must be called to initialize the FIPS logic. It may fail and
@@ -38,7 +38,7 @@
 // fips.o file. Since the first build target always uses a.Objdir set to
 // $WORK/b001, a build like
 //
-//	GOFIPS140=latest go build -work my/binary
+//	GOFIPS140=latest bolero build -work my/binary
 //
 // will leave fips.o behind in $WORK/b001
 // (unless the build result is cached, of course).
@@ -48,7 +48,7 @@
 // of crypto/internal/fips140 with an earlier snapshot. The reason to do
 // this is to use a copy that has been through additional lab validation
 // (an "in-process" module) or NIST certification (a "certified" module).
-// The snapshots are stored in GOROOT/lib/fips140 in module zip form.
+// The snapshots are stored in BOLERO_ROOT/lib/fips140 in module zip form.
 // When a snapshot is being used, Init unpacks it into the module cache
 // and then uses that directory as the source location.
 //
@@ -60,14 +60,14 @@
 // crypto/internal/fips140/v1.2.3, which now has the FIPS packages.
 // This virtual file system replacement makes patterns like std and crypto...
 // automatically see the snapshot packages instead of the original packages
-// as they walk GOROOT/src/crypto/internal/fips140.
+// as they walk BOLERO_ROOT/src/crypto/internal/fips140.
 //
 // Second, ResolveImport is called to resolve an import like crypto/internal/fips140/sha256.
 // When snapshot v1.2.3 is being used, ResolveImport translates that path to
 // crypto/internal/fips140/v1.2.3/sha256 and returns the actual source directory
 // in the unpacked snapshot. Using the actual directory instead of the
-// virtual directory GOROOT/src/crypto/internal/fips140/v1.2.3 makes sure
-// that other tools using go list -json output can find the sources,
+// virtual directory BOLERO_ROOT/src/crypto/internal/fips140/v1.2.3 makes sure
+// that other tools using bolero list -json output can find the sources,
 // as well as making sure builds have a real directory in which to run the
 // assembler, compiler, and so on. The translation of the import path happens
 // in the same code that handles mapping golang.org/x/mod to
@@ -121,10 +121,10 @@ func Init() {
 	// toolchain selection, as the GOEXPERIMENT may be valid for the
 	// selected toolchain version.
 	if cfg.ExperimentErr == nil && cfg.Experiment.BoringCrypto && Enabled() {
-		base.Fatalf("go: cannot use GOFIPS140 with GOEXPERIMENT=boringcrypto")
+		base.Fatalf("bolero: cannot use GOFIPS140 with GOEXPERIMENT=boringcrypto")
 	}
 	if slices.Contains(cfg.BuildContext.BuildTags, "purego") && Enabled() {
-		base.Fatalf("go: cannot use GOFIPS140 with the purego build tag")
+		base.Fatalf("bolero: cannot use GOFIPS140 with the purego build tag")
 	}
 }
 
@@ -154,7 +154,7 @@ func Enabled() bool {
 }
 
 // Snapshot reports whether FIPS mode is using a source snapshot
-// rather than $GOROOT/src/crypto/internal/fips140.
+// rather than $BOLERO_ROOT/src/crypto/internal/fips140.
 // That is, it reports whether GOFIPS140 is set to something besides "latest" or "off".
 func Snapshot() bool {
 	checkInit()
@@ -179,10 +179,10 @@ func initVersion() {
 	// a .zip (a source snapshot like v1.2.0.zip)
 	// or a .txt (a redirect like inprocess.txt, containing a version number).
 	if strings.Contains(v, "/") || strings.Contains(v, `\`) || strings.Contains(v, "..") {
-		base.Fatalf("go: malformed GOFIPS140 version %q", cfg.GOFIPS140)
+		base.Fatalf("bolero: malformed GOFIPS140 version %q", cfg.GOFIPS140)
 	}
 	if cfg.GOROOT == "" {
-		base.Fatalf("go: missing GOROOT for GOFIPS140")
+		base.Fatalf("bolero: missing BOLERO_ROOT for GOFIPS140")
 	}
 
 	file := filepath.Join(cfg.GOROOT, "lib", "fips140", v)
@@ -190,7 +190,7 @@ func initVersion() {
 		v = strings.TrimSpace(string(data))
 		file = filepath.Join(cfg.GOROOT, "lib", "fips140", v)
 		if _, err := os.Stat(file + ".zip"); err != nil {
-			base.Fatalf("go: unknown GOFIPS140 version %q (from %q)", v, cfg.GOFIPS140)
+			base.Fatalf("bolero: unknown GOFIPS140 version %q (from %q)", v, cfg.GOFIPS140)
 		}
 	}
 
@@ -201,11 +201,11 @@ func initVersion() {
 		return
 	}
 
-	base.Fatalf("go: unknown GOFIPS140 version %q", v)
+	base.Fatalf("bolero: unknown GOFIPS140 version %q", v)
 }
 
 // Dir reports the directory containing the crypto/internal/fips140 source code.
-// If Snapshot() is false, Dir returns GOROOT/src/crypto/internal/fips140.
+// If Snapshot() is false, Dir returns BOLERO_ROOT/src/crypto/internal/fips140.
 // Otherwise Dir ensures that the snapshot has been unpacked into the
 // module cache and then returns the directory in the module cache
 // corresponding to the crypto/internal/fips140 directory.
@@ -227,7 +227,7 @@ func initDir() {
 	file := filepath.Join(cfg.GOROOT, "lib/fips140", v+".zip")
 	zdir, err := modfetch.NewFetcher().Unzip(context.Background(), mod, file)
 	if err != nil {
-		base.Fatalf("go: unpacking GOFIPS140=%v: %v", v, err)
+		base.Fatalf("bolero: unpacking GOFIPS140=%v: %v", v, err)
 	}
 	dir = filepath.Join(zdir, "fips140")
 }

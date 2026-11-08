@@ -6,8 +6,8 @@
 [short] skip
 [GODEBUG:gocacheverify=1] skip
 
-# We're testing cache behavior, so start with a clean GOCACHE.
-env GOCACHE=$WORK/cache
+# We're testing cache behavior, so start with a clean BOLERO_CACHE.
+env BOLERO_CACHE=$WORK/cache
 
 # Create a project structure with multiple packages
 # proj/
@@ -23,7 +23,7 @@ env GOCACHE=$WORK/cache
 cd proj
 
 # Run tests with -coverpkg to collect coverage for all packages
-go test -coverpkg=proj/... -coverprofile=cover1.out ./...
+bolero test -coverpkg=proj/... -coverprofile=cover1.out ./...
 stdout 'coverage:'
 
 # Verify the first coverage profile exists and has expected content
@@ -31,7 +31,7 @@ exists cover1.out
 grep -q 'proj/sub/sub.go:' cover1.out
 
 # Run again to ensure caching works
-go test -coverpkg=proj/... -coverprofile=cover1_cached.out ./...
+bolero test -coverpkg=proj/... -coverprofile=cover1_cached.out ./...
 stdout '\(cached\)'
 stdout 'coverage:'
 
@@ -43,7 +43,7 @@ stdout 'coverage:'
 cp ../sub_modified.go sub/sub.go
 
 # After modifying sub.go, we should not have both old and new line references.
-go test -coverpkg=proj/... -coverprofile=cover2.out ./...
+bolero test -coverpkg=proj/... -coverprofile=cover2.out ./...
 stdout 'coverage:'
 
 # With the bug present, we would see duplicate entries for the same lines.

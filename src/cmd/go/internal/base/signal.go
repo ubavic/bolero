@@ -10,7 +10,7 @@ import (
 	"sync"
 )
 
-// Interrupted is closed when the go command receives an interrupt signal.
+// Interrupted is closed when the bolero command receives an interrupt signal.
 var Interrupted = make(chan struct{})
 
 // processSignals setups signal handler.

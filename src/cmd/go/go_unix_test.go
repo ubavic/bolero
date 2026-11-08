@@ -30,7 +30,7 @@ func TestGoBuildUmask(t *testing.T) {
 
 	// We have set a umask, but if the parent directory happens to have a default
 	// ACL, the umask may be ignored. To prevent spurious failures from an ACL,
-	// we compare the file created by "go build" against a file written explicitly
+	// we compare the file created by "bolero build" against a file written explicitly
 	// by os.WriteFile.
 	//
 	// (See https://go.dev/issue/62724, https://go.dev/issue/17909.)
@@ -61,7 +61,7 @@ func TestGoBuildUmask(t *testing.T) {
 
 // TestTestInterrupt verifies the fix for issue #60203.
 //
-// If the whole process group for a 'go test' invocation receives
+// If the whole process group for a 'bolero test' invocation receives
 // SIGINT (as would be sent by pressing ^C on a console),
 // it should return quickly, not deadlock.
 func TestTestInterrupt(t *testing.T) {
@@ -72,7 +72,7 @@ func TestTestInterrupt(t *testing.T) {
 
 	tg := testgo(t)
 	defer tg.cleanup()
-	tg.setenv("GOROOT", testGOROOT)
+	tg.setenv("BOLERO_ROOT", testGOROOT)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cmd := testenv.CommandContext(t, ctx, tg.goTool(), "test", "std", "-short", "-count=1")
@@ -130,7 +130,7 @@ func TestTestInterrupt(t *testing.T) {
 		t.Logf("stderr:\n%s", ee.Stderr)
 	}
 	if !ee.Exited() {
-		t.Fatalf("'go test' did not exit after interrupt: %v", err)
+		t.Fatalf("'bolero test' did not exit after interrupt: %v", err)
 	}
 
 	t.Logf("interrupted tests without deadlocking")

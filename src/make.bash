@@ -76,7 +76,7 @@ bootgo=1.24.6
 set -e
 
 if [[ ! -f run.bash ]]; then
-	echo 'make.bash must be run from $GOROOT/src' 1>&2
+	echo 'make.bash must be run from $BOLERO_ROOT/src' 1>&2
 	exit 1
 fi
 
@@ -156,14 +156,14 @@ bootstrapenv() {
 	GOROOT="$GOROOT_BOOTSTRAP" GO111MODULE=off GOENV=off GOOS= GOARCH= GOEXPERIMENT= GOFLAGS= "$@"
 }
 
-export GOROOT="$(cd .. && pwd)"
+export BOLERO_ROOT="$(cd .. && pwd)"
 IFS=$'\n'; for go_exe in $(type -ap go); do
 	if [[ ! -x "$GOROOT_BOOTSTRAP/bin/go" ]]; then
 		goroot_bootstrap=$GOROOT_BOOTSTRAP
 		GOROOT_BOOTSTRAP=""
 		goroot=$(bootstrapenv "$go_exe" env GOROOT)
 		GOROOT_BOOTSTRAP=$goroot_bootstrap
-		if [[ "$goroot" != "$GOROOT" ]]; then
+		if [[ "$goroot" != "$BOLERO_ROOT" ]]; then
 			if [[ "$goroot_bootstrap_set" == "true" ]]; then
 				printf 'WARNING: %s does not exist, found %s from env\n' "$GOROOT_BOOTSTRAP/bin/go" "$go_exe" >&2
 				printf 'WARNING: set %s as GOROOT_BOOTSTRAP\n' "$goroot" >&2
@@ -181,12 +181,12 @@ fi
 # We clear GOOS and GOARCH to avoid an ominous but harmless warning if
 # the bootstrap doesn't support them.
 GOROOT_BOOTSTRAP_VERSION=$(bootstrapenv "$GOROOT_BOOTSTRAP/bin/go" version | sed 's/go version //')
-echo "Building Go cmd/dist using $GOROOT_BOOTSTRAP. ($GOROOT_BOOTSTRAP_VERSION)"
+echo "Building cmd/dist using $GOROOT_BOOTSTRAP. ($GOROOT_BOOTSTRAP_VERSION)"
 if $verbose; then
 	echo cmd/dist
 fi
-if [[ "$GOROOT_BOOTSTRAP" == "$GOROOT" ]]; then
-	echo "ERROR: \$GOROOT_BOOTSTRAP must not be set to \$GOROOT" >&2
+if [[ "$GOROOT_BOOTSTRAP" == "$BOLERO_ROOT" ]]; then
+	echo "ERROR: \$GOROOT_BOOTSTRAP must not be set to \$BOLERO_ROOT" >&2
 	echo "Set \$GOROOT_BOOTSTRAP to a working Go tree >= Go $bootgo." >&2
 	exit 1
 fi
@@ -205,11 +205,11 @@ fi
 
 if [[ "$1" == "--dist-tool" ]]; then
 	# Stop after building dist tool.
-	mkdir -p "$GOTOOLDIR"
+	mkdir -p "$BOLERO_TOOLDIR"
 	if [[ "$2" != "" ]]; then
 		cp cmd/dist/dist "$2"
 	fi
-	mv cmd/dist/dist "$GOTOOLDIR"/dist
+	mv cmd/dist/dist "$BOLERO_TOOLDIR"/dist
 	exit 0
 fi
 

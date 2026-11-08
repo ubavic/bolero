@@ -17,7 +17,7 @@ import (
 	"testing"
 )
 
-var update = flag.Bool("update", false, "update GOROOT/lib/fips140/fips140.sum")
+var update = flag.Bool("update", false, "update BOLERO_ROOT/lib/fips140/fips140.sum")
 
 func TestSums(t *testing.T) {
 	lib := filepath.Join(testenv.GOROOT(t), "lib/fips140")
@@ -91,12 +91,12 @@ func TestSums(t *testing.T) {
 	fixed := strings.Join(lines, "")
 	if fixed != string(sums) {
 		if *update && !t.Failed() {
-			t.Logf("updating GOROOT/lib/fips140/fips140.sum:\n%s", strings.Join(diff, ""))
+			t.Logf("updating BOLERO_ROOT/lib/fips140/fips140.sum:\n%s", strings.Join(diff, ""))
 			if err := os.WriteFile(file, []byte(fixed), 0666); err != nil {
 				t.Fatal(err)
 			}
 			return
 		}
-		t.Errorf("GOROOT/lib/fips140/fips140.sum out of date. changes needed:\n%s", strings.Join(diff, ""))
+		t.Errorf("BOLERO_ROOT/lib/fips140/fips140.sum out of date. changes needed:\n%s", strings.Join(diff, ""))
 	}
 }

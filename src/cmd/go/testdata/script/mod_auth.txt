@@ -1,21 +1,21 @@
 [short] skip
 
-env GO111MODULE=on
-env GOPROXY=direct
-env GOSUMDB=off
-env GOVCS='*:off'
+env BOLERO_MODULE=on
+env BOLERO_PROXY=direct
+env BOLERO_SUMDB=off
+env BOLERO_VCS='*:off'
 
 # Without credentials, downloading a module from a path that requires HTTPS
 # basic auth should fail.
 env NETRC=$WORK/empty
-! go mod tidy
+! bolero mod tidy
 stderr '^\tserver response: ACCESS DENIED, buddy$'
 stderr '^\tserver response: File\? What file\?$'
 
 # With credentials from a netrc file, it should succeed.
 env NETRC=$WORK/netrc
-go mod tidy
-go list all
+bolero mod tidy
+bolero list all
 stdout vcs-test.golang.org/auth/or401
 stdout vcs-test.golang.org/auth/or404
 

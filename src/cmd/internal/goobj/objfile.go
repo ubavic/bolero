@@ -230,7 +230,7 @@ func (h *Header) Read(r *Reader) error {
 	b := r.BytesAt(0, len(Magic))
 	h.Magic = string(b)
 	if h.Magic != Magic {
-		return errors.New("wrong magic, not a Go object file")
+		return errors.New("wrong magic, not an object file")
 	}
 	off := uint32(len(h.Magic))
 	copy(h.Fingerprint[:], r.BytesAt(off, len(h.Fingerprint)))

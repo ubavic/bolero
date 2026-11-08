@@ -39,7 +39,7 @@ var splitTests = []splitTest{
 	{"a $XXNOTDEFINEDXX b", []string{"a", "", "b"}},
 	{"/$XXNOTDEFINED/", []string{"//"}},
 	{"/$DOLLAR/", []string{"/$/"}},
-	{"yacc -o $GOARCH/yacc_$GOFILE", []string{"go", "tool", "yacc", "-o", runtime.GOARCH + "/yacc_proc.go"}},
+	{"yacc -o $GOARCH/yacc_$GOFILE", []string{"bolero", "tool", "yacc", "-o", runtime.GOARCH + "/yacc_proc.go"}},
 }
 
 func TestGenerateCommandParse(t *testing.T) {
@@ -53,7 +53,7 @@ func TestGenerateCommandParse(t *testing.T) {
 		commands: make(map[string][]string),
 	}
 	g.setEnv()
-	g.setShorthand([]string{"-command", "yacc", "go", "tool", "yacc"})
+	g.setShorthand([]string{"-command", "yacc", "bolero", "tool", "yacc"})
 	for _, test := range splitTests {
 		// First with newlines.
 		got := g.split("//go:generate " + test.in + "\n")

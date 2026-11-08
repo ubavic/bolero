@@ -14,9 +14,9 @@ import (
 	"cmd/internal/quoted"
 )
 
-var goflags []string // cached $GOFLAGS list; can be -x or --x form
+var goflags []string // cached $BOLERO_FLAGS list; can be -x or --x form
 
-// GOFLAGS returns the flags from $GOFLAGS.
+// BOLERO_FLAGS returns the flags from $BOLERO_FLAGS.
 // The list can be assumed to contain one string per flag,
 // with each string either beginning with -name or --name.
 func GOFLAGS() []string {
@@ -24,26 +24,26 @@ func GOFLAGS() []string {
 	return goflags
 }
 
-// InitGOFLAGS initializes the goflags list from $GOFLAGS.
+// InitGOFLAGS initializes the goflags list from $BOLERO_FLAGS.
 // If goflags is already initialized, it does nothing.
 func InitGOFLAGS() {
 	if goflags != nil { // already initialized
 		return
 	}
 
-	// Ignore bad flag in go env and go bug, because
+	// Ignore bad flag in bolero env and bolero bug, because
 	// they are what people reach for when debugging
-	// a problem, and maybe they're debugging GOFLAGS.
-	// (Both will show the GOFLAGS setting if let succeed.)
+	// a problem, and maybe they're debugging BOLERO_FLAGS.
+	// (Both will show the BOLERO_FLAGS setting if let succeed.)
 	hideErrors := cfg.CmdName == "env" || cfg.CmdName == "bug"
 
 	var err error
-	goflags, err = quoted.Split(cfg.Getenv("GOFLAGS"))
+	goflags, err = quoted.Split(cfg.Getenv("BOLERO_FLAGS"))
 	if err != nil {
 		if hideErrors {
 			return
 		}
-		Fatalf("go: parsing $GOFLAGS: %v", err)
+		Fatalf("bolero: parsing $BOLERO_FLAGS: %v", err)
 	}
 
 	if len(goflags) == 0 {
@@ -61,7 +61,7 @@ func InitGOFLAGS() {
 			if hideErrors {
 				continue
 			}
-			Fatalf("go: parsing $GOFLAGS: non-flag %q", f)
+			Fatalf("bolero: parsing $BOLERO_FLAGS: non-flag %q", f)
 		}
 
 		name := f[1:]
@@ -75,7 +75,7 @@ func InitGOFLAGS() {
 			if hideErrors {
 				continue
 			}
-			Fatalf("go: parsing $GOFLAGS: unknown flag -%s", name)
+			Fatalf("bolero: parsing $BOLERO_FLAGS: unknown flag -%s", name)
 		}
 	}
 }
@@ -87,17 +87,17 @@ type boolFlag interface {
 	IsBoolFlag() bool
 }
 
-// SetFromGOFLAGS sets the flags in the given flag set using settings in $GOFLAGS.
+// SetFromGOFLAGS sets the flags in the given flag set using settings in $BOLERO_FLAGS.
 func SetFromGOFLAGS(flags *flag.FlagSet) {
 	InitGOFLAGS()
 
 	// This loop is similar to flag.Parse except that it ignores
-	// unknown flags found in goflags, so that setting, say, GOFLAGS=-ldflags=-w
+	// unknown flags found in goflags, so that setting, say, BOLERO_FLAGS=-ldflags=-w
 	// does not break commands that don't have a -ldflags.
-	// It also adjusts the output to be clear that the reported problem is from $GOFLAGS.
-	where := "$GOFLAGS"
+	// It also adjusts the output to be clear that the reported problem is from $BOLERO_FLAGS.
+	where := "$BOLERO_FLAGS"
 	if runtime.GOOS == "windows" {
-		where = "%GOFLAGS%"
+		where = "%BOLERO_FLAGS%"
 	}
 	for _, goflag := range goflags {
 		name, value, hasValue := goflag, "", false
@@ -122,29 +122,29 @@ func SetFromGOFLAGS(flags *flag.FlagSet) {
 		if fb, ok := f.Value.(boolFlag); ok && fb.IsBoolFlag() {
 			if hasValue {
 				if err := flags.Set(f.Name, value); err != nil {
-					fmt.Fprintf(flags.Output(), "go: invalid boolean value %q for flag %s (from %s): %v\n", value, name, where, err)
+					fmt.Fprintf(flags.Output(), "bolero: invalid boolean value %q for flag %s (from %s): %v\n", value, name, where, err)
 					flags.Usage()
 				}
 			} else {
 				if err := flags.Set(f.Name, "true"); err != nil {
-					fmt.Fprintf(flags.Output(), "go: invalid boolean flag %s (from %s): %v\n", name, where, err)
+					fmt.Fprintf(flags.Output(), "bolero: invalid boolean flag %s (from %s): %v\n", name, where, err)
 					flags.Usage()
 				}
 			}
 		} else {
 			if !hasValue {
-				fmt.Fprintf(flags.Output(), "go: flag needs an argument: %s (from %s)\n", name, where)
+				fmt.Fprintf(flags.Output(), "bolero: flag needs an argument: %s (from %s)\n", name, where)
 				flags.Usage()
 			}
 			if err := flags.Set(f.Name, value); err != nil {
-				fmt.Fprintf(flags.Output(), "go: invalid value %q for flag %s (from %s): %v\n", value, name, where, err)
+				fmt.Fprintf(flags.Output(), "bolero: invalid value %q for flag %s (from %s): %v\n", value, name, where, err)
 				flags.Usage()
 			}
 		}
 	}
 }
 
-// InGOFLAGS returns whether GOFLAGS contains the given flag, such as "-mod".
+// InGOFLAGS returns whether BOLERO_FLAGS contains the given flag, such as "-mod".
 func InGOFLAGS(flag string) bool {
 	for _, goflag := range GOFLAGS() {
 		name := goflag

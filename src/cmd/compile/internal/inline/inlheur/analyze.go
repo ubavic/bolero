@@ -322,7 +322,7 @@ func captureFuncDumpEntry(fn *ir.Func) {
 // dumpFilePreamble writes out a file-level preamble for a given
 // Go function as part of a function properties dump.
 func dumpFilePreamble(w io.Writer) {
-	fmt.Fprintf(w, "// DO NOT EDIT (use 'go test -v -update-expected' instead.)\n")
+	fmt.Fprintf(w, "// DO NOT EDIT (use 'bolero test -v -update-expected' instead.)\n")
 	fmt.Fprintf(w, "// See cmd/compile/internal/inline/inlheur/testdata/props/README.txt\n")
 	fmt.Fprintf(w, "// for more information on the format of this file.\n")
 	fmt.Fprintf(w, "// %s\n", preambleDelimiter)

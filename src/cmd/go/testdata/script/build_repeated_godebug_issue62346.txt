@@ -1,5 +1,5 @@
-[short] skip # runs go build
-! go build file.go
+[short] skip # runs bolero build
+! bolero build file.go
 ! stderr 'panic:'
 ! stderr 'runtime error'
 stderr 'file.go:2:1: repeated //go:debug for panicnil'

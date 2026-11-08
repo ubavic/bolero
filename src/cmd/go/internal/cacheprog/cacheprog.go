@@ -2,19 +2,19 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package cacheprog defines the protocol for a GOCACHEPROG program.
+// Package cacheprog defines the protocol for a BOLERO_CACHEPROG program.
 //
-// By default, the go command manages a build cache stored in the file system
-// itself. GOCACHEPROG can be set to the name of a command (with optional
-// space-separated flags) that implements the go command build cache externally.
+// By default, the bolero command manages a build cache stored in the file system
+// itself. BOLERO_CACHEPROG can be set to the name of a command (with optional
+// space-separated flags) that implements the bolero command build cache externally.
 // This permits defining a different cache policy.
 //
-// The go command will start the GOCACHEPROG as a subprocess and communicate
+// The bolero command will start the BOLERO_CACHEPROG as a subprocess and communicate
 // with it via JSON messages over stdin/stdout. The subprocess's stderr will be
-// connected to the go command's stderr.
+// connected to the bolero command's stderr.
 //
 // The subprocess should immediately send a [Response] with its capabilities.
-// After that, the go command will send a stream of [Request] messages and the
+// After that, the bolero command will send a stream of [Request] messages and the
 // subprocess should reply to each [Request] with a [Response] message.
 package cacheprog
 
@@ -25,7 +25,7 @@ import (
 
 // Cmd is a command that can be issued to a child process.
 //
-// If the interface needs to grow, the go command can add new commands or new
+// If the interface needs to grow, the bolero command can add new commands or new
 // versioned commands like "get2" in the future. The initial [Response] from
 // the child process indicates which commands it supports.
 type Cmd string
@@ -58,8 +58,8 @@ const (
 	CmdClose = Cmd("close")
 )
 
-// Request is the JSON-encoded message that's sent from the go command to
-// the GOCACHEPROG child process over stdin. Each JSON object is on its own
+// Request is the JSON-encoded message that's sent from the bolero command to
+// the BOLERO_CACHEPROG child process over stdin. Each JSON object is on its own
 // line. A ProgRequest of Type "put" with BodySize > 0 will be followed by a
 // line containing a base64-encoded JSON string literal of the body.
 type Request struct {
@@ -68,7 +68,7 @@ type Request struct {
 	ID int64
 
 	// Command is the type of request.
-	// The go command will only send commands that were declared
+	// The bolero command will only send commands that were declared
 	// as supported by the child.
 	Command Cmd
 
@@ -90,11 +90,11 @@ type Request struct {
 	BodySize int64 `json:",omitempty"`
 }
 
-// Response is the JSON response from the child process to the go command.
+// Response is the JSON response from the child process to the bolero command.
 //
 // With the exception of the first protocol message that the child writes to its
 // stdout with ID==0 and KnownCommands populated, these are only sent in
-// response to a Request from the go command.
+// response to a Request from the bolero command.
 //
 // Responses can be sent in any order. The ID must match the request they're
 // replying to.
@@ -106,8 +106,8 @@ type Response struct {
 	// writes to stdout on startup (with ID==0). It includes the
 	// Request.Command types that are supported by the program.
 	//
-	// This lets the go command extend the protocol gracefully over time (adding
-	// "get2", etc), or fail gracefully when needed. It also lets the go command
+	// This lets the bolero command extend the protocol gracefully over time (adding
+	// "get2", etc), or fail gracefully when needed. It also lets the bolero command
 	// verify the program wants to be a cache helper.
 	KnownCommands []Cmd `json:",omitempty"`
 

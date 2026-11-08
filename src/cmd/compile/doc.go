@@ -3,11 +3,11 @@
 // license that can be found in the LICENSE file.
 
 /*
-Compile, typically invoked as ``go tool compile,'' compiles a single Go package
+Compile, typically invoked as ``bolero tool compile,'' compiles a single Go package
 comprising the files named on the command line. It then writes a single
 object file named for the basename of the first source file with a .o suffix.
 The object file can then be combined with other objects into a package archive
-or passed directly to the linker (``go tool link''). If invoked with -pack, the compiler
+or passed directly to the linker (``bolero tool link''). If invoked with -pack, the compiler
 writes an archive directly, bypassing the intermediate object file.
 
 The generated files contain type information about the symbols exported by
@@ -19,7 +19,7 @@ package P to read the files of P's dependencies, only the compiled output of P.
 
 Usage:
 
-	go tool compile [flags] file...
+	bolero tool compile [flags] file...
 
 The specified files must be Go source files and all part of the same package.
 The same compiler is used for all target operating systems and architectures.
@@ -31,7 +31,7 @@ Flags:
 		Set relative path for local imports.
 	-I dir1 -I dir2
 		Search for imported packages in dir1, dir2, etc,
-		after consulting $GOROOT/pkg/$GOOS_$GOARCH.
+		after consulting $BOLERO_ROOT/pkg/$GOOS_$GOARCH.
 	-L
 		Show complete file path in error messages.
 	-N
@@ -66,7 +66,7 @@ Flags:
 		The file is a JSON file mapping patterns to lists of filenames
 		and filenames to full path names.
 	-goversion string
-		Specify required go tool version of the runtime.
+		Specify required bolero tool version of the runtime.
 		Exits when the runtime go version does not match goversion.
 	-h
 		Halt with a stack trace at the first error detected.
@@ -74,8 +74,8 @@ Flags:
 		Read import configuration from file.
 		In the file, set importmap, packagefile to specify import resolution.
 	-installsuffix suffix
-		Look for packages in $GOROOT/pkg/$GOOS_$GOARCH_suffix
-		instead of $GOROOT/pkg/$GOOS_$GOARCH.
+		Look for packages in $BOLERO_ROOT/pkg/$GOOS_$GOARCH_suffix
+		instead of $BOLERO_ROOT/pkg/$GOOS_$GOARCH.
 	-l
 		Disable inlining.
 	-lang version

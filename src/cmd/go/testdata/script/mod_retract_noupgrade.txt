@@ -1,4 +1,4 @@
-go list -m -u example.com/retract/noupgrade
+bolero list -m -u example.com/retract/noupgrade
 stdout '^example.com/retract/noupgrade v1.0.0 \(retracted\)$'
 
 -- go.mod --

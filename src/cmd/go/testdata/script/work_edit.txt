@@ -1,53 +1,53 @@
 # Test editing go.work files.
 
-go work init m
+bolero work init m
 cmpenv go.work go.work.want_initial
 
-go work edit -use n
+bolero work edit -use n
 cmpenv go.work go.work.want_use_n
 
 grep go go.work
-go work edit -go none
+bolero work edit -go none
 ! grep go go.work
 
-go work edit -go 1.18
+bolero work edit -go 1.18
 cmp go.work go.work.want_go_118
 
-go work edit -dropuse m
+bolero work edit -dropuse m
 cmp go.work go.work.want_dropuse_m
 
-go work edit -replace=x.1@v1.3.0=y.1@v1.4.0 -replace='x.1@v1.4.0 = ../z'
+bolero work edit -replace=x.1@v1.3.0=y.1@v1.4.0 -replace='x.1@v1.4.0 = ../z'
 cmp go.work go.work.want_add_replaces
 
-go work edit -use n -use ../a -use /b -use c -use c
+bolero work edit -use n -use ../a -use /b -use c -use c
 cmp go.work go.work.want_multiuse
 
-go work edit -dropuse /b -dropuse n
+bolero work edit -dropuse /b -dropuse n
 cmp go.work go.work.want_multidropuse
 
-go work edit -dropreplace='x.1@v1.4.0'
+bolero work edit -dropreplace='x.1@v1.4.0'
 cmp go.work go.work.want_dropreplace
 
-go work edit -print -go 1.19 -use b -dropuse c -replace 'x.1@v1.4.0 = ../z' -dropreplace x.1 -dropreplace x.1@v1.3.0
+bolero work edit -print -go 1.19 -use b -dropuse c -replace 'x.1@v1.4.0 = ../z' -dropreplace x.1 -dropreplace x.1@v1.3.0
 cmp stdout go.work.want_print
 
-go work edit -json -go 1.19 -use b -dropuse c -replace 'x.1@v1.4.0 = ../z' -dropreplace x.1 -dropreplace x.1@v1.3.0
+bolero work edit -json -go 1.19 -use b -dropuse c -replace 'x.1@v1.4.0 = ../z' -dropreplace x.1 -dropreplace x.1@v1.3.0
 cmp stdout go.work.want_json
 
-# go work edit -godebug
+# bolero work edit -godebug
 cd $WORK/g
 cp go.work.start go.work
-go work edit -godebug key=value
+bolero work edit -godebug key=value
 cmpenv go.work go.work.edit
-go work edit -dropgodebug key2
+bolero work edit -dropgodebug key2
 cmpenv go.work go.work.edit
-go work edit -dropgodebug key
+bolero work edit -dropgodebug key
 cmpenv go.work go.work.start
 
-# go work edit -print -fmt
-env GOWORK=$GOPATH/src/unformatted
-go work edit -print -fmt
-cmp stdout $GOPATH/src/formatted
+# bolero work edit -print -fmt
+env BOLERO_WORK=$BOLERO_PATH/src/unformatted
+bolero work edit -print -fmt
+cmp stdout $BOLERO_PATH/src/formatted
 
 -- m/go.mod --
 module m

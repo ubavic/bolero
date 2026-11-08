@@ -1,11 +1,11 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
 # issue 28491: errors in test source files should not prevent
-# "go list -test" from returning useful information.
+# "bolero list -test" from returning useful information.
 
-# go list -e prints information for all test packages.
+# bolero list -e prints information for all test packages.
 # The syntax error is shown in the package error field.
-go list -e -test -deps -f '{{.ImportPath}} {{.Error | printf "%q"}}' syntaxerr
+bolero list -e -test -deps -f '{{.ImportPath}} {{.Error | printf "%q"}}' syntaxerr
 stdout 'pkgdep <nil>'
 stdout 'testdep_a <nil>'
 stdout 'testdep_b <nil>'
@@ -17,18 +17,18 @@ stdout 'syntaxerr\.test "[^"]*expected declaration'
 
 [short] stop
 
-go list -e -test -deps -f '{{.ImportPath}} {{.Error | printf "%q"}}' nameerr
+bolero list -e -test -deps -f '{{.ImportPath}} {{.Error | printf "%q"}}' nameerr
 stdout 'pkgdep <nil>'
 stdout 'testdep_a <nil>'
 stdout 'testdep_b <nil>'
 stdout 'nameerr\.test "[^"]*wrong signature for TestBad'
 ! stderr 'wrong signature for TestBad'
 
-# go list prints a useful error for generic test functions
-! go list -test -deps genericerr
+# bolero list prints a useful error for generic test functions
+! bolero list -test -deps genericerr
 stderr 'wrong signature for TestGeneric, test functions cannot have type parameters'
 
-go list -e -test -deps -f '{{.ImportPath}} {{.Error | printf "%q"}}' cycleerr
+bolero list -e -test -deps -f '{{.ImportPath}} {{.Error | printf "%q"}}' cycleerr
 stdout 'cycleerr <nil>'
 stdout 'testdep_a <nil>'
 stdout 'testdep_cycle \[cycleerr.test\] <nil>'

@@ -5,17 +5,17 @@
 [short] skip
 [GODEBUG:gocacheverify=1] skip
 
-# Start with a clean GOCACHE.
-env GOCACHE=$WORK/cache
+# Start with a clean BOLERO_CACHE.
+env BOLERO_CACHE=$WORK/cache
 
 cd proj
 
 # Run tests with -cover and -coverpkg but without -coverprofile.
-go test -cover -coverpkg=proj/... ./...
+bolero test -cover -coverpkg=proj/... ./...
 stdout 'coverage:'
 
 # Run again — should be served from cache.
-go test -cover -coverpkg=proj/... ./...
+bolero test -cover -coverpkg=proj/... ./...
 stdout '\(cached\)'
 stdout 'coverage:'
 
@@ -23,7 +23,7 @@ stdout 'coverage:'
 cp ../sub_modified.go sub/sub.go
 
 # Run again — the cache must be invalidated because a covered package changed.
-go test -cover -coverpkg=proj/... ./...
+bolero test -cover -coverpkg=proj/... ./...
 ! stdout '\(cached\)'
 stdout 'coverage:'
 

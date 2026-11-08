@@ -114,7 +114,7 @@ func DownloadDir(ctx context.Context, m module.Version) (string, error) {
 	}
 
 	// Special case: ziphash is not required for the golang.org/fips140 module,
-	// because it is unpacked from a file in GOROOT, not downloaded.
+	// because it is unpacked from a file in BOLERO_ROOT, not downloaded.
 	// We've already checked that it's not a partial unpacking, so we're happy.
 	if m.Path == "golang.org/fips140" {
 		return dir, nil
@@ -124,7 +124,7 @@ func DownloadDir(ctx context.Context, m module.Version) (string, error) {
 	// zip is extracted, but if it was deleted (by another program?), we need
 	// to re-calculate it. Note that checkMod will repopulate the ziphash
 	// file if it doesn't exist, but if the module is excluded by checks
-	// through GONOSUMDB or GOPRIVATE, that check and repopulation won't happen.
+	// through BOLERO_NOSUMDB or BOLERO_PRIVATE, that check and repopulation won't happen.
 	ziphashPath, err := CachePath(ctx, m, "ziphash")
 	if err != nil {
 		return dir, err
@@ -265,7 +265,7 @@ func (r *cachingRepo) Stat(ctx context.Context, rev string) (*RevInfo, error) {
 			}
 
 			if err := writeDiskStat(ctx, file, info); err != nil {
-				fmt.Fprintf(os.Stderr, "go: writing stat cache: %v\n", err)
+				fmt.Fprintf(os.Stderr, "bolero: writing stat cache: %v\n", err)
 			}
 		}
 		return info, err
@@ -322,7 +322,7 @@ func (r *cachingRepo) GoMod(ctx context.Context, version string) ([]byte, error)
 				return text, err
 			}
 			if err := writeDiskGoMod(ctx, file, text); err != nil {
-				fmt.Fprintf(os.Stderr, "go: writing go.mod cache: %v\n", err)
+				fmt.Fprintf(os.Stderr, "bolero: writing go.mod cache: %v\n", err)
 			}
 		}
 		return text, err
@@ -464,7 +464,7 @@ func readDiskStat(ctx context.Context, path, rev string) (file string, info *Rev
 		// If the cache already contains a pseudo-version with the given hash, we
 		// would previously return that pseudo-version without checking upstream.
 		// However, that produced an unfortunate side-effect: if the author added a
-		// tag to the repository, 'go get' would not pick up the effect of that new
+		// tag to the repository, 'bolero get' would not pick up the effect of that new
 		// tag on the existing commits, and 'go' commands that referred to those
 		// commits would use the previous name instead of the new one.
 		//
@@ -474,11 +474,11 @@ func readDiskStat(ctx context.Context, path, rev string) (file string, info *Rev
 		// tagged version.
 		//
 		// In practice, we're only looking up by hash during initial conversion of a
-		// legacy config and during an explicit 'go get', and a little extra latency
+		// legacy config and during an explicit 'bolero get', and a little extra latency
 		// for those operations seems worth the benefit of picking up more accurate
 		// versions.
 		//
-		// Fall back to this resolution scheme only if the GOPROXY setting prohibits
+		// Fall back to this resolution scheme only if the BOLERO_PROXY setting prohibits
 		// us from resolving upstream tags.
 		if cfg.GOPROXY == "off" {
 			if file, info, err := readDiskStatByHash(ctx, path, rev); err == nil {
@@ -710,7 +710,7 @@ func tempFile(ctx context.Context, dir, prefix string, perm fs.FileMode) (f *os.
 // after a new *.mod file has been written.
 func rewriteVersionList(ctx context.Context, dir string) (err error) {
 	if filepath.Base(dir) != "@v" {
-		base.Fatalf("go: internal error: misuse of rewriteVersionList")
+		base.Fatalf("bolero: internal error: misuse of rewriteVersionList")
 	}
 
 	listFile := filepath.Join(dir, "list")
@@ -718,10 +718,10 @@ func rewriteVersionList(ctx context.Context, dir string) (err error) {
 	// Lock listfile when writing to it to try to avoid corruption to the file.
 	// Under rare circumstances, for instance, if the system loses power in the
 	// middle of a write it is possible for corrupt data to be written. This is
-	// not a problem for the go command itself, but may be an issue if the
-	// cache is being served by a GOPROXY HTTP server. This will be corrected
+	// not a problem for the bolero command itself, but may be an issue if the
+	// cache is being served by a BOLERO_PROXY HTTP server. This will be corrected
 	// the next time a new version of the module is fetched and the file is rewritten.
-	// TODO(matloob): golang.org/issue/43313 covers adding a go mod verify
+	// TODO(matloob): golang.org/issue/43313 covers adding a bolero mod verify
 	// command that removes module versions that fail checksums. It should also
 	// remove list files that are detected to be corrupt.
 	f, err := lockedfile.Edit(listFile)
@@ -791,17 +791,17 @@ var (
 	counterErrorsGOMODCACHEEntryRelative = counter.New("go/errors:gomodcache-entry-relative")
 )
 
-// checkCacheDir checks if the directory specified by GOMODCACHE exists. An
+// checkCacheDir checks if the directory specified by BOLERO_MODCACHE exists. An
 // error is returned if it does not.
 func checkCacheDir(ctx context.Context) error {
 	if cfg.GOMODCACHE == "" {
-		// modload.Init exits if GOPATH[0] is empty, and cfg.GOMODCACHE
-		// is set to GOPATH[0]/pkg/mod if GOMODCACHE is empty, so this should never happen.
-		return fmt.Errorf("module cache not found: neither GOMODCACHE nor GOPATH is set")
+		// modload.Init exits if BOLERO_PATH[0] is empty, and cfg.GOMODCACHE
+		// is set to BOLERO_PATH[0]/pkg/mod if BOLERO_MODCACHE is empty, so this should never happen.
+		return fmt.Errorf("module cache not found: neither BOLERO_MODCACHE nor BOLERO_PATH is set")
 	}
 	if !filepath.IsAbs(cfg.GOMODCACHE) {
 		counterErrorsGOMODCACHEEntryRelative.Inc()
-		return fmt.Errorf("GOMODCACHE entry is relative; must be absolute path: %q.\n", cfg.GOMODCACHE)
+		return fmt.Errorf("BOLERO_MODCACHE entry is relative; must be absolute path: %q.\n", cfg.GOMODCACHE)
 	}
 
 	// os.Stat is slow on Windows, so we only call it once to prevent unnecessary

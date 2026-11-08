@@ -2,10 +2,10 @@
 [!race] skip
 
 # Make sure test is functional.
-go test testrace
+bolero test testrace
 
 # Now, check that -race -covermode=set is not allowed.
-! go test -race -covermode=set testrace
+! bolero test -race -covermode=set testrace
 stderr '-covermode must be "atomic", not "set", when -race is enabled'
 ! stdout PASS
 ! stderr PASS

@@ -1,21 +1,21 @@
-# 'go mod init' should not recommend 'go mod tidy' in an empty directory
+# 'bolero mod init' should not recommend 'bolero mod tidy' in an empty directory
 # (one that contains no non-hidden .go files or subdirectories).
 cd empty
-go mod init m
+bolero mod init m
 ! stderr tidy
 cd ..
 
-# 'go mod init' should recommend 'go mod tidy' if the directory has a .go file.
+# 'bolero mod init' should recommend 'bolero mod tidy' if the directory has a .go file.
 cd pkginroot
-go mod init m
-stderr '^go: to add module requirements and sums:\n\tgo mod tidy$'
+bolero mod init m
+stderr '^bolero: to add module requirements and sums:\n\tbolero mod tidy$'
 cd ..
 
-# 'go mod init' should recommend 'go mod tidy' if the directory has a
+# 'bolero mod init' should recommend 'bolero mod tidy' if the directory has a
 # subdirectory. We don't walk the tree to see if it has .go files.
 cd subdir
-go mod init m
-stderr '^go: to add module requirements and sums:\n\tgo mod tidy$'
+bolero mod init m
+stderr '^bolero: to add module requirements and sums:\n\tbolero mod tidy$'
 cd ..
 
 -- empty/empty.txt --

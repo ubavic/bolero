@@ -11,7 +11,7 @@
 [GOOS:linux] [GOARCH:ppc64] skip
 
 cc -c -o syso/objTestImpl.syso syso/src/objTestImpl.c
-go build -ldflags='-linkmode=external' ./cmd/main.go
+bolero build -ldflags='-linkmode=external' ./cmd/main.go
 
 -- go.mod --
 module m

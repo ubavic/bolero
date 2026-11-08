@@ -1,7 +1,7 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-go mod vendor
-stderr '^go: no dependencies to vendor'
+bolero mod vendor
+stderr '^bolero: no dependencies to vendor'
 
 -- go.mod --
 module x

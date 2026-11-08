@@ -3,7 +3,7 @@
 symlink $WORK/gopath/src/sym -> $WORK/gopath/src/tree
 symlink $WORK/gopath/src/tree/squirrel -> $WORK/gopath/src/dir2 # this symlink should not be followed
 cd sym
-go list ./...
+bolero list ./...
 cmp stdout $WORK/gopath/src/want_list.txt
 -- tree/go.mod --
 module example.com/tree

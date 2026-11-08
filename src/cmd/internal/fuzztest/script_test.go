@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-//go:generate go test cmd/internal/fuzztest -v -run=TestScript/README --fixreadme
+//go:generate bolero test cmd/internal/fuzztest -v -run=TestScript/README --fixreadme
 
 var fixReadme = flag.Bool("fixreadme", false, "if true, update README for script tests")
 

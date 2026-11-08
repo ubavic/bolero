@@ -1,8 +1,8 @@
 # The Module field should be populated even if there is an error loading the package.
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-go list -e -f {{.Module}}
+bolero list -e -f {{.Module}}
 stdout '^mod.com$'
 
 -- go.mod --

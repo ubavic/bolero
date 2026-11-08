@@ -1,8 +1,8 @@
 [short] skip
 
-go install -gcflags=-m .
+bolero install -gcflags=-m .
 stderr 'can inline main'
-go list -gcflags=-m -f '{{.Stale}}' .
+bolero list -gcflags=-m -f '{{.Stale}}' .
 stdout 'false'
 ! stderr 'can inline main'
 

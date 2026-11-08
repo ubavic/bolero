@@ -1,9 +1,9 @@
-env GO111MODULE=on
-go mod init foo
-go test
+env BOLERO_MODULE=on
+bolero mod init foo
+bolero test
 stdout ^ok\s+foo
-env GO111MODULE=off
-go test
+env BOLERO_MODULE=off
+bolero test
 stdout ^ok\s+
 ! stdout ^ok\s+(cache)$
 

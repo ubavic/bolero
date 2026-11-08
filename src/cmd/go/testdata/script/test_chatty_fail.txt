@@ -1,5 +1,5 @@
 # Run chatty tests. Assert on CONT lines.
-! go test chatty_test.go -v
+! bolero test chatty_test.go -v
 
 # Sanity check that output occurs.
 stdout -count=2 'this is sub-0'

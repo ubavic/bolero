@@ -1,4 +1,4 @@
-go test -v norunexample
+bolero test -v norunexample
 stdout 'File with non-runnable example was built.'
 
 -- go.mod --

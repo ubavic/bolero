@@ -400,7 +400,7 @@ func testTextfmt(t *testing.T, s state) {
 	// No output expected.
 	if len(lines) != 0 {
 		dumplines(lines)
-		t.Errorf("unexpected output from go tool covdata textfmt")
+		t.Errorf("unexpected output from bolero tool covdata textfmt")
 	}
 
 	// Open and read the first few bits of the file.

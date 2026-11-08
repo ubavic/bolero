@@ -12,7 +12,7 @@
 # when loading p, we would end up loading q v1.0.0, rather than v1.1.0,
 # which is selected by MVS.
 
-go list -m -f '{{.Version}}' example.com/q
+bolero list -m -f '{{.Version}}' example.com/q
 stdout '^v1.1.0$'
 
 -- go.work --

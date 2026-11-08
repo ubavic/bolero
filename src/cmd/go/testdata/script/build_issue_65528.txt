@@ -1,4 +1,4 @@
-go build
+bolero build
 
 -- go.mod --
 module test

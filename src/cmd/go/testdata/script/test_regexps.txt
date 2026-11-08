@@ -1,4 +1,4 @@
-go test -cpu=1 -run=X/Y -bench=X/Y -count=2 -v testregexp
+bolero test -cpu=1 -run=X/Y -bench=X/Y -count=2 -v testregexp
 
 # Test the following:
 

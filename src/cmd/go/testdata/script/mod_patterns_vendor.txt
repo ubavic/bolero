@@ -1,6 +1,6 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-go list -mod=vendor example.com/...
+bolero list -mod=vendor example.com/...
 stdout ^example.com/x$
 stdout ^example.com/x/y$
 ! stdout ^example.com/x/vendor

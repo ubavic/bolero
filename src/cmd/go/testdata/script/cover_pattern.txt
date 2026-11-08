@@ -4,8 +4,8 @@
 # (as opposed to pattern matching on deps)
 # then it will try to load sleepybad, which does not compile,
 # and the test command will fail.
-! go list m/sleepy...
-go test -c -n -coverprofile=$TMPDIR/cover.out -coverpkg=m/sleepy... -run=^$ m/sleepy1
+! bolero list m/sleepy...
+bolero test -c -n -coverprofile=$TMPDIR/cover.out -coverpkg=m/sleepy... -run=^$ m/sleepy1
 
 -- go.mod --
 module m

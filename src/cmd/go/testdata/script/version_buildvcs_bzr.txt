@@ -4,18 +4,18 @@
 
 [short] skip
 [!bzr] skip 'requires a working bzr client'
-env GOBIN=$WORK/gopath/bin
+env BOLERO_BIN=$WORK/gopath/bin
 env oldpath=$PATH
 env HOME=$WORK
 cd repo/a
 exec bzr whoami 'J.R. Gopher <gopher@golang.org>'
 
 # If there's no local repository, there's no VCS info.
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 ! stdout bzrrevision
 stdout '^\tmod\texample.com/a\t\(devel\)'
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # If there is a repository, but it can't be used for some reason,
 # there should be an error. It should hint about -buildvcs=false.
@@ -25,9 +25,9 @@ env PATH=$WORK${/}fakebin${:}$oldpath
 chmod 0755 $WORK/fakebin/bzr
 ! exec bzr help
 cd a
-! go install
+! bolero install
 stderr '^error obtaining VCS status: exit status 1\n\tUse -buildvcs=false to disable VCS stamping.$'
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 cd ..
 env PATH=$oldpath
 rm .bzr
@@ -35,8 +35,8 @@ rm .bzr
 # If there is an empty repository in a parent directory, only "modified" is tagged.
 exec bzr init
 cd a
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs=bzr$'
 ! stdout vcs.revision
 ! stdout vcs.time
@@ -47,14 +47,14 @@ cd ..
 exec bzr add a README go.mod
 exec bzr commit -m 'initial commit'
 cd a
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs=bzr$'
 stdout '^\tbuild\tvcs.revision='
 stdout '^\tbuild\tvcs.time='
 stdout '^\tbuild\tvcs.modified=false$'
 stdout '^\tmod\texample.com/a\tv0.0.0-\d+-\d+\t+'
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # Tag is reflected in the version.
 cd ..
@@ -63,48 +63,48 @@ exec bzr add a README2
 exec bzr commit -m 'second commit'
 exec bzr tag a/v1.2.3
 cd a
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs=bzr$'
 stdout '^\tbuild\tvcs.revision='
 stdout '^\tbuild\tvcs.time='
 stdout '^\tbuild\tvcs.modified=false$'
 stdout '^\tmod\texample.com/a\tv1.2.3\t+'
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # Building an earlier commit should still build clean.
 cp ../../outside/empty.txt ../NEWS
 exec bzr add ../NEWS
 exec bzr commit -m 'add NEWS'
 exec bzr update -r1
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs=bzr$'
 stdout '^\tbuild\tvcs.revision='
 stdout '^\tbuild\tvcs.time='
 stdout '^\tbuild\tvcs.modified=false$'
 
 # Building with -buildvcs=false suppresses the info.
-go install -buildvcs=false
-go version -m $GOBIN/a$GOEXE
+bolero install -buildvcs=false
+bolero version -m $BOLERO_BIN/a$GOEXE
 ! stdout vcs.revision
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # An untracked file is shown as modified, even if it isn't part of the build.
 cp ../../outside/empty.txt .
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs.modified=true$'
 rm empty.txt
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 # An edited file is shown as modified, even if it isn't part of the build.
 cp ../../outside/empty.txt ../README
-go install
-go version -m $GOBIN/a$GOEXE
+bolero install
+bolero version -m $BOLERO_BIN/a$GOEXE
 stdout '^\tbuild\tvcs.modified=true$'
 exec bzr revert ../README
-rm $GOBIN/a$GOEXE
+rm $BOLERO_BIN/a$GOEXE
 
 -- $WORK/fakebin/bzr --
 #!/bin/sh

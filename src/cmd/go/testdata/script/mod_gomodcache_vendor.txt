@@ -1,17 +1,17 @@
-# This test verifies that GOMODCACHE does not affect whether checksums are embedded
+# This test verifies that BOLERO_MODCACHE does not affect whether checksums are embedded
 # with vendored files.
 # See issue #46400
 [short] skip 'builds and links a binary twice'
-go mod tidy
-go mod vendor
+bolero mod tidy
+bolero mod vendor
 
-go build -mod=vendor
-go version -m example$GOEXE
+bolero build -mod=vendor
+bolero version -m example$GOEXE
 cp stdout version-m.txt
 
-env GOMODCACHE=$WORK${/}modcache
-go build -mod=vendor
-go version -m example$GOEXE
+env BOLERO_MODCACHE=$WORK${/}modcache
+bolero build -mod=vendor
+bolero version -m example$GOEXE
 cmp stdout version-m.txt
 
 -- go.mod --

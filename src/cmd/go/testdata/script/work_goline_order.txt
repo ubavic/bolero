@@ -6,21 +6,21 @@
 env TESTGO_VERSION=go1.21.1
 env TESTGO_VERSION_SWITCH=switch
 cp go.work go.work.orig
-! go list
-stderr '^go: module . listed in go.work file requires go >= 1.21.2, but go.work lists go 1.21.1; to update it:\n\tgo work use$'
-go work use
-go list
+! bolero list
+stderr '^bolero: module . listed in go.work file requires go >= 1.21.2, but go.work lists go 1.21.1; to update it:\n\tbolero work use$'
+bolero work use
+bolero list
 
-# Using a new enough Go version, fails later and can suggest 'go work use'.
+# Using a new enough Go version, fails later and can suggest 'bolero work use'.
 env TESTGO_VERSION=go1.21.2
 env TESTGO_VERSION_SWITCH=switch
 cp go.work.orig go.work
-! go list
-stderr '^go: module . listed in go.work file requires go >= 1.21.2, but go.work lists go 1.21.1; to update it:\n\tgo work use$'
+! bolero list
+stderr '^bolero: module . listed in go.work file requires go >= 1.21.2, but go.work lists go 1.21.1; to update it:\n\tbolero work use$'
 
-# go work use fixes the problem.
-go work use
-go list
+# bolero work use fixes the problem.
+bolero work use
+bolero list
 
 -- go.work --
 go 1.21.1

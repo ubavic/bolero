@@ -1,5 +1,5 @@
 # Regression test for https://go.dev/issue/56494:
-# 'go get' in module mode was failing to prune out dependencies
+# 'bolero get' in module mode was failing to prune out dependencies
 # through modules whose versions are too low to be selected.
 
 # Initially, modules "a", "b", and "c" are unrelated.
@@ -32,12 +32,12 @@
 # and a2 (but not a3) would add a dependency on c2.
 # Since a2 is lower than a3 it cannot possibly be selected when
 # upgrading to a3: normally a2 is pruned out of a3's module graph,
-# so 'go get' should prune it out too, and c should remain at c1
+# so 'bolero get' should prune it out too, and c should remain at c1
 # without error.
 
-go get a@v0.3.0
+bolero get a@v0.3.0
 
-go list -m c
+bolero list -m c
 stdout '^c v0.1.0 '
 
 -- go.mod --

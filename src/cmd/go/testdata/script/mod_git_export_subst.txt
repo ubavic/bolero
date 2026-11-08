@@ -1,10 +1,10 @@
-env GO111MODULE=on
-env GOPROXY=direct
+env BOLERO_MODULE=on
+env BOLERO_PROXY=direct
 
 # Testing that git export-subst is disabled
 [!net:github.com] skip
 [!git] skip
-go build
+bolero build
 
 -- x.go --
 package x

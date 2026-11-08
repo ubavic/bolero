@@ -20,7 +20,7 @@
 [GOOS:windows] env PATH=$WORK\'program files';%PATH%
 
 ! exists $WORK/log.txt
-? go build -x
+? bolero build -x
 exists $WORK/log.txt
 rm $WORK/log.txt
 
@@ -30,7 +30,7 @@ rm $WORK/log.txt
 # variables. For now, this doesn't work.
 [!GOOS:windows] env CC=$WORK/'program files'/gcc
 [GOOS:windows] env CC=$WORK\'program files'\gcc.bat
-! go build -x
+! bolero build -x
 ! exists $WORK/log.txt
 
 -- go.mod --

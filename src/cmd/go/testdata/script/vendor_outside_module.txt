@@ -1,14 +1,14 @@
 # baz.go (importing just fmt) works with -mod=mod,  -mod=vendor.
-go build -x -mod=mod my-module/vendor/example.com/another-module/foo/bar/baz.go
-go build -x -mod=readonly my-module/vendor/example.com/another-module/foo/bar/baz.go
-go build -x -mod=vendor my-module/vendor/example.com/another-module/foo/bar/baz.go
+bolero build -x -mod=mod my-module/vendor/example.com/another-module/foo/bar/baz.go
+bolero build -x -mod=readonly my-module/vendor/example.com/another-module/foo/bar/baz.go
+bolero build -x -mod=vendor my-module/vendor/example.com/another-module/foo/bar/baz.go
 
 # baz_with_outside_dep.go (with a non-std dependency) works with -mod=mod
 # but not with -mod=readonly and -mod=vendor.
-go build -x -mod=mod my-module/vendor/example.com/another-module/foo/bar/baz_with_outside_dep.go
-! go build -x -mod=readonly my-module/vendor/example.com/another-module/foo/bar/baz_with_outside_dep.go
+bolero build -x -mod=mod my-module/vendor/example.com/another-module/foo/bar/baz_with_outside_dep.go
+! bolero build -x -mod=readonly my-module/vendor/example.com/another-module/foo/bar/baz_with_outside_dep.go
 stderr 'no required module provides package rsc.io/quote'
-! go build -x -mod=vendor my-module/vendor/example.com/another-module/foo/bar/baz_with_outside_dep.go
+! bolero build -x -mod=vendor my-module/vendor/example.com/another-module/foo/bar/baz_with_outside_dep.go
 stderr 'no required module provides package rsc.io/quote'
 
 -- my-module/go.mod --

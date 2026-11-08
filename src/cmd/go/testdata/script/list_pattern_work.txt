@@ -1,32 +1,32 @@
 cd m
-go list all
+bolero list all
 stdout 'example.com/dep'
 stdout 'example.com/m/a'
 stdout 'example.com/m/b'
-go list work
+bolero list work
 ! stdout 'example.com/dep'
 stdout 'example.com/m/a'
 stdout 'example.com/m/b'
 
 cd ../n
-go list all
+bolero list all
 stdout 'example.com/n/c'
 stdout 'example.com/n/d'
 stdout 'unsafe'
-go list work
+bolero list work
 stdout 'example.com/n/c'
 stdout 'example.com/n/d'
 ! stdout 'unsafe'
 
 cd ../w
-go list all
+bolero list all
 stdout 'example.com/dep'
 stdout 'example.com/m/a'
 stdout 'example.com/m/b'
 stdout 'example.com/n/c'
 stdout 'example.com/n/d'
 stdout 'unsafe'
-go list work
+bolero list work
 ! stdout 'example.com/dep'
 stdout 'example.com/m/a'
 stdout 'example.com/m/b'

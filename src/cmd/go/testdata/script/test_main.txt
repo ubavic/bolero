@@ -1,19 +1,19 @@
 # Test TestMain
-go test standalone_main_normal_test.go
+bolero test standalone_main_normal_test.go
 ! stdout '^ok.*\[no tests to run\]'
 ! stderr '^ok.*\[no tests to run\]'
 stdout '^ok'
 
 # Test TestMain sees testing flags
-go test standalone_testmain_flag_test.go
+bolero test standalone_testmain_flag_test.go
 stdout '^ok.*\[no tests to run\]'
 
 # Test TestMain with wrong signature (Issue #22388)
-! go test standalone_main_wrong_test.go
+! bolero test standalone_main_wrong_test.go
 stderr 'wrong signature for TestMain, must be: func TestMain\(m \*testing.M\)'
 
 # Test TestMain does not call os.Exit (Issue #34129)
-! go test standalone_testmain_not_call_os_exit_test.go
+! bolero test standalone_testmain_not_call_os_exit_test.go
 ! stdout '^ok'
 
 -- standalone_main_normal_test.go --

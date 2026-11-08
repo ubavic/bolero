@@ -1,4 +1,4 @@
-# go list should not report SWIG-generated C++ files in CompiledGoFiles.
+# bolero list should not report SWIG-generated C++ files in CompiledGoFiles.
 
 [!exec:swig] skip
 [!exec:g++] skip
@@ -13,11 +13,11 @@
 # These names we see here, other than a.go, will be from the build cache,
 # so we just count them.
 
-go list -f '{{.CompiledGoFiles}}' -compiled=true example/swig
+bolero list -f '{{.CompiledGoFiles}}' -compiled=true example/swig
 
 stdout a\.go
-[compiler:gc] stdout -count=3 $GOCACHE
-[compiler:gccgo] stdout -count=2 $GOCACHE
+[compiler:gc] stdout -count=3 $BOLERO_CACHE
+[compiler:gccgo] stdout -count=2 $BOLERO_CACHE
 
 -- go.mod --
 module example

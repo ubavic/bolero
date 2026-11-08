@@ -1,17 +1,17 @@
-# Test that "go list" succeeds when given a directory in a replacement
+# Test that "bolero list" succeeds when given a directory in a replacement
 # module within the module cache.
 # Verifies golang.org/issue/29548
 
 # Populate go.sum and download dependencies.
-go get
+bolero get
 
 # Ensure v1.5.2 is also in the cache so we can list it.
-go mod download rsc.io/quote@v1.5.2
+bolero mod download rsc.io/quote@v1.5.2
 
-! go list $GOPATH/pkg/mod/rsc.io/quote@v1.5.2
+! bolero list $BOLERO_PATH/pkg/mod/rsc.io/quote@v1.5.2
 stderr '^directory ..[/\\]pkg[/\\]mod[/\\]rsc.io[/\\]quote@v1.5.2 outside main module or its selected dependencies$'
 
-go list $GOPATH/pkg/mod/rsc.io/quote@v1.5.1
+bolero list $BOLERO_PATH/pkg/mod/rsc.io/quote@v1.5.1
 stdout 'rsc.io/quote'
 
 -- go.mod --

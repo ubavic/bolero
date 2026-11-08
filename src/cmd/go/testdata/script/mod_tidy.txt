@@ -1,13 +1,13 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # tidy removes unused y, but everything else is used
-go mod tidy -v
+bolero mod tidy -v
 stderr '^unused y.1'
 ! stderr '^unused [^y]'
 
 grep 'go 1.10' go.mod
 
-go list -m all
+bolero list -m all
 ! stdout '^y'
 stdout '^w.1 v1.2.0'
 stdout '^z.1 v1.2.0'
@@ -15,7 +15,7 @@ stdout '^z.1 v1.2.0'
 # empty tidy should not crash
 cd triv
 ! grep 'go ' go.mod
-go mod tidy
+bolero mod tidy
 
 # tidy should add missing go line
 grep 'go ' go.mod

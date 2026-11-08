@@ -6,17 +6,17 @@
 set -e
 
 if [ ! -f run.bash ]; then
-	echo 'clean.bash must be run from $GOROOT/src' 1>&2
+	echo 'clean.bash must be run from $BOLERO_ROOT/src' 1>&2
 	exit 1
 fi
-export GOROOT="$(cd .. && pwd)"
+export BOLERO_ROOT="$(cd .. && pwd)"
 
-gobin="${GOROOT}"/bin
-if ! "$gobin"/go help >/dev/null 2>&1; then
-	echo 'cannot find go command; nothing to clean' >&2
+gobin="${BOLERO_ROOT}"/bin
+if ! "$gobin"/bolero help >/dev/null 2>&1; then
+	echo 'cannot find bolero command; nothing to clean' >&2
 	exit 1
 fi
 
-"$gobin/go" clean -i std
-"$gobin/go" tool dist clean
-"$gobin/go" clean -i cmd
+"$gobin/bolero" clean -i std
+"$gobin/bolero" tool dist clean
+"$gobin/bolero" clean -i cmd

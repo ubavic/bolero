@@ -37,11 +37,11 @@ func useSumDB(mod module.Version) bool {
 		must := true
 		// Downloaded toolchains cannot be listed in go.sum,
 		// so we require checksum database lookups even if
-		// GOSUMDB=off or GONOSUMDB matches the pattern.
-		// If GOSUMDB=off, then the eventual lookup will fail
+		// BOLERO_SUMDB=off or BOLERO_NOSUMDB matches the pattern.
+		// If BOLERO_SUMDB=off, then the eventual lookup will fail
 		// with a good error message.
 
-		// Exception #1: using GOPROXY=file:// to test a distpack.
+		// Exception #1: using BOLERO_PROXY=file:// to test a distpack.
 		if strings.HasPrefix(cfg.GOPROXY, "file://") && !strings.ContainsAny(cfg.GOPROXY, ",|") {
 			must = false
 		}
@@ -51,7 +51,7 @@ func useSumDB(mod module.Version) bool {
 			must = false
 		}
 
-		// Another potential exception would be GOPROXY=direct,
+		// Another potential exception would be BOLERO_PROXY=direct,
 		// but that would make toolchain downloads only as secure
 		// as HTTPS, and in particular they'd be susceptible to MITM
 		// attacks on systems with less-than-trustworthy root certificates.
@@ -87,7 +87,7 @@ var (
 )
 
 func dbDial() (dbName string, db *sumdb.Client, err error) {
-	// $GOSUMDB can be "key" or "key url",
+	// $BOLERO_SUMDB can be "key" or "key url",
 	// and the key can be a full verifier key
 	// or a host on our list of known keys.
 
@@ -101,7 +101,7 @@ func dbDial() (dbName string, db *sumdb.Client, err error) {
 	}
 
 	if gosumdb == "off" {
-		return "", nil, fmt.Errorf("checksum database disabled by GOSUMDB=off")
+		return "", nil, fmt.Errorf("checksum database disabled by BOLERO_SUMDB=off")
 	}
 
 	key := strings.Fields(gosumdb)
@@ -111,14 +111,14 @@ func dbDial() (dbName string, db *sumdb.Client, err error) {
 		}
 	}
 	if len(key) == 0 {
-		return "", nil, fmt.Errorf("missing GOSUMDB")
+		return "", nil, fmt.Errorf("missing BOLERO_SUMDB")
 	}
 	if len(key) > 2 {
-		return "", nil, fmt.Errorf("invalid GOSUMDB: too many fields")
+		return "", nil, fmt.Errorf("invalid BOLERO_SUMDB: too many fields")
 	}
 	vkey, err := note.NewVerifier(key[0])
 	if err != nil {
-		return "", nil, fmt.Errorf("invalid GOSUMDB: %v", err)
+		return "", nil, fmt.Errorf("invalid BOLERO_SUMDB: %v", err)
 	}
 	name := vkey.Name()
 
@@ -131,11 +131,11 @@ func dbDial() (dbName string, db *sumdb.Client, err error) {
 	// Determine how to get to database.
 	var base *url.URL
 	if len(key) >= 2 {
-		// Use explicit alternate URL listed in $GOSUMDB,
+		// Use explicit alternate URL listed in $BOLERO_SUMDB,
 		// bypassing both the default URL derivation and any proxies.
 		u, err := url.Parse(key[1])
 		if err != nil {
-			return "", nil, fmt.Errorf("invalid GOSUMDB URL: %v", err)
+			return "", nil, fmt.Errorf("invalid BOLERO_SUMDB URL: %v", err)
 		}
 		base = u
 	}
@@ -227,14 +227,14 @@ func (c *dbClient) initBase() {
 }
 
 // ReadConfig reads the key from c.key
-// and otherwise reads the config (a latest tree head) from GOPATH/pkg/sumdb/<file>.
+// and otherwise reads the config (a latest tree head) from BOLERO_PATH/pkg/sumdb/<file>.
 func (c *dbClient) ReadConfig(file string) (data []byte, err error) {
 	if file == "key" {
 		return []byte(c.key), nil
 	}
 
 	if cfg.SumdbDir == "" {
-		return nil, fmt.Errorf("could not locate sumdb file: missing $GOPATH: %s",
+		return nil, fmt.Errorf("could not locate sumdb file: missing $BOLERO_PATH: %s",
 			cfg.GoPathError)
 	}
 	targ := filepath.Join(cfg.SumdbDir, file)
@@ -254,7 +254,7 @@ func (*dbClient) WriteConfig(file string, old, new []byte) error {
 		return fmt.Errorf("cannot write key")
 	}
 	if cfg.SumdbDir == "" {
-		return fmt.Errorf("could not locate sumdb file: missing $GOPATH: %s",
+		return fmt.Errorf("could not locate sumdb file: missing $BOLERO_PATH: %s",
 			cfg.GoPathError)
 	}
 	targ := filepath.Join(cfg.SumdbDir, file)
@@ -284,8 +284,8 @@ func (*dbClient) WriteConfig(file string, old, new []byte) error {
 }
 
 // ReadCache reads cached lookups or tiles from
-// GOPATH/pkg/mod/cache/download/sumdb,
-// which will be deleted by "go clean -modcache".
+// BOLERO_PATH/pkg/mod/cache/download/sumdb,
+// which will be deleted by "bolero clean -modcache".
 func (*dbClient) ReadCache(file string) ([]byte, error) {
 	targ := filepath.Join(cfg.GOMODCACHE, "cache/download/sumdb", file)
 	data, err := lockedfile.Read(targ)

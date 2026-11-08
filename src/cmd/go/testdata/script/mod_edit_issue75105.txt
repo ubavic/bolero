@@ -1,9 +1,9 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-go mod edit -godebug 'http2debug=2'
+bolero mod edit -godebug 'http2debug=2'
 cmp go.mod go.mod.edit.want1
 
-go mod edit -json
+bolero mod edit -json
 cmp stdout go.mod.edit.want2
 -- go.mod --
 module foo

@@ -23,14 +23,14 @@
 # b.1 --- e.1
 
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod.orig go.mod
 
 # When we downgrade d.2 to d.1, no dependency on e should be added
 # because nothing else in the module or import graph requires it.
-go get example.net/d@v0.1.0
+bolero get example.net/d@v0.1.0
 
-go list -m all
+bolero list -m all
 stdout '^example.net/b v0.2.1-0.20210219000000-000000000000 '
 stdout '^example.net/c v0.1.0 '
 stdout '^example.net/d v0.1.0 '

@@ -9,11 +9,11 @@ env CC=
 env CGO_ENABLED=1
 
 env GOARCH=amd64
-go build -n -x c.go
+bolero build -n -x c.go
 stderr 'clang.*-arch x86_64'
 
 env GOARCH=arm64
-go build -n -x c.go
+bolero build -n -x c.go
 stderr 'clang.*-arch arm64'
 
 -- c.go --

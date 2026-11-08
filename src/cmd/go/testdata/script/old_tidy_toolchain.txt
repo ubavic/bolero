@@ -3,24 +3,24 @@
 # (They should not fail due to the go.mod not being tidy.)
 
 # No go line, no toolchain line.
-go list
+bolero list
 
 # Old go line, no toolchain line.
-go mod edit -go=1.16
-go list
+bolero mod edit -go=1.16
+bolero list
 
-go mod edit -go=1.20
-go list
+bolero mod edit -go=1.20
+bolero list
 
 # New go line, no toolchain line, using same toolchain.
 env TESTGO_VERSION=1.21
-go mod edit -go=1.21
-go list
+bolero mod edit -go=1.21
+bolero list
 
 # New go line, no toolchain line, using newer Go version.
 # (Until we need to update the go line, no toolchain addition.)
 env TESTGO_VERSION=1.21.0
-go list
+bolero list
 
 -- go.mod --
 module m

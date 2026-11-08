@@ -1,9 +1,9 @@
 # Regression test for golang.org/issue/46867:
-# 'go mod vendor' on Windows attempted to open and copy
+# 'bolero mod vendor' on Windows attempted to open and copy
 # files from directories outside of the module.
 
 cd subdir
-go mod vendor
+bolero mod vendor
 ! exists vendor/example.net/NOTICE
 exists vendor/example.net/m/NOTICE
 

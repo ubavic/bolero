@@ -316,7 +316,7 @@ func xreaddir(dir string) []string {
 // xworkdir creates a new temporary directory to hold object files
 // and returns the name of that directory.
 func xworkdir() string {
-	name, err := os.MkdirTemp(os.Getenv("GOTMPDIR"), "go-tool-dist-")
+	name, err := os.MkdirTemp(os.Getenv("BOLERO_TMPDIR"), "go-tool-dist-")
 	if err != nil {
 		fatalf("%v", err)
 	}
@@ -325,7 +325,7 @@ func xworkdir() string {
 
 // fatalf prints an error message to standard error and exits.
 func fatalf(format string, args ...any) {
-	fmt.Fprintf(os.Stderr, "go tool dist: %s\n", fmt.Sprintf(format, args...))
+	fmt.Fprintf(os.Stderr, "bolero tool dist: %s\n", fmt.Sprintf(format, args...))
 
 	dieOnce.Do(func() { close(dying) })
 

@@ -46,11 +46,11 @@ func TestExperimentToolID(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(goroot, "VERSION"), []byte("go1.999"), 0666); err != nil {
 		t.Fatal(err)
 	}
-	env := append(os.Environ(), "GOROOT=", "GOROOT_BOOTSTRAP="+realGoroot)
+	env := append(os.Environ(), "BOLERO_ROOT=", "GOROOT_BOOTSTRAP="+realGoroot)
 
 	// Use a clean cache.
 	gocache := t.TempDir()
-	env = append(env, "GOCACHE="+gocache)
+	env = append(env, "BOLERO_CACHE="+gocache)
 
 	// Build the toolchain without GOEXPERIMENT.
 	var makeScript string
@@ -66,7 +66,7 @@ func TestExperimentToolID(t *testing.T) {
 	runCmd(t, gorootSrc, env, makeScriptPath)
 
 	// Verify compiler version string.
-	goCmdPath := filepath.Join(goroot, "bin", "go")
+	goCmdPath := filepath.Join(goroot, "bin", "bolero")
 	gotVersion := bytes.TrimSpace(runCmd(t, gorootSrc, env, goCmdPath, "tool", "compile", "-V=full"))
 	wantVersion := []byte(`compile version go1.999`)
 	if !bytes.Equal(gotVersion, wantVersion) {

@@ -1,10 +1,10 @@
 [short] skip
 
-env GOCACHE=$WORK/cache
-go list -f '{{.Stale}}' .
+env BOLERO_CACHE=$WORK/cache
+bolero list -f '{{.Stale}}' .
 stdout true
-go install .
-go list -f '{{.Stale}}' .
+bolero install .
+bolero list -f '{{.Stale}}' .
 stdout false
 
 -- go.mod --

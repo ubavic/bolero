@@ -1,5 +1,5 @@
-# go list should work in ordinary conditions.
-go list ./...
+# bolero list should work in ordinary conditions.
+bolero list ./...
 ! stdout _data
 
 # skip in conditions where chmod 0 may not work.
@@ -8,9 +8,9 @@ go list ./...
 [GOOS:windows] skip
 [GOOS:plan9] skip
 
-# go list should work with unreadable _data directory.
+# bolero list should work with unreadable _data directory.
 chmod 0 _data
-go list ./...
+bolero list ./...
 ! stdout _data
 
 -- go.mod --

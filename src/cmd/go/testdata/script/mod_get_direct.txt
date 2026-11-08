@@ -1,15 +1,15 @@
 # Regression test for golang.org/issue/34092: with an empty module cache,
-# 'GOPROXY=direct go get golang.org/x/tools/gopls@master' did not correctly
+# 'BOLERO_PROXY=direct bolero get golang.org/x/tools/gopls@master' did not correctly
 # resolve the pseudo-version for its dependency on golang.org/x/tools.
 
 [short] skip
 [!git] skip
 
-env GO111MODULE=on
-env GOPROXY=direct
-env GOSUMDB=off
+env BOLERO_MODULE=on
+env BOLERO_PROXY=direct
+env BOLERO_SUMDB=off
 
-go list -m vcs-test.golang.org/git/tagtests.git@master
+bolero list -m vcs-test.golang.org/git/tagtests.git@master
 ! stdout 'v0.0.0-'
 
 -- go.mod --

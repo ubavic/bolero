@@ -1,12 +1,12 @@
-! go mod tidy
-stderr '^go: warning: ignoring go.mod in \$GOPATH'
-stderr '^go: go.mod file not found in current directory or any parent directory; see ''go help modules'''
+! bolero mod tidy
+stderr '^bolero: warning: ignoring go.mod in \$BOLERO_PATH'
+stderr '^bolero: go.mod file not found in current directory or any parent directory; see ''bolero help modules'''
 
-go env
-stdout 'GOPATH='
-stderr '^go: warning: ignoring go.mod in \$GOPATH'
+bolero env
+stdout 'BOLERO_PATH='
+stderr '^bolero: warning: ignoring go.mod in \$BOLERO_PATH'
 
--- $GOPATH/go.mod --
+-- $BOLERO_PATH/go.mod --
 module bug
 
 go 1.21

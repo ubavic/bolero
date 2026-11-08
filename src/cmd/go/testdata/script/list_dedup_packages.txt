@@ -1,13 +1,13 @@
 # Setup
-env GO111MODULE=off
+env BOLERO_MODULE=off
 mkdir $WORK/tmp/testdata/src/xtestonly
 cp f.go $WORK/tmp/testdata/src/xtestonly/f.go
 cp f_test.go $WORK/tmp/testdata/src/xtestonly/f_test.go
-env GOPATH=$WORK/tmp/testdata
+env BOLERO_PATH=$WORK/tmp/testdata
 cd $WORK
 
-# Check output of go list to ensure no duplicates
-go list xtestonly ./tmp/testdata/src/xtestonly/...
+# Check output of bolero list to ensure no duplicates
+bolero list xtestonly ./tmp/testdata/src/xtestonly/...
 cmp stdout $WORK/gopath/src/wantstdout
 
 -- wantstdout --

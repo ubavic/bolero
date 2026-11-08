@@ -1,13 +1,13 @@
 [!fuzz] skip
 [short] skip
-env GOCACHE=$WORK/cache
+env BOLERO_CACHE=$WORK/cache
 
 # FuzzA attempts to cause the mutator to create duplicate inputs that generate
 # new coverage. Previously this would trigger a corner case when the fuzzer
 # had an execution limit, causing it to deadlock and sit in the coordinator
 # loop indefinitely, failing to exit once the limit had been exhausted.
 
-go test -fuzz=FuzzA -fuzztime=100x -parallel=1
+bolero test -fuzz=FuzzA -fuzztime=100x -parallel=1
 
 -- go.mod --
 module m

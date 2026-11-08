@@ -1,13 +1,13 @@
 
 # This test is intended to verify that coverage reporting is consistent
-# between "go test -cover" and "go build -cover" with respect to how
+# between "bolero test -cover" and "bolero build -cover" with respect to how
 # the "main" package is handled. See issue 57169 for details.
 
 [short] skip
 
 # Build this program with -cover and run to collect a profile.
 
-go build -cover -o $WORK/prog.exe .
+bolero build -cover -o $WORK/prog.exe .
 
 # Save off old GOCOVERDIR setting
 env SAVEGOCOVERDIR=$GOCOVERDIR
@@ -20,12 +20,12 @@ exec $WORK/prog.exe
 env GOCOVERDIR=$SAVEGOCOVERDIR
 
 # Report percent lines covered.
-go tool covdata percent -i=$WORK/covdata
+bolero tool covdata percent -i=$WORK/covdata
 stdout '\s*mainwithtest\s+coverage:'
 ! stdout 'main\s+coverage:'
 
 # Go test -cover should behave the same way.
-go test -cover .
+bolero test -cover .
 stdout 'ok\s+mainwithtest\s+\S+\s+coverage:'
 ! stdout 'ok\s+main\s+.*'
 

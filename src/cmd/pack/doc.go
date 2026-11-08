@@ -8,7 +8,7 @@ It implements only the operations needed by Go.
 
 Usage:
 
-	go tool pack op file.a [name...]
+	bolero tool pack op file.a [name...]
 
 Pack applies the operation to the archive, using the names as arguments to the operation.
 

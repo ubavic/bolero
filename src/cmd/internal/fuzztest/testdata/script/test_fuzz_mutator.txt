@@ -8,17 +8,17 @@
 # tests seed values and the worker tests mutated values on the fuzz target.
 
 [short] skip
-env GOCACHE=$WORK/cache
+env BOLERO_CACHE=$WORK/cache
 
-go test -fuzz=FuzzA -fuzztime=100x -parallel=1 -log=fuzz
-go run check_logs.go fuzz fuzz.worker
+bolero test -fuzz=FuzzA -fuzztime=100x -parallel=1 -log=fuzz
+bolero run check_logs.go fuzz fuzz.worker
 
 # TODO(b/181800488): remove -parallel=1, here and below. For now, when a
 # crash is found, all workers keep running, wasting resources and reducing
 # the number of executions available to the minimizer, increasing flakiness.
 
 # Test that the mutator is good enough to find several unique mutations.
-! go test -fuzz=FuzzMutator -parallel=1 -fuzztime=100x mutator_test.go
+! bolero test -fuzz=FuzzMutator -parallel=1 -fuzztime=100x mutator_test.go
 ! stdout '^ok'
 stdout FAIL
 stdout 'mutator found enough unique mutations'

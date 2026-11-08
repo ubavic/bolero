@@ -23,7 +23,7 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: go tool preprofile [-V] [-o output] -i input\n\n")
+	fmt.Fprintf(os.Stderr, "usage: bolero tool preprofile [-V] [-o output] -i input\n\n")
 	flag.PrintDefaults()
 	os.Exit(2)
 }

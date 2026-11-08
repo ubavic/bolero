@@ -1,60 +1,60 @@
-env GO111MODULE=on
-env GOFLAGS=-mod=mod
+env BOLERO_MODULE=on
+env BOLERO_FLAGS=-mod=mod
 [short] skip
 
-# TODO(bcmills): Convert the 'go test' calls below to 'go list -test' once 'go
+# TODO(bcmills): Convert the 'bolero test' calls below to 'bolero list -test' once 'go
 # list' is more sensitive to package loading errors.
 
 # A test in the module's root package should work.
 cd a/
 cp go.mod.empty go.mod
-go list -test
+bolero list -test
 ! stderr error
 
 cp go.mod.empty go.mod
-go list -deps
+bolero list -deps
 ! stdout ^testing$
 
 # list all should include test dependencies, like testing
 cp go.mod.empty go.mod
-go list all
+bolero list all
 stdout ^testing$
 stdout ^rsc.io/quote$
 stdout ^rsc.io/testonly$
 
 # list -deps -tests should also include testing
 # but not deps of tests of deps (rsc.io/testonly).
-go list -deps -test
+bolero list -deps -test
 stdout ^testing$
 stdout ^rsc.io/quote$
 ! stdout ^rsc.io/testonly$
 
 # list -test all should succeed
 cp go.mod.empty go.mod
-go list -test all
+bolero list -test all
 stdout '^testing'
 
 cp go.mod.empty go.mod
-go list -test
+bolero list -test
 ! stderr error
 
 # A test with the "_test" suffix in the module root should also work.
 cd ../b/
-go list -test
+bolero list -test
 ! stderr error
 
 # A test with the "_test" suffix of a *package* with a "_test" suffix should
 # even work (not that you should ever do that).
 cd ../c_test
-go list -test
+bolero list -test
 ! stderr error
 
 cd ../d_test
-go list -test
+bolero list -test
 ! stderr error
 
 cd ../e
-go list -test
+bolero list -test
 ! stderr error
 
 -- a/go.mod.empty --

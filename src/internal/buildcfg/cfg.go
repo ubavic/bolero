@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	GOROOT    = os.Getenv("GOROOT") // cached for efficiency
+	GOROOT    = os.Getenv("BOLERO_ROOT") // cached for efficiency
 	GOARCH    = envOr("GOARCH", defaultGOARCH)
 	GOOS      = envOr("GOOS", defaultGOOS)
 	GO386     = envOr("GO386", DefaultGO386)

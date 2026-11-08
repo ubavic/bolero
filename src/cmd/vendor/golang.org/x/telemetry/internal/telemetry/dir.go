@@ -52,7 +52,7 @@ func init() {
 	if err != nil {
 		return
 	}
-	Default = NewDir(filepath.Join(cfgDir, "go", "telemetry"))
+	Default = NewDir(filepath.Join(cfgDir, "bolero", "telemetry"))
 }
 
 func (d Dir) Dir() string {

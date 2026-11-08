@@ -71,7 +71,7 @@ func AddModFlag(flags *flag.FlagSet) {
 }
 
 // AddModCommonFlags adds the module-related flags common to build commands
-// and 'go mod' subcommands.
+// and 'bolero mod' subcommands.
 func AddModCommonFlags(flags *flag.FlagSet) {
 	flags.BoolVar(&cfg.ModCacheRW, "modcacherw", false, "")
 	flags.StringVar(&cfg.ModFile, "modfile", "", "")

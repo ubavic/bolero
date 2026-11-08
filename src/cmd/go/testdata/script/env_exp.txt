@@ -1,17 +1,17 @@
 # Test GOEXPERIMENT variable
 
-# go env shows default empty GOEXPERIMENT
-go env
+# bolero env shows default empty GOEXPERIMENT
+bolero env
 stdout GOEXPERIMENT=
 
-# go env shows valid experiments
+# bolero env shows valid experiments
 env GOEXPERIMENT=fieldtrack,staticlockranking
-go env GOEXPERIMENT
+bolero env GOEXPERIMENT
 stdout '.*fieldtrack.*staticlockranking.*'
-go env
+bolero env
 stdout 'GOEXPERIMENT=.*fieldtrack.*staticlockranking.*'
 
-# go env rejects unknown experiments
+# bolero env rejects unknown experiments
 env GOEXPERIMENT=bad
-! go env GOEXPERIMENT
+! bolero env GOEXPERIMENT
 stderr 'unknown GOEXPERIMENT bad'

@@ -27,10 +27,10 @@
 # and the dependency on c is eagerly loaded.
 
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod.orig go.mod
 
-go list -m all
+bolero list -m all
 stdout '^a v0.1.0 '
 stdout '^b v0.1.0 '
 stdout '^c v0.1.0 '
@@ -40,10 +40,10 @@ stdout '^c v0.1.0 '
 
 cp m.go m.go.orig
 cp m.go.new m.go
-go mod tidy
+bolero mod tidy
 cmp go.mod.new go.mod
 
-go list -m all
+bolero list -m all
 stdout '^a v0.1.0 '
 stdout '^b v0.1.0 '
 stdout '^c v0.1.0 '
@@ -53,14 +53,14 @@ stdout '^c v0.1.0 '
 
 cp m.go.orig m.go
 cp go.mod.orig go.mod
-go mod edit -go=1.17
-go mod edit -go=1.17 go.mod.new
+bolero mod edit -go=1.17
+bolero mod edit -go=1.17 go.mod.new
 
 cp go.mod go.mod.orig
-go mod tidy
+bolero mod tidy
 cmp go.mod.orig go.mod
 
-go list -m all
+bolero list -m all
 stdout '^a v0.1.0 '
 stdout '^b v0.1.0 '
 ! stdout '^c '
@@ -70,10 +70,10 @@ stdout '^b v0.1.0 '
 # bringing the version of c required by b into the build list.
 
 cp m.go.new m.go
-go mod tidy
+bolero mod tidy
 cmp go.mod.lazy go.mod
 
-go list -m all
+bolero list -m all
 stdout '^a v0.1.0 '
 stdout '^b v0.1.0 '
 stdout '^c v0.1.0 '

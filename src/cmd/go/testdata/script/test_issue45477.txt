@@ -1,6 +1,6 @@
 [short] skip  # links and runs a test binary
 
-go test -v .
+bolero test -v .
 
 -- go.mod --
 module example.com/pkg_test

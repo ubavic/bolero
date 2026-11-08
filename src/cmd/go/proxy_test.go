@@ -41,7 +41,7 @@ var (
 var proxyOnce sync.Once
 
 // StartProxy starts the Go module proxy running on *proxyAddr (like "localhost:1234")
-// and sets proxyURL to the GOPROXY setting to use to access the proxy.
+// and sets proxyURL to the BOLERO_PROXY setting to use to access the proxy.
 // Subsequent calls are no-ops.
 //
 // The proxy serves from testdata/mod. See testdata/mod/README.
@@ -58,7 +58,7 @@ func StartProxy() {
 		}
 		*proxyAddr = l.Addr().String()
 		proxyURL = "http://" + *proxyAddr + "/mod"
-		fmt.Fprintf(os.Stderr, "go test proxy running at GOPROXY=%s\n", proxyURL)
+		fmt.Fprintf(os.Stderr, "bolero test proxy running at BOLERO_PROXY=%s\n", proxyURL)
 		go func() {
 			log.Fatalf("go proxy: http.Serve: %v", http.Serve(l, http.HandlerFunc(proxyHandler)))
 		}()
@@ -155,7 +155,7 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Request for $GOPROXY/sumdb-direct is direct sumdb access.
+	// Request for $BOLERO_PROXY/sumdb-direct is direct sumdb access.
 	// (Client thinks it is talking directly to a sumdb.)
 	if strings.HasPrefix(path, "sumdb-direct/") {
 		r.URL.Path = path[len("sumdb-direct"):]
@@ -163,7 +163,7 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Request for $GOPROXY/sumdb-wrong is direct sumdb access
+	// Request for $BOLERO_PROXY/sumdb-wrong is direct sumdb access
 	// but all the hashes are wrong.
 	// (Client thinks it is talking directly to a sumdb.)
 	if strings.HasPrefix(path, "sumdb-wrong/") {
@@ -172,7 +172,7 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Request for $GOPROXY/sumdb-redirect/module@version:/lookup/...
+	// Request for $BOLERO_PROXY/sumdb-redirect/module@version:/lookup/...
 	// performs a lookup for module@version rather than the requested module.
 	if strings.HasPrefix(path, "sumdb-redirect/") {
 		redirect, rest, ok := strings.Cut(path[len("sumdb-redirect"):], ":")
@@ -189,7 +189,7 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Request for $GOPROXY/redirect/<count>/... goes to redirects.
+	// Request for $BOLERO_PROXY/redirect/<count>/... goes to redirects.
 	if strings.HasPrefix(path, "redirect/") {
 		path = path[len("redirect/"):]
 		if j := strings.Index(path, "/"); j >= 0 {
@@ -208,14 +208,14 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Request for $GOPROXY/sumdb/<name>/supported
+	// Request for $BOLERO_PROXY/sumdb/<name>/supported
 	// is checking whether it's OK to access sumdb via the proxy.
 	if path == "sumdb/"+testSumDBName+"/supported" {
 		w.WriteHeader(200)
 		return
 	}
 
-	// Request for $GOPROXY/sumdb/<name>/... goes to sumdb.
+	// Request for $BOLERO_PROXY/sumdb/<name>/... goes to sumdb.
 	if sumdbPrefix := "sumdb/" + testSumDBName + "/"; strings.HasPrefix(path, sumdbPrefix) {
 		r.URL.Path = path[len(sumdbPrefix)-1:]
 		sumdbServer.ServeHTTP(w, r)

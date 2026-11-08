@@ -11,28 +11,28 @@ cd samedir
 
 exec git init .
 
-# Without explicitly requesting buildvcs, the go command should silently continue
+# Without explicitly requesting buildvcs, the bolero command should silently continue
 # without determining the correct VCS.
-go test -c -o $devnull .
+bolero test -c -o $devnull .
 
-# If buildvcs is explicitly requested, we expect the go command to fail
-! go test -buildvcs -c -o $devnull .
+# If buildvcs is explicitly requested, we expect the bolero command to fail
+! bolero test -buildvcs -c -o $devnull .
 stderr '^error obtaining VCS status: multiple VCS detected:'
 
 env GODEBUG=allowmultiplevcs=1
-go test -buildvcs -c -o $devnull .
+bolero test -buildvcs -c -o $devnull .
 
 env GODEBUG=
 cd ../nested
 exec git init .
 # cd a
-go test -c -o $devnull ./a
-! go test -buildvcs -c -o $devnull ./a
+bolero test -c -o $devnull ./a
+! bolero test -buildvcs -c -o $devnull ./a
 stderr '^error obtaining VCS status: multiple VCS detected:'
 # allowmultiplevcs doesn't disable the check that the current directory, package, and
 # module are in the same repository.
 env GODEBUG=allowmultiplevcs=1
-! go test -buildvcs -c -o $devnull ./a
+! bolero test -buildvcs -c -o $devnull ./a
 stderr '^error obtaining VCS status: main package is in repository'
 
 -- samedir/go.mod --

@@ -3,7 +3,7 @@
 
 [short] skip
 
-go generate ./mod
+bolero generate ./mod
 cmp ./mod/got.txt want.txt
 
 -- go.work --
@@ -13,7 +13,7 @@ use ./mod
 -- mod/go.mod --
 module example.com/mod
 -- mod/gen.go --
-//go:generate go run gen.go got.txt
+//go:generate bolero run gen.go got.txt
 
 package main
 

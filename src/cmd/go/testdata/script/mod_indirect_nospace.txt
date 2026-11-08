@@ -1,7 +1,7 @@
 # https://golang.org/issue/45932: "indirect" comments missing spaces
 # should not be corrupted when the comment is removed.
 
-go mod tidy
+bolero mod tidy
 cmp go.mod go.mod.direct
 
 -- go.mod --

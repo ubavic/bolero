@@ -1,6 +1,6 @@
 # Integration test for golang.org/issue/33848: automatically check and use vendored packages.
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 [short] skip
 
@@ -9,52 +9,52 @@ cp go.mod go.mod.orig
 cp $WORK/modules-1.13.txt $WORK/auto/modules.txt
 
 # An explicit -mod=vendor should force use of the vendor directory.
-env GOFLAGS=-mod=vendor
+env BOLERO_FLAGS=-mod=vendor
 
 # Pass -e to permit an error: tools.go imports a main package
 # "example.com/printversion".
 # TODO(#59186): investigate why it didn't fail without -e.
-go list -f {{.Dir}} -tags tools -e all
+bolero list -f {{.Dir}} -tags tools -e all
 stdout '^'$WORK'[/\\]auto$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]printversion$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]version$'
 
-! go list -m all
-stderr 'go: can''t compute ''all'' using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)'
+! bolero list -m all
+stderr 'bolero: can''t compute ''all'' using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)'
 
-! go list -m -f '{{.Dir}}' all
-stderr 'go: can''t compute ''all'' using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)'
+! bolero list -m -f '{{.Dir}}' all
+stderr 'bolero: can''t compute ''all'' using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)'
 
 # An explicit -mod=mod should force the vendor directory to be ignored.
-env GOFLAGS=-mod=mod
+env BOLERO_FLAGS=-mod=mod
 
-go list -f {{.Dir}} -tags tools -e all
+bolero list -f {{.Dir}} -tags tools -e all
 stdout '^'$WORK'[/\\]auto$'
-stdout '^'$GOPATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
+stdout '^'$BOLERO_PATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
 stdout '^'$WORK'[/\\]auto[/\\]replacement-version$'
 
-go list -m all
+bolero list -m all
 stdout '^example.com/auto$'
 stdout 'example.com/printversion v1.0.0'
 stdout 'example.com/version v1.0.0'
 
-go list -m -f '{{.Dir}}' all
+bolero list -m -f '{{.Dir}}' all
 stdout '^'$WORK'[/\\]auto$'
-stdout '^'$GOPATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
+stdout '^'$BOLERO_PATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
 stdout '^'$WORK'[/\\]auto[/\\]replacement-version$'
 
 # If the main module's "go" directive says 1.13, we should default to -mod=mod.
-env GOFLAGS=
-go mod edit -go=1.13
+env BOLERO_FLAGS=
+bolero mod edit -go=1.13
 
-go list -f {{.Dir}} -tags tools -e all
+bolero list -f {{.Dir}} -tags tools -e all
 stdout '^'$WORK'[/\\]auto$'
-stdout '^'$GOPATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
+stdout '^'$BOLERO_PATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
 stdout '^'$WORK'[/\\]auto[/\\]replacement-version$'
 
-go list -m -f '{{.Dir}}' all
+bolero list -m -f '{{.Dir}}' all
 stdout '^'$WORK'[/\\]auto$'
-stdout '^'$GOPATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
+stdout '^'$BOLERO_PATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
 stdout '^'$WORK'[/\\]auto[/\\]replacement-version$'
 
 # A 'go 1.14' directive in the main module's go.mod file should enable
@@ -62,59 +62,59 @@ stdout '^'$WORK'[/\\]auto[/\\]replacement-version$'
 # between the go.mod file and vendor/modules.txt.
 # A 'go 1.13' vendor/modules.txt file is not usually sufficient
 # to pass those checks.
-go mod edit -go=1.14
+bolero mod edit -go=1.14
 
-! go list -f {{.Dir}} -tags tools all
-stderr '^go: inconsistent vendoring in '$WORK[/\\]auto':$'
+! bolero list -f {{.Dir}} -tags tools all
+stderr '^bolero: inconsistent vendoring in '$WORK[/\\]auto':$'
 stderr '^\texample.com/printversion@v1.0.0: is explicitly required in go.mod, but not marked as explicit in vendor/modules.txt'
 stderr '^\texample.com/unused: is replaced in go.mod, but not marked as replaced in vendor/modules.txt'
 stderr '^\texample.com/version@v1.2.0: is replaced in go.mod, but not marked as replaced in vendor/modules.txt'
-stderr '^\tTo ignore the vendor directory, use -mod=readonly or -mod=mod.\n\tTo sync the vendor directory, run:\n\t\tgo mod vendor$'
+stderr '^\tTo ignore the vendor directory, use -mod=readonly or -mod=mod.\n\tTo sync the vendor directory, run:\n\t\tbolero mod vendor$'
 
 # Module-specific subcommands should continue to load the full module graph.
-go mod graph
+bolero mod graph
 stdout '^example.com/printversion@v1.0.0 example.com/version@v1.0.0$'
 
 # An explicit -mod=mod should still force the vendor directory to be ignored.
-env GOFLAGS=-mod=mod
+env BOLERO_FLAGS=-mod=mod
 
-go list -f {{.Dir}} -tags tools -e all
+bolero list -f {{.Dir}} -tags tools -e all
 stdout '^'$WORK'[/\\]auto$'
-stdout '^'$GOPATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
+stdout '^'$BOLERO_PATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
 stdout '^'$WORK'[/\\]auto[/\\]replacement-version$'
 
-go list -m all
+bolero list -m all
 stdout '^example.com/auto$'
 stdout 'example.com/printversion v1.0.0'
 stdout 'example.com/version v1.0.0'
 
-go list -m -f '{{.Dir}}' all
+bolero list -m -f '{{.Dir}}' all
 stdout '^'$WORK'[/\\]auto$'
-stdout '^'$GOPATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
+stdout '^'$BOLERO_PATH'[/\\]pkg[/\\]mod[/\\]example.com[/\\]printversion@v1.0.0$'
 stdout '^'$WORK'[/\\]auto[/\\]replacement-version$'
 
-# 'go mod vendor' should repair vendor/modules.txt so that the implicit
+# 'bolero mod vendor' should repair vendor/modules.txt so that the implicit
 # -mod=vendor works again.
-env GOFLAGS=
+env BOLERO_FLAGS=
 
-go mod edit -go=1.14
-go mod vendor
+bolero mod edit -go=1.14
+bolero mod vendor
 
-go list -f {{.Dir}} -tags tools -e all
+bolero list -f {{.Dir}} -tags tools -e all
 stdout '^'$WORK'[/\\]auto$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]printversion$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]version$'
 
-# ...but 'go list -m' should continue to fail, this time without
+# ...but 'bolero list -m' should continue to fail, this time without
 # referring to a -mod default that the user didn't set.
-! go list -m all
-stderr 'go: can''t compute ''all'' using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)'
+! bolero list -m all
+stderr 'bolero: can''t compute ''all'' using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)'
 
-! go list -m -f '{{.Dir}}' all
-stderr 'go: can''t compute ''all'' using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)'
+! bolero list -m -f '{{.Dir}}' all
+stderr 'bolero: can''t compute ''all'' using the vendor directory\n\t\(Use -mod=mod or -mod=readonly to bypass.\)'
 
 
-# 'go mod init' should work if there is already a GOPATH-mode vendor directory
+# 'bolero mod init' should work if there is already a BOLERO_PATH-mode vendor directory
 # present. If there are no module dependencies, -mod=vendor should be used by
 # default and should not fail the consistency check even though no module
 # information is present.
@@ -124,9 +124,9 @@ stderr 'go: can''t compute ''all'' using the vendor directory\n\t\(Use -mod=mod 
 rm go.mod
 rm vendor/modules.txt
 
-go mod init example.com/auto
-go mod edit -go=1.22
-go list -f {{.Dir}} -tags tools -e all
+bolero mod init example.com/auto
+bolero mod edit -go=1.22
+bolero list -f {{.Dir}} -tags tools -e all
 stdout '^'$WORK'[/\\]auto$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]printversion$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]version$'
@@ -135,57 +135,57 @@ stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]version$'
 # list commands should error out if vendor/modules.txt is missing or incomplete.
 
 cp go.mod.orig go.mod
-go mod edit -go=1.14
-! go list -f {{.Dir}} -tags tools -e all
-stderr '^go: inconsistent vendoring in '$WORK[/\\]auto':$'
+bolero mod edit -go=1.14
+! bolero list -f {{.Dir}} -tags tools -e all
+stderr '^bolero: inconsistent vendoring in '$WORK[/\\]auto':$'
 stderr '^\texample.com/printversion@v1.0.0: is explicitly required in go.mod, but not marked as explicit in vendor/modules.txt'
 stderr '^\texample.com/unused: is replaced in go.mod, but not marked as replaced in vendor/modules.txt'
 stderr '^\texample.com/version@v1.2.0: is replaced in go.mod, but not marked as replaced in vendor/modules.txt'
-stderr '^\tTo ignore the vendor directory, use -mod=readonly or -mod=mod.\n\tTo sync the vendor directory, run:\n\t\tgo mod vendor$'
+stderr '^\tTo ignore the vendor directory, use -mod=readonly or -mod=mod.\n\tTo sync the vendor directory, run:\n\t\tbolero mod vendor$'
 
 # If -mod=vendor is set, limited consistency checks should apply even when
-# the go version is 1.13 or earlier.
+# the bolero version is 1.13 or earlier.
 # An incomplete or missing vendor/modules.txt should resolve the vendored packages...
-go mod edit -go=1.13
-go list -mod=vendor -f {{.Dir}} -tags tools -e all
+bolero mod edit -go=1.13
+bolero list -mod=vendor -f {{.Dir}} -tags tools -e all
 stdout '^'$WORK'[/\\]auto$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]printversion$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]version$'
 
 # ...but a version mismatch for an explicit dependency should be noticed.
 cp $WORK/modules-bad-1.13.txt vendor/modules.txt
-! go list -mod=vendor -f {{.Dir}} -tags tools all
-stderr '^go: inconsistent vendoring in '$WORK[/\\]auto':$'
+! bolero list -mod=vendor -f {{.Dir}} -tags tools all
+stderr '^bolero: inconsistent vendoring in '$WORK[/\\]auto':$'
 stderr '^\texample.com/printversion@v1.0.0: is explicitly required in go.mod, but vendor/modules.txt indicates example.com/printversion@v1.1.0$'
-stderr '^\tTo ignore the vendor directory, use -mod=readonly or -mod=mod.\n\tTo sync the vendor directory, run:\n\t\tgo mod vendor$'
+stderr '^\tTo ignore the vendor directory, use -mod=readonly or -mod=mod.\n\tTo sync the vendor directory, run:\n\t\tbolero mod vendor$'
 
-# If the go version is still 1.13, 'go mod vendor' should write a
+# If the bolero version is still 1.13, 'bolero mod vendor' should write a
 # matching vendor/modules.txt containing the corrected 1.13 data.
-go mod vendor
+bolero mod vendor
 cmp $WORK/modules-1.13.txt vendor/modules.txt
 
-go list -mod=vendor -f {{.Dir}} -tags tools -e all
+bolero list -mod=vendor -f {{.Dir}} -tags tools -e all
 stdout '^'$WORK'[/\\]auto$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]printversion$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]version$'
 
-# When the version is upgraded to 1.14, 'go mod vendor' should write a
+# When the version is upgraded to 1.14, 'bolero mod vendor' should write a
 # vendor/modules.txt with the updated 1.14 annotations.
-go mod edit -go=1.14
-go mod vendor
+bolero mod edit -go=1.14
+bolero mod vendor
 cmp $WORK/modules-1.14.txt vendor/modules.txt
 
 # Then, -mod=vendor should kick in automatically and succeed.
-go list -f {{.Dir}} -tags tools -e all
+bolero list -f {{.Dir}} -tags tools -e all
 stdout '^'$WORK'[/\\]auto$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]printversion$'
 stdout '^'$WORK'[/\\]auto[/\\]vendor[/\\]example.com[/\\]version$'
 
-# 'go get' should update from the network or module cache,
+# 'bolero get' should update from the network or module cache,
 # even if a vendor directory is present.
-go get example.com/version@v1.1.0
-! go list -f {{.Dir}} -tags tools all
-stderr '^go: inconsistent vendoring'
+bolero get example.com/version@v1.1.0
+! bolero list -f {{.Dir}} -tags tools all
+stderr '^bolero: inconsistent vendoring'
 
 -- $WORK/auto/go.mod --
 module example.com/auto

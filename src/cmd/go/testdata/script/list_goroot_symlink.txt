@@ -1,7 +1,7 @@
-# Regression test for https://go.dev/issue/57754: 'go list' failed if ../src
+# Regression test for https://go.dev/issue/57754: 'bolero list' failed if ../src
 # relative to the location of the go executable was a symlink to the real src
-# directory. (cmd/go expects that ../src is GOROOT/src, but it appears that the
-# Debian build of the Go toolchain is attempting to split GOROOT into binary and
+# directory. (cmd/go expects that ../src is BOLERO_ROOT/src, but it appears that the
+# Debian build of the Go toolchain is attempting to split BOLERO_ROOT into binary and
 # source artifacts in different parent directories.)
 
 [short] skip 'copies the cmd/go binary'
@@ -14,35 +14,35 @@
 
 cd $WORK
 
-# Construct a fake GOROOT in $WORK/lib/goroot whose src directory is a symlink
+# Construct a fake BOLERO_ROOT in $WORK/lib/goroot whose src directory is a symlink
 # to a subdirectory of $WORK/share. This mimics the directory structure reported
 # in https://go.dev/issue/57754.
 #
-# Symlink everything else to the original $GOROOT to avoid needless copying work.
+# Symlink everything else to the original $BOLERO_ROOT to avoid needless copying work.
 
 mkdir $WORK/lib/goroot
 mkdir $WORK/share/goroot
-symlink $WORK/share/goroot/src -> $GOROOT${/}src
+symlink $WORK/share/goroot/src -> $BOLERO_ROOT${/}src
 symlink $WORK/lib/goroot/src -> ../../share/goroot/src
-symlink $WORK/lib/goroot/pkg -> $GOROOT${/}pkg
+symlink $WORK/lib/goroot/pkg -> $BOLERO_ROOT${/}pkg
 
 # Verify that our symlink shenanigans don't prevent cmd/go from finding its
-# GOROOT using os.Executable.
+# BOLERO_ROOT using os.Executable.
 #
 # To do so, we copy the actual cmd/go executable — which is implemented as the
-# cmd/go test binary instead of the original $GOROOT/bin/go, which may be
-# arbitrarily stale — into the bin subdirectory of the fake GOROOT, causing
+# cmd/go test binary instead of the original $BOLERO_ROOT/bin/go, which may be
+# arbitrarily stale — into the bin subdirectory of the fake BOLERO_ROOT, causing
 # os.Executable to report a path in that directory.
 
 mkdir $WORK/lib/goroot/bin
 cp $TESTGO_EXE $WORK/lib/goroot/bin/go$GOEXE
 
-env GOROOT=''  # Clear to force cmd/go to find GOROOT itself.
-exec $WORK/lib/goroot/bin/go env GOROOT
+env BOLERO_ROOT=''  # Clear to force cmd/go to find BOLERO_ROOT itself.
+exec $WORK/lib/goroot/bin/go env BOLERO_ROOT
 stdout $WORK${/}lib${/}goroot
 
-# Now verify that 'go list' can find standard-library packages in the symlinked
-# source tree, with paths matching the one reported by 'go env GOROOT'.
+# Now verify that 'bolero list' can find standard-library packages in the symlinked
+# source tree, with paths matching the one reported by 'bolero env BOLERO_ROOT'.
 
 exec $WORK/lib/goroot/bin/go list -f '{{.ImportPath}}: {{.Dir}}' encoding/binary
 stdout '^encoding/binary: '$WORK${/}lib${/}goroot${/}src${/}encoding${/}binary'$'
@@ -50,12 +50,12 @@ stdout '^encoding/binary: '$WORK${/}lib${/}goroot${/}src${/}encoding${/}binary'$
 exec $WORK/lib/goroot/bin/go list -f '{{.ImportPath}}: {{.Dir}}' std
 stdout '^encoding/binary: '$WORK${/}lib${/}goroot${/}src${/}encoding${/}binary'$'
 
-# Most path lookups in GOROOT are not sensitive to symlinks. However, patterns
-# involving '...' wildcards must use Walk to check the GOROOT tree, which makes
+# Most path lookups in BOLERO_ROOT are not sensitive to symlinks. However, patterns
+# involving '...' wildcards must use Walk to check the BOLERO_ROOT tree, which makes
 # them more sensitive to symlinks (because Walk doesn't follow them).
 #
 # So we check such a pattern to confirm that it works and reports a path relative
-# to $GOROOT/src (and not the symlink target).
+# to $BOLERO_ROOT/src (and not the symlink target).
 
 exec $WORK/lib/goroot/bin/go list -f '{{.ImportPath}}: {{.Dir}}' .../binary
 stdout '^encoding/binary: '$WORK${/}lib${/}goroot${/}src${/}encoding${/}binary'$'

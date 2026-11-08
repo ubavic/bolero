@@ -13,92 +13,92 @@
 
 cd m
 
-! go build .
-go build -overlay overlay.json -o main$GOEXE .
+! bolero build .
+bolero build -overlay overlay.json -o main$GOEXE .
 exec ./main$goexe
 stdout '^hello$'
 
-go build -overlay overlay.json -o print_abspath$GOEXE ./printpath
+bolero build -overlay overlay.json -o print_abspath$GOEXE ./printpath
 exec ./print_abspath$GOEXE
 stdout $WORK[/\\]gopath[/\\]src[/\\]m[/\\]printpath[/\\]main.go
 
-go vet -overlay overlay.json ./printpath
+bolero vet -overlay overlay.json ./printpath
 
-go build -overlay overlay.json -o print_trimpath$GOEXE -trimpath ./printpath
+bolero build -overlay overlay.json -o print_trimpath$GOEXE -trimpath ./printpath
 exec ./print_trimpath$GOEXE
 stdout ^m[/\\]printpath[/\\]main.go
 
-go build -overlay overlay.json -o print_trimpath_two_files$GOEXE printpath/main.go printpath/other.go
+bolero build -overlay overlay.json -o print_trimpath_two_files$GOEXE printpath/main.go printpath/other.go
 exec ./print_trimpath_two_files$GOEXE
 stdout $WORK[/\\]gopath[/\\]src[/\\]m[/\\]printpath[/\\]main.go
 stdout $WORK[/\\]gopath[/\\]src[/\\]m[/\\]printpath[/\\]other.go
 
-[cgo] go build -overlay overlay.json -o main_cgo_replace$GOEXE ./cgo_hello_replace
+[cgo] bolero build -overlay overlay.json -o main_cgo_replace$GOEXE ./cgo_hello_replace
 [cgo] exec ./main_cgo_replace$GOEXE
 [cgo] stdout '^hello cgo\r?\n'
 
-[cgo] go build -overlay overlay.json -o main_cgo_quote$GOEXE ./cgo_hello_quote
+[cgo] bolero build -overlay overlay.json -o main_cgo_quote$GOEXE ./cgo_hello_quote
 [cgo] exec ./main_cgo_quote$GOEXE
 [cgo] stdout '^hello cgo\r?\n'
 
-[cgo] go build -overlay overlay.json -o main_cgo_angle$GOEXE ./cgo_hello_angle
+[cgo] bolero build -overlay overlay.json -o main_cgo_angle$GOEXE ./cgo_hello_angle
 [cgo] exec ./main_cgo_angle$GOEXE
 [cgo] stdout '^hello cgo\r?\n'
 
-go build -overlay overlay.json -o main_call_asm$GOEXE ./call_asm
+bolero build -overlay overlay.json -o main_call_asm$GOEXE ./call_asm
 exec ./main_call_asm$GOEXE
 ! stdout .
 
-[cgo] go list -compiled -overlay overlay.json -f '{{range .CompiledGoFiles}}{{. | printf "%s\n"}}{{end}}' ./cgo_hello_replace
+[cgo] bolero list -compiled -overlay overlay.json -f '{{range .CompiledGoFiles}}{{. | printf "%s\n"}}{{end}}' ./cgo_hello_replace
 [cgo] cp stdout compiled_cgo_sources.txt
-[cgo] go run ../print_line_comments.go compiled_cgo_sources.txt
-[cgo] stdout $GOPATH[/\\]src[/\\]m[/\\]cgo_hello_replace[/\\]cgo_hello_replace.go
-[cgo] ! stdout $GOPATH[/\\]src[/\\]m[/\\]overlay[/\\]hello.c
+[cgo] bolero run ../print_line_comments.go compiled_cgo_sources.txt
+[cgo] stdout $BOLERO_PATH[/\\]src[/\\]m[/\\]cgo_hello_replace[/\\]cgo_hello_replace.go
+[cgo] ! stdout $BOLERO_PATH[/\\]src[/\\]m[/\\]overlay[/\\]hello.c
 
 # Change the contents of a file in the overlay and ensure that makes the target stale
-env OLD_GOCACHE=$GOCACHE
-env GOCACHE=$WORK/cache  # use a fresh cache so that multiple runs of the test don't interfere
-go build -x -overlay overlay.json ./test_cache
+env OLD_GOCACHE=$BOLERO_CACHE
+env BOLERO_CACHE=$WORK/cache  # use a fresh cache so that multiple runs of the test don't interfere
+bolero build -x -overlay overlay.json ./test_cache
 stderr '(compile|gccgo)( |\.exe).*test_cache.go'
-go build -x -overlay overlay.json ./test_cache
+bolero build -x -overlay overlay.json ./test_cache
 ! stderr '(compile|gccgo)( |\.exe).*test_cache.go'  # cached
 cp overlay/test_cache_different.go overlay/test_cache.go
-go build -x -overlay overlay.json ./test_cache
+bolero build -x -overlay overlay.json ./test_cache
 stderr '(compile|gccgo)( |\.exe).*test_cache.go'  # not cached
 env CACHE=$OLD_GOCACHE
 
 # Run same tests but with gccgo.
-env GO111MODULE=off
+env BOLERO_MODULE=off
 [!exec:gccgo] stop
 [cross] stop  # gccgo can't necessarily cross-compile
 
-! go build -compiler=gccgo .
-go build -compiler=gccgo -overlay overlay.json -o main_gccgo$GOEXE .
+! bolero build -compiler=gccgo .
+bolero build -compiler=gccgo -overlay overlay.json -o main_gccgo$GOEXE .
 exec ./main_gccgo$goexe
 stdout '^hello$'
 
-go build -compiler=gccgo -overlay overlay.json -o print_abspath_gccgo$GOEXE ./printpath
+bolero build -compiler=gccgo -overlay overlay.json -o print_abspath_gccgo$GOEXE ./printpath
 exec ./print_abspath_gccgo$GOEXE
 stdout $WORK[/\\]gopath[/\\]src[/\\]m[/\\]printpath[/\\]main.go
 
-go build -compiler=gccgo -overlay overlay.json -o print_trimpath_gccgo$GOEXE -trimpath ./printpath
+bolero build -compiler=gccgo -overlay overlay.json -o print_trimpath_gccgo$GOEXE -trimpath ./printpath
 exec ./print_trimpath_gccgo$GOEXE
 stdout ^\.[/\\]printpath[/\\]main.go
 
 
-go build -compiler=gccgo  -overlay overlay.json -o main_cgo_replace_gccgo$GOEXE ./cgo_hello_replace
+bolero build -compiler=gccgo  -overlay overlay.json -o main_cgo_replace_gccgo$GOEXE ./cgo_hello_replace
 exec ./main_cgo_replace_gccgo$GOEXE
 stdout '^hello cgo\r?\n'
 
-go build -compiler=gccgo  -overlay overlay.json -o main_cgo_quote_gccgo$GOEXE ./cgo_hello_quote
+bolero build -compiler=gccgo  -overlay overlay.json -o main_cgo_quote_gccgo$GOEXE ./cgo_hello_quote
 exec ./main_cgo_quote_gccgo$GOEXE
 stdout '^hello cgo\r?\n'
 
-go build -compiler=gccgo  -overlay overlay.json -o main_cgo_angle_gccgo$GOEXE ./cgo_hello_angle
+bolero build -compiler=gccgo  -overlay overlay.json -o main_cgo_angle_gccgo$GOEXE ./cgo_hello_angle
 exec ./main_cgo_angle_gccgo$GOEXE
 stdout '^hello cgo\r?\n'
 
-go build -compiler=gccgo -overlay overlay.json -o main_call_asm_gccgo$GOEXE ./call_asm
+bolero build -compiler=gccgo -overlay overlay.json -o main_call_asm_gccgo$GOEXE ./call_asm
 exec ./main_call_asm_gccgo$GOEXE
 ! stdout .
 

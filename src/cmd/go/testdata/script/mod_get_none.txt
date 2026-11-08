@@ -1,12 +1,12 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-go mod init example.com/foo
+bolero mod init example.com/foo
 
-# 'go get bar@none' should be a no-op if module bar is not active.
-go get example.com/bar@none
-go list -m all
+# 'bolero get bar@none' should be a no-op if module bar is not active.
+bolero get example.com/bar@none
+bolero list -m all
 ! stdout example.com/bar
 
-go get example.com/bar@none
-go list -m all
+bolero get example.com/bar@none
+bolero list -m all
 ! stdout example.com/bar

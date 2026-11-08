@@ -5,10 +5,10 @@
 [!exec:bash] skip
 
 mkdir $WORK/tmp/cache
-env GOCACHE=$WORK/tmp/cache
+env BOLERO_CACHE=$WORK/tmp/cache
 
 # Before building our test main.go, ensure that an up-to-date copy of
-# runtime/cgo is present in the cache. If it isn't, the 'go build' step below
+# runtime/cgo is present in the cache. If it isn't, the 'bolero build' step below
 # will fail with "can't open import". See golang.org/issue/29004.
 #
 # (The fix in golang.org/issue/29004 didn't completely fix the underlying issue:
@@ -17,9 +17,9 @@ env GOCACHE=$WORK/tmp/cache
 # https://golang.org/issue/31544#issuecomment-490607180,
 # those implicit dependencies are not added early enough during
 # loading to properly affect the import graph.)
-go build runtime/cgo
+bolero build runtime/cgo
 
-go build -x -o main ./...
+bolero build -x -o main ./...
 cp stderr commands.txt
 cat header.txt commands.txt
 cp stdout test.sh

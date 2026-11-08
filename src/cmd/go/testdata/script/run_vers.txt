@@ -3,7 +3,7 @@
 # the language version to the compiler.
 # All compilations should specify some -lang.
 
-go build -n x.go
+bolero build -n x.go
 stderr '-lang=go1\.[0-9]+'
 
 -- x.go --

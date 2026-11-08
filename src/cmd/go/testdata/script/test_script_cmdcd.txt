@@ -3,7 +3,7 @@
 
 cd $WORK/a/b/c/pkg
 
-go list -find -f {{.Root}}
+bolero list -find -f {{.Root}}
 stdout $PWD
 
 -- $WORK/a/b/c/pkg/go.mod --

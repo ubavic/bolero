@@ -1,29 +1,29 @@
-[short] skip 'runs go build'
+[short] skip 'runs bolero build'
 
-# We're testing cache behavior, so start with a clean GOCACHE.
-env GOCACHE=$WORK/cache
+# We're testing cache behavior, so start with a clean BOLERO_CACHE.
+env BOLERO_CACHE=$WORK/cache
 
 # Build something so that the cache gets populates
-go build main.go
+bolero build main.go
 
 # Check that cache contains directories before running
-exists $GOCACHE/00
+exists $BOLERO_CACHE/00
 
-# Run go clean -cache -n and ensure that directories weren't deleted
-go clean -cache -n
-exists $GOCACHE/00
+# Run bolero clean -cache -n and ensure that directories weren't deleted
+bolero clean -cache -n
+exists $BOLERO_CACHE/00
 
-# Re-run go clean cache without the -n flag go ensure that directories were properly removed
-go clean -cache
-! exists $GOCACHE/00
+# Re-run bolero clean cache without the -n flag go ensure that directories were properly removed
+bolero clean -cache
+! exists $BOLERO_CACHE/00
 
-! go clean -cache .
-stderr 'go: clean -cache cannot be used with package arguments'
+! bolero clean -cache .
+stderr 'bolero: clean -cache cannot be used with package arguments'
 
-# GOCACHE must be an absolute path.
-env GOCACHE=.
-! go clean -cache
-stderr 'go: GOCACHE is not an absolute path'
+# BOLERO_CACHE must be an absolute path.
+env BOLERO_CACHE=.
+! bolero clean -cache
+stderr 'bolero: BOLERO_CACHE is not an absolute path'
 
 -- main.go --
 package main

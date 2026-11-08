@@ -1,10 +1,10 @@
 # mod_import_cycle covers this error in module mode.
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-! go build selfimport
+! bolero build selfimport
 stderr -count=1 'import cycle not allowed'
 
-go list -e -f '{{.Error}}' selfimport # Don't hang forever
+bolero list -e -f '{{.Error}}' selfimport # Don't hang forever
 stdout -count=1 'import cycle not allowed'
 
 -- selfimport/selfimport.go --

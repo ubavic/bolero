@@ -275,7 +275,7 @@ func PhaseOption(phase, flag string, val int, valString string) string {
 		}
 		return `PhaseOptions usage:
 
-    go tool compile -d=ssa/<phase>/<flag>[=<value>|<function_name>]
+    bolero tool compile -d=ssa/<phase>/<flag>[=<value>|<function_name>]
 
 where:
 

@@ -3,13 +3,13 @@
 # because it is of a main module, but it is still recorded in
 # vendor/modules.txt.
 
-go work vendor
-go list all # make sure the consistency checks pass
+bolero work vendor
+bolero list all # make sure the consistency checks pass
 ! stderr .
 
 # Removing the replace causes consistency checks to fail
 cp a_go_mod_no_replace a/go.mod
-! go list all # consistency checks fail
+! bolero list all # consistency checks fail
 stderr 'example.com/b@v0.0.0: is marked as replaced in vendor/modules.txt, but not replaced in the workspace'
 
 

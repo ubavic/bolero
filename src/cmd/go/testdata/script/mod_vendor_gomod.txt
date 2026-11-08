@@ -1,18 +1,18 @@
 # https://golang.org/issue/42970: As of Go 1.17, go.mod and go.sum files should
 # be stripped from vendored dependencies.
 
-go mod vendor
+bolero mod vendor
 cd vendor/example.net/x
-go list all
+bolero list all
 ! stdout '^example.net/m'
 stdout '^example.net/x$'
 exists ./go.sum
 
 cd ../../..
-go mod edit -go=1.17
-go mod vendor
+bolero mod edit -go=1.17
+bolero mod vendor
 cd vendor/example.net/x
-go list all
+bolero list all
 stdout '^example.net/m$'
 stdout '^example.net/x$'
 ! exists ./go.sum

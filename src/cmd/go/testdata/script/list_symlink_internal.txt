@@ -1,19 +1,19 @@
 [!symlink] skip
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
 mkdir $WORK/tmp/gopath/src/dir1/internal/v
 cp p.go $WORK/tmp/gopath/src/dir1/p.go
 cp v.go $WORK/tmp/gopath/src/dir1/internal/v/v.go
 symlink $WORK/tmp/symdir1 -> $WORK/tmp/gopath/src/dir1
-env GOPATH=$WORK/tmp/gopath
+env BOLERO_PATH=$WORK/tmp/gopath
 cd $WORK/tmp/symdir1
-go list -f '{{.Root}}' .
+bolero list -f '{{.Root}}' .
 stdout '^'$WORK/tmp/gopath'$'
 
 # All of these should succeed, not die in internal-handling code.
-go run p.go &
-go build &
-go install &
+bolero run p.go &
+bolero build &
+bolero install &
 
 wait
 

@@ -27,7 +27,7 @@ import (
 )
 
 var CmdBuild = &base.Command{
-	UsageLine: "go build [-o output] [build flags] [packages]",
+	UsageLine: "bolero build [-o output] [build flags] [packages]",
 	Short:     "compile packages and dependencies",
 	Long: `
 Build compiles the packages named by the import paths,
@@ -42,12 +42,12 @@ When compiling a single main package, build writes the resulting
 executable to an output file named after the last non-major-version
 component of the package import path. The '.exe' suffix is added
 when writing a Windows executable.
-So 'go build example/sam' writes 'sam' or 'sam.exe'.
-'go build example.com/foo/v2' writes 'foo' or 'foo.exe', not 'v2.exe'.
+So 'bolero build example/sam' writes 'sam' or 'sam.exe'.
+'bolero build example.com/foo/v2' writes 'foo' or 'foo.exe', not 'v2.exe'.
 
 When compiling a package from a list of .go files, the executable
 is named after the first source file.
-'go build ed.go rx.go' writes 'ed' or 'ed.exe'.
+'bolero build ed.go rx.go' writes 'ed' or 'ed.exe'.
 
 When compiling multiple packages or a single non-main package,
 build compiles the packages but discards the resulting object,
@@ -104,11 +104,11 @@ and test commands:
 			significantly more expensive.
 		Sets -cover.
 	-coverpkg pattern1,pattern2,pattern3
-		For a build that targets package 'main' (e.g. building a Go
+		For a build that targets package 'main' (e.g. building a Bolero
 		executable), apply coverage analysis to each package whose
 		import path matches the patterns. The default is to apply
-		coverage analysis to packages in the main Go module. See
-		'go help packages' for a description of package patterns.
+		coverage analysis to packages in the main Bolero module. See
+		'bolero help packages' for a description of package patterns.
 		Sets -cover.
 	-v
 		print the names of packages as they are compiled.
@@ -118,9 +118,9 @@ and test commands:
 	-x
 		print the commands.
 	-asmflags '[pattern=]arg list'
-		arguments to pass on each go tool asm invocation.
+		arguments to pass on each bolero tool asm invocation.
 	-buildmode mode
-		build mode to use. See 'go help buildmode' for more.
+		build mode to use. See 'bolero help buildmode' for more.
 	-buildvcs
 		Whether to stamp binaries with version control information
 		("true", "false", or "auto"). By default ("auto"), version control
@@ -134,7 +134,7 @@ and test commands:
 	-gccgoflags '[pattern=]arg list'
 		arguments to pass on each gccgo compiler/linker invocation.
 	-gcflags '[pattern=]arg list'
-		arguments to pass on each go tool compile invocation.
+		arguments to pass on each bolero tool compile invocation.
 	-installsuffix suffix
 		a suffix to use in the name of the package installation directory,
 		in order to keep output separate from default builds.
@@ -144,17 +144,17 @@ and test commands:
 		flags has a similar effect.
 	-json
 		Emit build output in JSON suitable for automated processing.
-		See 'go help buildjson' for the encoding details.
+		See 'bolero help buildjson' for the encoding details.
 	-ldflags '[pattern=]arg list'
-		arguments to pass on each go tool link invocation.
+		arguments to pass on each bolero tool link invocation.
 	-linkshared
 		build code that will be linked against shared libraries previously
 		created with -buildmode=shared.
 	-mod mode
 		module download mode to use: readonly, vendor, or mod.
 		By default, if a vendor directory is present and the go version in go.mod
-		is 1.14 or higher, the go command acts as if -mod=vendor were set.
-		Otherwise, the go command acts as if -mod=readonly were set.
+		is 1.14 or higher, the bolero command acts as if -mod=vendor were set.
+		Otherwise, the bolero command acts as if -mod=readonly were set.
 		See https://golang.org/ref/mod#build-commands for details.
 	-modcacherw
 		leave newly-created directories in the module cache read-write
@@ -174,14 +174,14 @@ and test commands:
 		given by the backing file paths, or as if the disk file path does not
 		exist if its backing file path is empty. Support for the -overlay flag
 		has some limitations: importantly, cgo files included from outside the
-		include path must be in the same directory as the Go package they are
+		include path must be in the same directory as the Bolero package they are
 		included from, overlays will not appear when binaries and tests are
-		run through go run and go test respectively, and files beneath
-		GOMODCACHE may not be replaced.
+		run through bolero run and bolero test respectively, and files beneath
+		BOLERO_MODCACHE may not be replaced.
 	-pgo file
 		specify the file path of a profile for profile-guided optimization (PGO).
 		When the special name "auto" is specified, for each main package in the
-		build, the go command selects a file named "default.pgo" in the package's
+		build, the bolero command selects a file named "default.pgo" in the package's
 		directory if that file exists, and applies it to the (transitive)
 		dependencies of the main package (other packages are not affected).
 		Special name "off" turns off PGO. The default is "auto".
@@ -192,19 +192,19 @@ and test commands:
 	-tags tag,list
 		a comma-separated list of additional build tags to consider satisfied
 		during the build. For more information about build tags, see
-		'go help buildconstraint'. (Earlier versions of Go used a
+		'bolero help buildconstraint'. (Earlier versions of Bolero used a
 		space-separated list, and that form is deprecated but still recognized.)
 	-trimpath
 		remove all file system paths from the resulting executable.
 		Instead of absolute file system paths, the recorded file names
 		will begin either a module path@version (when using modules),
-		or a plain import path (when using the standard library, or GOPATH).
+		or a plain import path (when using the standard library, or BOLERO_PATH).
 	-toolexec 'cmd args'
 		a program to use to invoke toolchain programs like vet and asm.
-		For example, instead of running asm, the go command will run
+		For example, instead of running asm, the bolero command will run
 		'cmd args /path/to/asm <arguments for asm>'.
 		The TOOLEXEC_IMPORTPATH environment variable will be set,
-		matching 'go list -f {{.ImportPath}}' for the package being built.
+		matching 'bolero list -f {{.ImportPath}}' for the package being built.
 
 The -asmflags, -gccgoflags, -gcflags, and -ldflags flags accept a
 space-separated list of arguments to pass to an underlying tool
@@ -212,29 +212,29 @@ during the build. To embed spaces in an element in the list, surround
 it with either single or double quotes. The argument list may be
 preceded by a package pattern and an equal sign, which restricts
 the use of that argument list to the building of packages matching
-that pattern (see 'go help packages' for a description of package
+that pattern (see 'bolero help packages' for a description of package
 patterns). Without a pattern, the argument list applies only to the
 packages named on the command line. The flags may be repeated
 with different patterns in order to specify different arguments for
 different sets of packages. If a package matches patterns given in
 multiple flags, the latest match on the command line wins.
-For example, 'go build -gcflags=-S fmt' prints the disassembly
-only for package fmt, while 'go build -gcflags=all=-S fmt'
+For example, 'bolero build -gcflags=-S fmt' prints the disassembly
+only for package fmt, while 'bolero build -gcflags=all=-S fmt'
 prints the disassembly for fmt and all its dependencies.
 
-For more about specifying packages, see 'go help packages'.
+For more about specifying packages, see 'bolero help packages'.
 For more about where packages and binaries are installed,
-run 'go help gopath'.
-For more about calling between Go and C/C++, run 'go help c'.
+run 'bolero help gopath'.
+For more about calling between Bolero and C/C++, run 'bolero help c'.
 
 Note: Build adheres to certain conventions such as those described
-by 'go help gopath'. Not all projects can follow these conventions,
+by 'bolero help gopath'. Not all projects can follow these conventions,
 however. Installations that have their own conventions or that use
 a separate software build system may choose to use lower-level
-invocations such as 'go tool compile' and 'go tool link' to avoid
+invocations such as 'bolero tool compile' and 'bolero tool link' to avoid
 some of the overheads and design decisions of the build tool.
 
-See also: go install, go get, go clean.
+See also: bolero install, bolero get, bolero clean.
 	`,
 }
 
@@ -330,7 +330,7 @@ func AddBuildFlags(cmd *base.Command, mask BuildFlagMask) {
 		base.AddModCommonFlags(&cmd.Flag)
 	} else {
 		// Add the overlay flag even when we don't add the rest of the mod common flags.
-		// This only affects 'go get' in GOPATH mode, but add the flag anyway for
+		// This only affects 'bolero get' in BOLERO_PATH mode, but add the flag anyway for
 		// consistency.
 		cmd.Flag.StringVar(&fsys.OverlayFile, "overlay", "", "")
 	}
@@ -481,14 +481,14 @@ func runBuild(ctx context.Context, cmd *base.Command, args []string) {
 	switch cfg.BuildContext.Compiler {
 	case "gccgo":
 		if load.BuildGcflags.Present() {
-			fmt.Println("go build: when using gccgo toolchain, please pass compiler flags using -gccgoflags, not -gcflags")
+			fmt.Println("bolero build: when using gccgo toolchain, please pass compiler flags using -gccgoflags, not -gcflags")
 		}
 		if load.BuildLdflags.Present() {
-			fmt.Println("go build: when using gccgo toolchain, please pass linker flags using -gccgoflags, not -ldflags")
+			fmt.Println("bolero build: when using gccgo toolchain, please pass linker flags using -gccgoflags, not -ldflags")
 		}
 	case "gc":
 		if load.BuildGccgoflags.Present() {
-			fmt.Println("go build: when using gc toolchain, please pass compile flags using -gcflags, and linker flags using -ldflags")
+			fmt.Println("bolero build: when using gc toolchain, please pass compile flags using -gcflags, and linker flags using -ldflags")
 		}
 	}
 
@@ -514,9 +514,9 @@ func runBuild(ctx context.Context, cmd *base.Command, args []string) {
 			strings.HasSuffix(cfg.BuildO, "/") ||
 			strings.HasSuffix(cfg.BuildO, string(os.PathSeparator)) {
 			if !explicitO {
-				base.Fatalf("go: build output %q already exists and is a directory", cfg.BuildO)
+				base.Fatalf("bolero: build output %q already exists and is a directory", cfg.BuildO)
 			}
-			a := &Action{Mode: "go build"}
+			a := &Action{Mode: "bolero build"}
 			for _, p := range pkgs {
 				if p.Name != "main" {
 					continue
@@ -529,13 +529,13 @@ func runBuild(ctx context.Context, cmd *base.Command, args []string) {
 				a.Deps = append(a.Deps, b.AutoAction(moduleLoaderState, ModeInstall, depMode, p))
 			}
 			if len(a.Deps) == 0 {
-				base.Fatalf("go: no main packages to build")
+				base.Fatalf("bolero: no main packages to build")
 			}
 			b.Do(ctx, a)
 			return
 		}
 		if len(pkgs) > 1 {
-			base.Fatalf("go: cannot write multiple packages to non-directory %s", cfg.BuildO)
+			base.Fatalf("bolero: cannot write multiple packages to non-directory %s", cfg.BuildO)
 		} else if len(pkgs) == 0 {
 			base.Fatalf("no packages to build")
 		}
@@ -548,7 +548,7 @@ func runBuild(ctx context.Context, cmd *base.Command, args []string) {
 		return
 	}
 
-	a := &Action{Mode: "go build"}
+	a := &Action{Mode: "bolero build"}
 	for _, p := range pkgs {
 		a.Deps = append(a.Deps, b.AutoAction(moduleLoaderState, ModeBuild, depMode, p))
 	}
@@ -559,19 +559,19 @@ func runBuild(ctx context.Context, cmd *base.Command, args []string) {
 }
 
 var CmdInstall = &base.Command{
-	UsageLine: "go install [build flags] [packages]",
+	UsageLine: "bolero install [build flags] [packages]",
 	Short:     "compile and install packages and dependencies",
 	Long: `
 Install compiles and installs the packages named by the import paths.
 
-Executables are installed in the directory named by the GOBIN environment
-variable, which defaults to $GOPATH/bin or $HOME/go/bin if the GOPATH
-environment variable is not set. Executables in $GOROOT
-are installed in $GOROOT/bin or $GOTOOLDIR instead of $GOBIN.
+Executables are installed in the directory named by the BOLERO_BIN environment
+variable, which defaults to $BOLERO_PATH/bin or $HOME/go/bin if the BOLERO_PATH
+environment variable is not set. Executables in $BOLERO_ROOT
+are installed in $BOLERO_ROOT/bin or $BOLERO_TOOLDIR instead of $BOLERO_BIN.
 Cross compiled binaries are installed in $GOOS_$GOARCH subdirectories
 of the above.
 
-If the arguments have version suffixes (like @latest or @v1.0.0), "go install"
+If the arguments have version suffixes (like @latest or @v1.0.0), "bolero install"
 builds packages in module-aware mode, ignoring the go.mod file in the current
 directory or any parent directory, if there is one. This is useful for
 installing executables without affecting the dependencies of the main module.
@@ -597,29 +597,29 @@ differently than if it were the main module. The module must not require
 a higher version of itself.
 
 - Vendor directories are not used in any module. (Vendor directories are not
-included in the module zip files downloaded by 'go install'.)
+included in the module zip files downloaded by 'bolero install'.)
 
-If the arguments don't have version suffixes, "go install" may run in
-module-aware mode or GOPATH mode, depending on the GO111MODULE environment
-variable and the presence of a go.mod file. See 'go help modules' for details.
-If module-aware mode is enabled, "go install" runs in the context of the main
+If the arguments don't have version suffixes, "bolero install" may run in
+module-aware mode or BOLERO_PATH mode, depending on the BOLERO_MODULE environment
+variable and the presence of a go.mod file. See 'bolero help modules' for details.
+If module-aware mode is enabled, "bolero install" runs in the context of the main
 module.
 
 When module-aware mode is disabled, non-main packages are installed in the
-directory $GOPATH/pkg/$GOOS_$GOARCH. When module-aware mode is enabled,
+directory $BOLERO_PATH/pkg/$GOOS_$GOARCH. When module-aware mode is enabled,
 non-main packages are built and cached but not installed.
 
 Before Go 1.20, the standard library was installed to
-$GOROOT/pkg/$GOOS_$GOARCH.
+$BOLERO_ROOT/pkg/$GOOS_$GOARCH.
 Starting in Go 1.20, the standard library is built and cached but not installed.
 Setting GODEBUG=installgoroot=all restores the use of
-$GOROOT/pkg/$GOOS_$GOARCH.
+$BOLERO_ROOT/pkg/$GOOS_$GOARCH.
 
-For more about build flags, see 'go help build'.
+For more about build flags, see 'bolero help build'.
 
-For more about specifying packages, see 'go help packages'.
+For more about specifying packages, see 'bolero help packages'.
 
-See also: go build, go get, go clean.
+See also: bolero build, bolero get, bolero clean.
 	`,
 }
 
@@ -716,7 +716,7 @@ func runInstall(ctx context.Context, cmd *base.Command, args []string) {
 				latestArgs[i] = args[i] + "@latest"
 			}
 			hint := strings.Join(latestArgs, " ")
-			base.Fatalf("go: 'go install' requires a version when current directory is not in a module\n\tTry 'go install %s' to install the latest version", hint)
+			base.Fatalf("bolero: 'bolero install' requires a version when current directory is not in a module\n\tTry 'bolero install %s' to install the latest version", hint)
 		}
 	}
 	load.CheckPackageErrors(pkgs)
@@ -750,7 +750,7 @@ func InstallPackages(loaderstate *modload.State, ctx context.Context, patterns [
 	defer span.Done()
 
 	if cfg.GOBIN != "" && !filepath.IsAbs(cfg.GOBIN) {
-		base.Fatalf("cannot install, GOBIN must be an absolute path")
+		base.Fatalf("cannot install, BOLERO_BIN must be an absolute path")
 	}
 
 	pkgs = omitTestOnly(pkgsFilter(pkgs))
@@ -758,9 +758,9 @@ func InstallPackages(loaderstate *modload.State, ctx context.Context, patterns [
 		if p.Target == "" {
 			switch {
 			case p.Name != "main" && p.Internal.Local && p.ConflictDir == "":
-				// Non-executables outside GOPATH need not have a target:
+				// Non-executables outside BOLERO_PATH need not have a target:
 				// we can use the cache to hold the built package archive for use in future builds.
-				// The ones inside GOPATH should have a target (in GOPATH/pkg)
+				// The ones inside BOLERO_PATH should have a target (in BOLERO_PATH/pkg)
 				// or else something is wrong and worth reporting (like a ConflictDir).
 			case p.Name != "main" && p.Module != nil:
 				// Non-executables have no target (except the cache) when building with modules.
@@ -770,14 +770,14 @@ func InstallPackages(loaderstate *modload.State, ctx context.Context, patterns [
 				// A few targets (notably those using cgo) still do need to be installed
 				// in case the user's environment lacks a C compiler.
 			case p.Internal.GobinSubdir:
-				base.Errorf("go: cannot install cross-compiled binaries when GOBIN is set")
+				base.Errorf("bolero: cannot install cross-compiled binaries when BOLERO_BIN is set")
 			case p.Internal.CmdlineFiles:
-				base.Errorf("go: no install location for .go files listed on command line (GOBIN not set)")
+				base.Errorf("bolero: no install location for .go files listed on command line (BOLERO_BIN not set)")
 			case p.ConflictDir != "":
-				base.Errorf("go: no install location for %s: hidden by %s", p.Dir, p.ConflictDir)
+				base.Errorf("bolero: no install location for %s: hidden by %s", p.Dir, p.ConflictDir)
 			default:
-				base.Errorf("go: no install location for directory %s outside GOPATH\n"+
-					"\tFor more details see: 'go help gopath'", p.Dir)
+				base.Errorf("bolero: no install location for directory %s outside BOLERO_PATH\n"+
+					"\tFor more details see: 'bolero help gopath'", p.Dir)
 			}
 		}
 	}
@@ -791,7 +791,7 @@ func InstallPackages(loaderstate *modload.State, ctx context.Context, patterns [
 	}()
 
 	depMode := ModeBuild
-	a := &Action{Mode: "go install"}
+	a := &Action{Mode: "bolero install"}
 	var tools []*Action
 	for _, p := range pkgs {
 		// If p is a tool, delay the installation until the end of the build.
@@ -808,7 +808,7 @@ func InstallPackages(loaderstate *modload.State, ctx context.Context, patterns [
 	}
 	if len(tools) > 0 {
 		a = &Action{
-			Mode: "go install (tools)",
+			Mode: "bolero install (tools)",
 			Deps: tools,
 		}
 	}
@@ -825,21 +825,21 @@ func InstallPackages(loaderstate *modload.State, ctx context.Context, patterns [
 	b.Do(ctx, a)
 	base.ExitIfErrors()
 
-	// Success. If this command is 'go install' with no arguments
+	// Success. If this command is 'bolero install' with no arguments
 	// and the current directory (the implicit argument) is a command,
-	// remove any leftover command binary from a previous 'go build'.
+	// remove any leftover command binary from a previous 'bolero build'.
 	// The binary is installed; it's not needed here anymore.
 	// And worse it might be a stale copy, which you don't want to find
 	// instead of the installed one if $PATH contains dot.
-	// One way to view this behavior is that it is as if 'go install' first
-	// runs 'go build' and the moves the generated file to the install dir.
+	// One way to view this behavior is that it is as if 'bolero install' first
+	// runs 'bolero build' and the moves the generated file to the install dir.
 	// See issue 9645.
 	if len(patterns) == 0 && len(pkgs) == 1 && pkgs[0].Name == "main" {
-		// Compute file 'go build' would have created.
+		// Compute file 'bolero build' would have created.
 		// If it exists and is an executable file, remove it.
 		targ := pkgs[0].DefaultExecName()
 		targ += cfg.ExeSuffix
-		if filepath.Join(pkgs[0].Dir, targ) != pkgs[0].Target { // maybe $GOBIN is the current directory
+		if filepath.Join(pkgs[0].Dir, targ) != pkgs[0].Target { // maybe $BOLERO_BIN is the current directory
 			fi, err := os.Stat(targ)
 			if err == nil {
 				m := fi.Mode()
@@ -853,7 +853,7 @@ func InstallPackages(loaderstate *modload.State, ctx context.Context, patterns [
 	}
 }
 
-// installOutsideModule implements 'go install pkg@version'. It builds and
+// installOutsideModule implements 'bolero install pkg@version'. It builds and
 // installs one or more main packages in module mode while ignoring any go.mod
 // in the current directory or parent directories.
 //

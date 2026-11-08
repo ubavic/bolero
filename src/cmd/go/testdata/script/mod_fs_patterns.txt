@@ -1,10 +1,10 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
 # File system pattern searches should skip sub-modules and vendor directories.
 cd x
 
 # all packages
-go list all
+bolero list all
 stdout ^m$
 stdout ^m/vendor$
 ! stdout vendor/
@@ -12,7 +12,7 @@ stdout ^m/y$
 ! stdout ^m/y/z
 
 # path pattern
-go list m/...
+bolero list m/...
 stdout ^m$
 stdout ^m/vendor$
 ! stdout vendor/
@@ -20,7 +20,7 @@ stdout ^m/y$
 ! stdout ^m/y/z
 
 # directory pattern
-go list ./...
+bolero list ./...
 stdout ^m$
 stdout ^m/vendor$
 ! stdout vendor/
@@ -28,33 +28,33 @@ stdout ^m/y$
 ! stdout ^m/y/z
 
 # non-existent directory should not prompt lookups
-! go build -mod=readonly example.com/nonexist
+! bolero build -mod=readonly example.com/nonexist
 stderr 'import lookup disabled'
 
-! go build -mod=readonly ./nonexist
+! bolero build -mod=readonly ./nonexist
 ! stderr 'import lookup disabled'
-stderr '^stat '$GOPATH'[/\\]src[/\\]x[/\\]nonexist: directory not found'
+stderr '^stat '$BOLERO_PATH'[/\\]src[/\\]x[/\\]nonexist: directory not found'
 
-! go build -mod=readonly ./go.mod
+! bolero build -mod=readonly ./go.mod
 ! stderr 'import lookup disabled'
 stderr 'main module \(m\) does not contain package m/go.mod'
 
 
 # File system paths and patterns should allow the '@' character.
 cd ../@at
-go list $PWD
+bolero list $PWD
 stdout '^at$'
-go list $PWD/...
+bolero list $PWD/...
 stdout '^at$'
 
 # The '@' character is not allowed in directory paths that are part of
 # a package path.
 cd ../badat/bad@
-! go list .
+! bolero list .
 stderr 'current directory outside main module or its selected dependencies'
-! go list $PWD
+! bolero list $PWD
 stderr 'current directory outside main module or its selected dependencies'
-! go list $PWD/...
+! bolero list $PWD/...
 stderr 'current directory outside main module or its selected dependencies'
 
 -- x/go.mod --

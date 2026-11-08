@@ -1,13 +1,13 @@
 [!fuzz] skip
 [short] skip
-env GOCACHE=$WORK/cache
+env BOLERO_CACHE=$WORK/cache
 
 # Test fuzz.Context.
-go test -vet=off context_fuzz_test.go
+bolero test -vet=off context_fuzz_test.go
 stdout ^ok
 ! stdout FAIL
 
-go test -vet=off -fuzz=Fuzz -fuzztime=1x context_fuzz_test.go
+bolero test -vet=off -fuzz=Fuzz -fuzztime=1x context_fuzz_test.go
 stdout ok
 ! stdout FAIL
 

@@ -5,7 +5,7 @@
 # directory.)
 
 cd bar
-go list ./...
+bolero list ./...
 ! stdout .
 cd ..
 
@@ -17,11 +17,11 @@ cd ..
 
 env GOARCH=arm64
 env GOOS=linux
-go build ./baz
+bolero build ./baz
 
 env GOARCH=amd64
 env GOOS=linux
-! go build ./baz
+! bolero build ./baz
 
 -- go.mod --
 module example.com/foo

@@ -1,11 +1,11 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
 # Regression test for golang.org/issue/6844:
-# 'go test -a' should force dependencies in the standard library to be rebuilt.
+# 'bolero test -a' should force dependencies in the standard library to be rebuilt.
 
 [short] skip
 
-go test -x -a -c testdata/dep_test.go
+bolero test -x -a -c testdata/dep_test.go
 stderr '^.*[/\\]compile'$GOEXE'["]? (.* )?regexp .*[/\\]regexp\.go'
 
 -- testdata/dep_test.go --

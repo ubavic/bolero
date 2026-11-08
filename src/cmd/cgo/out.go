@@ -447,7 +447,7 @@ func checkImportSymName(s string) {
 		}
 	}
 	if strings.Contains(s, "//") || strings.Contains(s, "/*") {
-		fatalf("dynamic symbol %q contains Go comment", s)
+		fatalf("dynamic symbol %q contains comment", s)
 	}
 }
 
@@ -1564,7 +1564,7 @@ func (p *Package) doCgoType(e ast.Expr, m map[ast.Expr]bool) *Type {
 		if r, ok := goTypes[t.Name]; ok {
 			return goTypesFixup(r)
 		}
-		error_(e.Pos(), "unrecognized Go type %s", t.Name)
+		error_(e.Pos(), "unrecognized type %s", t.Name)
 		return &Type{Size: 4, Align: 4, C: c("int")}
 	case *ast.SelectorExpr:
 		id, ok := t.X.(*ast.Ident)

@@ -45,13 +45,13 @@ import (
 	"cmd/internal/telemetry/counter"
 )
 
-var printCode = flag.Bool("S", false, "print Go code alongside assembly")
+var printCode = flag.Bool("S", false, "print source code alongside assembly")
 var symregexp = flag.String("s", "", "only dump symbols matching this regexp")
-var gnuAsm = flag.Bool("gnu", false, "print GNU assembly next to Go assembly (where supported)")
+var gnuAsm = flag.Bool("gnu", false, "print GNU assembly next to toolchain assembly (where supported)")
 var symRE *regexp.Regexp
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: go tool objdump [-S] [-gnu] [-s symregexp] binary [start end]\n\n")
+	fmt.Fprintf(os.Stderr, "usage: bolero tool objdump [-S] [-gnu] [-s symregexp] binary [start end]\n\n")
 	flag.PrintDefaults()
 	os.Exit(2)
 }

@@ -3,11 +3,11 @@
 [GOOS:windows] skip
 [!fuzz] skip
 [short] skip
-env GOCACHE=$WORK/cache
+env BOLERO_CACHE=$WORK/cache
 
 # FuzzNonCrash sends itself a signal that does not appear to be a crash.
 # We should not save a crasher.
-! go test -fuzz=FuzzNonCrash
+! bolero test -fuzz=FuzzNonCrash
 ! exists testdata
 ! stdout unreachable
 ! stderr unreachable
@@ -16,7 +16,7 @@ stdout 'fuzzing process terminated by unexpected signal; no crash will be record
 # FuzzKill sends itself a signal that cannot be caught by the worker process
 # and does not appear to be a crash.
 # We should not save a crasher.
-! go test -fuzz=FuzzKill
+! bolero test -fuzz=FuzzKill
 ! exists testdata
 ! stdout unreachable
 ! stderr unreachable
@@ -24,7 +24,7 @@ stdout 'fuzzing process terminated by unexpected signal; no crash will be record
 
 # FuzzCrash sends itself a signal that looks like a crash.
 # We should save a crasher.
-! go test -fuzz=FuzzCrash
+! bolero test -fuzz=FuzzCrash
 exists testdata/fuzz/FuzzCrash
 stdout '^\s+fuzzing process hung or terminated unexpectedly: exit status'
 

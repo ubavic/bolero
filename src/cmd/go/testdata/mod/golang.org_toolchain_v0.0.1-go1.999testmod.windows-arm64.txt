@@ -6,6 +6,6 @@ module golang.org/toolchain
 {"Version":"v0.0.1-go1.999testmod.windows-arm64"}
 -- go.mod --
 module golang.org/toolchain
--- bin/go.bat --
+-- bin/bolero.bat --
 @echo go1.999testmod here!
 -- lib/wasm/go_js_wasm_exec --

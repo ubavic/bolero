@@ -199,13 +199,13 @@ func findPkgs(profiles []*cover.Profile) (map[string]*Pkg, error) {
 
 	// Note: usually run as "go tool cover" in which case $GOROOT is set,
 	// in which case runtime.GOROOT() does exactly what we want.
-	goTool := filepath.Join(runtime.GOROOT(), "bin/go")
+	goTool := filepath.Join(runtime.GOROOT(), "bin/bolero")
 	cmd := exec.Command(goTool, append([]string{"list", "-e", "-json"}, list...)...)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	stdout, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("cannot run go list: %v\n%s", err, stderr.Bytes())
+		return nil, fmt.Errorf("cannot run bolero list: %v\n%s", err, stderr.Bytes())
 	}
 	dec := json.NewDecoder(bytes.NewReader(stdout))
 	for {
@@ -215,7 +215,7 @@ func findPkgs(profiles []*cover.Profile) (map[string]*Pkg, error) {
 			break
 		}
 		if err != nil {
-			return nil, fmt.Errorf("decoding go list json: %v", err)
+			return nil, fmt.Errorf("decoding bolero list json: %v", err)
 		}
 		pkgs[pkg.ImportPath] = &pkg
 	}
@@ -237,7 +237,7 @@ func findFile(pkgs map[string]*Pkg, file string) (string, error) {
 			return "", errors.New(pkg.Error.Err)
 		}
 	}
-	return "", fmt.Errorf("did not find package for %s in go list output", file)
+	return "", fmt.Errorf("did not find package for %s in bolero list output", file)
 }
 
 func percent(covered, total int64) float64 {

@@ -60,7 +60,7 @@ func objdumpOutput(t *testing.T, mname, source string) []byte {
 		filepath.Join(tmpdir, "output"))
 
 	cmd.Env = append(os.Environ(),
-		"GOARCH=amd64", "GOOS=linux", "GOPATH="+filepath.Join(tmpdir, "_gopath"))
+		"GOARCH=amd64", "GOOS=linux", "BOLERO_PATH="+filepath.Join(tmpdir, "_gopath"))
 	cmd.Dir = tmpdir
 
 	out, err := cmd.CombinedOutput()

@@ -1,16 +1,16 @@
 
 # golang.org/issue/40544: regression in error stacks for parse errors
 
-env GO111MODULE=off
+env BOLERO_MODULE=off
 cd sandbox/foo
-go list -e -json .
+bolero list -e -json .
 stdout '"sandbox/foo"'
 stdout '"sandbox/bar"'
 stdout '"Pos": "..(/|\\\\)bar(/|\\\\)bar.go:1:1"'
 stdout '"Err": "expected ''package'', found ackage"'
 
-env GO111MODULE=on
-go list -e -json .
+env BOLERO_MODULE=on
+bolero list -e -json .
 stdout '"sandbox/foo"'
 stdout '"sandbox/bar"'
 stdout '"Pos": "..(/|\\\\)bar(/|\\\\)bar.go:1:1"'

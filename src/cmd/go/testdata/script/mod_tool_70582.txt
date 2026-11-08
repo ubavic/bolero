@@ -1,4 +1,4 @@
-! go list all
+! bolero list all
 stderr 'no required module provides package example.com/tools/cmd/hello'
 
 -- go.mod --

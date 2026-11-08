@@ -1,32 +1,32 @@
-env GOTOOLCHAIN=auto
+env BOLERO_TOOLCHAIN=auto
 env TESTGO_VERSION=go1.21.1
 
 # Basic switch should work.
 env TESTGO_VERSION_SWITCH=switch
-go version
+bolero version
 stdout go1.21.99
 
 # Toolchain target mismatch should be detected.
 env TESTGO_VERSION_SWITCH=mismatch
-! go version
-stderr '^go: toolchain go1.21.1 invoked to provide go1.21.99$'
+! bolero version
+stderr '^bolero: toolchain go1.21.1 invoked to provide go1.21.99$'
 
 # Toolchain loop should be detected.
 env TESTGO_VERSION_SWITCH=loop
-! go version
-stderr -count=10 '^go: switching from go1.21.1 to go1.21.99 \[depth 9[0-9]\]$'
-stderr -count=1 '^go: switching from go1.21.1 to go1.21.99 \[depth 100\]$'
-stderr '^go: too many toolchain switches$'
+! bolero version
+stderr -count=10 '^bolero: switching from go1.21.1 to go1.21.99 \[depth 9[0-9]\]$'
+stderr -count=1 '^bolero: switching from go1.21.1 to go1.21.99 \[depth 100\]$'
+stderr '^bolero: too many toolchain switches$'
 
 [short] skip
 
-# Internal env vars should not leak to go test or go run.
+# Internal env vars should not leak to bolero test or bolero run.
 env TESTGO_VERSION_SWITCH=switch
-go version
+bolero version
 stdout go1.21.99
-go test
+bolero test
 stdout clean
-go run .
+bolero run .
 stdout clean
 
 -- go.mod --
@@ -49,8 +49,8 @@ import "os"
 
 func init() {
 	envs := []string{
-		"GOTOOLCHAIN_INTERNAL_SWITCH_COUNT",
-		"GOTOOLCHAIN_INTERNAL_SWITCH_VERSION",
+		"BOLERO_TOOLCHAIN_INTERNAL_SWITCH_COUNT",
+		"BOLERO_TOOLCHAIN_INTERNAL_SWITCH_VERSION",
 	}
 	for _, e := range envs {
 		if v := os.Getenv(e); v != "" {

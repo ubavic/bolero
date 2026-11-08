@@ -1,17 +1,17 @@
-env GO111MODULE=off
+env BOLERO_MODULE=off
 
-# If GOTMPDIR is relative, 'go build' should derive an absolute $WORK directory.
+# If BOLERO_TMPDIR is relative, 'bolero build' should derive an absolute $WORK directory.
 cd $WORK
 mkdir tmp
-env GOTMPDIR=tmp
-go build -work a
+env BOLERO_TMPDIR=tmp
+bolero build -work a
 stderr 'WORK='$WORK
 
 # Similarly if TMP/TMPDIR is relative.
-env GOTMPDIR=
+env BOLERO_TMPDIR=
 env TMP=tmp    # Windows
 env TMPDIR=tmp # Unix
-go build -work a
+bolero build -work a
 stderr 'WORK='$WORK
 
 -- a/a.go --

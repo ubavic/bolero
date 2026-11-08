@@ -1,7 +1,7 @@
-! go build
+! bolero build
 stderr 'case-insensitive import collision'
 
-! go mod vendor
+! bolero mod vendor
 stderr 'case-insensitive import collision'
 
 -- foo.go --

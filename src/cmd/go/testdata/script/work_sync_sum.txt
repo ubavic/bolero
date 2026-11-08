@@ -1,17 +1,17 @@
 # Test that the sum file data state is properly reset between modules in
-# go work sync so that the sum file that's written is correct.
+# bolero work sync so that the sum file that's written is correct.
 # Exercises the fix to #50038.
 
 cp b/go.sum b/go.sum.want
 
 # As a sanity check, verify b/go.sum is tidy.
 cd b
-go mod tidy
+bolero mod tidy
 cd ..
 cmp b/go.sum b/go.sum.want
 
-# Run go work sync and verify it doesn't change b/go.sum.
-go work sync
+# Run bolero work sync and verify it doesn't change b/go.sum.
+bolero work sync
 cmp b/go.sum b/go.sum.want
 
 -- b/go.sum --

@@ -1,4 +1,4 @@
-go work sync
+bolero work sync
 cmp a/go.mod a/want_go.mod
 cmp b/go.mod b/want_go.mod
 

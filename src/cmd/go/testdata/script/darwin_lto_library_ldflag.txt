@@ -1,7 +1,7 @@
 [!GOOS:darwin] skip
 [!cgo] skip
 
-! go build
+! bolero build
 stderr 'invalid flag in #cgo LDFLAGS: -lto_library'
 
 -- go.mod --

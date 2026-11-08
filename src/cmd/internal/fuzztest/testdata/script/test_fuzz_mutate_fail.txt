@@ -1,30 +1,30 @@
 [!fuzz] skip
 
 # Check that if a worker does not call F.Fuzz or calls F.Fail first,
-# 'go test' exits non-zero and no crasher is recorded.
+# 'bolero test' exits non-zero and no crasher is recorded.
 
 [short] skip
-env GOCACHE=$WORK/cache
+env BOLERO_CACHE=$WORK/cache
 
-! go test -fuzz=FuzzReturn
+! bolero test -fuzz=FuzzReturn
 ! exists testdata
 
-! go test -fuzz=FuzzSkip
+! bolero test -fuzz=FuzzSkip
 ! exists testdata
 
-! go test -fuzz=FuzzFail
+! bolero test -fuzz=FuzzFail
 ! exists testdata
 
-! go test -fuzz=FuzzPanic
+! bolero test -fuzz=FuzzPanic
 ! exists testdata
 
-! go test -fuzz=FuzzNilPanic
+! bolero test -fuzz=FuzzNilPanic
 ! exists testdata
 
-! go test -fuzz=FuzzGoexit
+! bolero test -fuzz=FuzzGoexit
 ! exists testdata
 
-! go test -fuzz=FuzzExit
+! bolero test -fuzz=FuzzExit
 ! exists testdata
 
 -- go.mod --

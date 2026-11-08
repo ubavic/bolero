@@ -56,7 +56,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		out, err := exec.Command("go", "run", "tmp.go").CombinedOutput()
+		out, err := exec.Command("bolero", "run", "tmp.go").CombinedOutput()
 		if err != nil {
 			log.Fatalf("go run tmp.go: %v\n%s", err, out)
 		}

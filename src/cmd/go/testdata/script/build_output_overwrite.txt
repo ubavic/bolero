@@ -2,11 +2,11 @@
 [GOOS:windows] skip
 
 mkdir out
-env GOTMPDIR=$PWD/out
+env BOLERO_TMPDIR=$PWD/out
 
 grep 'this should still exist' foo.go
 
-! go build
+! bolero build
 stderr 'already exists and is not an object file'
 
 grep 'this should still exist' foo.go

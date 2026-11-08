@@ -45,5 +45,5 @@ func TestChdir(t *testing.T) {
 			t.Errorf("%s has -C flag but not from AddChdirFlag", name)
 		}
 	}
-	walk("go", base.Go)
+	walk("bolero", base.Go)
 }

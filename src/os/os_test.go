@@ -115,7 +115,7 @@ var sysdir = func() *sysDir {
 		return &sysDir{
 			runtime.GOROOT(),
 			[]string{
-				"go.env",
+				"bolero.env",
 				"LICENSE",
 				"CONTRIBUTING.md",
 			},

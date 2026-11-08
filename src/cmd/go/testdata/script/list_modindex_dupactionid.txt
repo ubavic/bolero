@@ -7,10 +7,10 @@
 
 [short] skip 'builds and runs a go program'
 sleep 2s # Sleep so that the unpacked files are > 2 seconds old. The index won't be used if the modified times on the files are newer.
-go build -o check$GOEXE check.go
+bolero build -o check$GOEXE check.go
 cd mod
-env GOCACHE=$WORK/newcache # Run list command in a clean cache.
-go list all
+env BOLERO_CACHE=$WORK/newcache # Run list command in a clean cache.
+bolero list all
 exec ../check$GOEXE
 
 -- mod/go.mod --
@@ -29,9 +29,9 @@ import (
 )
 
 func main() {
-	cachedir := os.Getenv("GOCACHE")
+	cachedir := os.Getenv("BOLERO_CACHE")
 	if cachedir == "" {
-		log.Fatal("GOCACHE env var is empty; expected it to be set")
+		log.Fatal("BOLERO_CACHE env var is empty; expected it to be set")
 	}
 
 	// Read the top level cache directory. The cache directory contains directories with

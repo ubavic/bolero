@@ -58,12 +58,12 @@ func TestAllDependencies(t *testing.T) {
 				// 'go list -deps' will fail when attempting to load it.
 				cmd := testenv.Command(t, goBin, "list", "-mod=vendor", "-deps", "./...")
 				cmd.Dir = m.Dir
-				cmd.Env = append(cmd.Environ(), "GO111MODULE=on", "GOWORK=off")
+				cmd.Env = append(cmd.Environ(), "BOLERO_MODULE=on", "BOLERO_WORK=off")
 				cmd.Stderr = new(strings.Builder)
 				_, err := cmd.Output()
 				if err != nil {
 					t.Errorf("%#q: %v\n%s", cmd, err, cmd.Stderr)
-					t.Logf("(Run 'go mod vendor' in %s to ensure that dependencies have been vendored.)", m.Dir)
+					t.Logf("(Run 'bolero mod vendor' in %s to ensure that dependencies have been vendored.)", m.Dir)
 				}
 				return
 			}
@@ -72,7 +72,7 @@ func TestAllDependencies(t *testing.T) {
 			// Check that the list of active modules contains only the main module.
 			cmd := testenv.Command(t, goBin, "list", "-mod=readonly", "-m", "all")
 			cmd.Dir = m.Dir
-			cmd.Env = append(cmd.Environ(), "GO111MODULE=on", "GOWORK=off")
+			cmd.Env = append(cmd.Environ(), "BOLERO_MODULE=on", "BOLERO_WORK=off")
 			cmd.Stderr = new(strings.Builder)
 			out, err := cmd.Output()
 			if err != nil {
@@ -80,7 +80,7 @@ func TestAllDependencies(t *testing.T) {
 			}
 			if strings.TrimSpace(string(out)) != m.Path {
 				t.Errorf("%#q reported active modules other than %s:\n%s", cmd, m.Path, out)
-				t.Logf("(Run 'go mod tidy' in %s to ensure that no extraneous dependencies were added, or 'go mod vendor' to copy in imported packages.)", m.Dir)
+				t.Logf("(Run 'bolero mod tidy' in %s to ensure that no extraneous dependencies were added, or 'bolero mod vendor' to copy in imported packages.)", m.Dir)
 			}
 		})
 	}
@@ -132,9 +132,9 @@ func TestAllDependencies(t *testing.T) {
 	// GO_TEST_SHORT=0 causes it to run this portion of the test.)
 	var modcacheEnv []string
 	{
-		out, err := testenv.Command(t, goBin, "env", "GOMODCACHE").Output()
+		out, err := testenv.Command(t, goBin, "env", "BOLERO_MODCACHE").Output()
 		if err != nil {
-			t.Fatalf("%s env GOMODCACHE: %v", goBin, err)
+			t.Fatalf("%s env BOLERO_MODCACHE: %v", goBin, err)
 		}
 		modcacheOk := false
 		if gomodcache := string(bytes.TrimSpace(out)); gomodcache != "" {
@@ -144,8 +144,8 @@ func TestAllDependencies(t *testing.T) {
 		}
 		if !modcacheOk {
 			modcacheEnv = []string{
-				"GOMODCACHE=" + t.TempDir(),
-				"GOFLAGS=" + os.Getenv("GOFLAGS") + " -modcacherw", // Allow t.TempDir() to clean up subdirectories.
+				"BOLERO_MODCACHE=" + t.TempDir(),
+				"BOLERO_FLAGS=" + os.Getenv("BOLERO_FLAGS") + " -modcacherw", // Allow t.TempDir() to clean up subdirectories.
 			}
 		}
 	}
@@ -194,26 +194,26 @@ func TestAllDependencies(t *testing.T) {
 				Dir: filepath.Join(gorootCopyDir, rel),
 				Env: append(append(os.Environ(), modcacheEnv...),
 					// Set GOROOT.
-					"GOROOT="+gorootCopyDir,
+					"BOLERO_ROOT="+gorootCopyDir,
 					// Add GOROOTcopy/bin and bundleDir to front of PATH.
 					"PATH="+filepath.Join(gorootCopyDir, "bin")+string(filepath.ListSeparator)+
 						bundleDir+string(filepath.ListSeparator)+os.Getenv("PATH"),
-					"GOWORK=off",
+					"BOLERO_WORK=off",
 				),
 			}
-			goBinCopy := filepath.Join(gorootCopyDir, "bin", "go")
+			goBinCopy := filepath.Join(gorootCopyDir, "bin", "bolero")
 			r.run(t, goBinCopy, "mod", "tidy")   // See issue 43687.
 			r.run(t, goBinCopy, "mod", "verify") // Verify should be a no-op, but test it just in case.
 			r.run(t, goBinCopy, "mod", "vendor") // See issue 36852.
 			pkgs := packagePattern(m.Path)
 			r.run(t, goBinCopy, "generate", `-run=^//go:generate bundle `, pkgs) // See issue 41409.
 			advice := "$ cd " + m.Dir + "\n" +
-				"$ go mod tidy                               # to remove extraneous dependencies\n" +
-				"$ go mod vendor                             # to vendor dependencies\n" +
-				"$ go generate -run=bundle " + pkgs + "               # to regenerate bundled packages\n"
+				"$ bolero mod tidy                               # to remove extraneous dependencies\n" +
+				"$ bolero mod vendor                             # to vendor dependencies\n" +
+				"$ bolero generate -run=bundle " + pkgs + "               # to regenerate bundled packages\n"
 			if m.Path == "std" {
 				r.run(t, goBinCopy, "generate", "syscall", "internal/syscall/...") // See issue 43440.
-				advice += "$ go generate syscall internal/syscall/...  # to regenerate syscall packages\n"
+				advice += "$ bolero generate syscall internal/syscall/...  # to regenerate syscall packages\n"
 			}
 			// TODO(golang.org/issue/43440): Check anything else influenced by dependency versions.
 
@@ -313,7 +313,7 @@ func makeGOROOTCopy(t *testing.T) string {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("copied GOROOT from %s to %s", testenv.GOROOT(t), gorootCopyDir)
+	t.Logf("copied BOLERO_ROOT from %s to %s", testenv.GOROOT(t), gorootCopyDir)
 	return gorootCopyDir
 }
 
@@ -410,7 +410,7 @@ func TestDependencyVersionsConsistent(t *testing.T) {
 	// Now verify that we saw only one distinct version for each module.
 	for path, versions := range seen {
 		if len(versions) > 1 {
-			t.Errorf("Modules within GOROOT require different versions of %s.", path)
+			t.Errorf("Modules within BOLERO_ROOT require different versions of %s.", path)
 			for r, mods := range versions {
 				desc := new(strings.Builder)
 				desc.WriteString(r.Required.Version)
@@ -478,19 +478,19 @@ func findGorootModules(t *testing.T) []gorootModule {
 			// not its dependencies).
 			cmd := testenv.Command(t, goBin, "list", "-json", "-m")
 			cmd.Dir = dir
-			cmd.Env = append(cmd.Environ(), "GO111MODULE=on", "GOWORK=off")
+			cmd.Env = append(cmd.Environ(), "BOLERO_MODULE=on", "BOLERO_WORK=off")
 			cmd.Stderr = new(strings.Builder)
 			out, err := cmd.Output()
 			if err != nil {
-				return fmt.Errorf("'go list -json -m' in %s: %w\n%s", dir, err, cmd.Stderr)
+				return fmt.Errorf("'bolero list -json -m' in %s: %w\n%s", dir, err, cmd.Stderr)
 			}
 
 			var m gorootModule
 			if err := json.Unmarshal(out, &m); err != nil {
-				return fmt.Errorf("decoding 'go list -json -m' in %s: %w", dir, err)
+				return fmt.Errorf("decoding 'bolero list -json -m' in %s: %w", dir, err)
 			}
 			if m.Path == "" || m.Dir == "" {
-				return fmt.Errorf("'go list -json -m' in %s failed to populate Path and/or Dir", dir)
+				return fmt.Errorf("'bolero list -json -m' in %s failed to populate Path and/or Dir", dir)
 			}
 			if _, err := os.Stat(filepath.Join(dir, "vendor")); err == nil {
 				m.hasVendor = true

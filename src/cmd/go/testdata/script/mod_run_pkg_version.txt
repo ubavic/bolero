@@ -1,99 +1,99 @@
-# This test checks the behavior of 'go run' with a 'cmd@version' argument.
-# Most of 'go run' is covered in other tests.
+# This test checks the behavior of 'bolero run' with a 'cmd@version' argument.
+# Most of 'bolero run' is covered in other tests.
 # mod_install_pkg_version covers most of the package loading functionality.
-# This test focuses on 'go run' behavior specific to this mode.
+# This test focuses on 'bolero run' behavior specific to this mode.
 [short] skip
 
-# 'go run pkg@version' works outside a module.
-env GO111MODULE=auto
-go run example.com/cmd/a@v1.0.0
+# 'bolero run pkg@version' works outside a module.
+env BOLERO_MODULE=auto
+bolero run example.com/cmd/a@v1.0.0
 stdout '^a@v1.0.0$'
 
 
-# 'go run pkg@version' reports an error if modules are disabled.
-env GO111MODULE=off
-! go run example.com/cmd/a@v1.0.0
-stderr '^go: modules disabled by GO111MODULE=off; see ''go help modules''$'
-env GO111MODULE=on
+# 'bolero run pkg@version' reports an error if modules are disabled.
+env BOLERO_MODULE=off
+! bolero run example.com/cmd/a@v1.0.0
+stderr '^bolero: modules disabled by BOLERO_MODULE=off; see ''bolero help modules''$'
+env BOLERO_MODULE=on
 
 
-# 'go run pkg@version' ignores go.mod in the current directory.
+# 'bolero run pkg@version' ignores go.mod in the current directory.
 cd m
 cp go.mod go.mod.orig
-! go list -m all
-stderr '^go: example.com/cmd@v1.1.0-doesnotexist: reading http.*/mod/example\.com/cmd/@v/v1.1.0-doesnotexist.info: 404 Not Found\n\tserver response: 404 page not found$'
-stderr '^go: example.com/cmd@v1.1.0-doesnotexist: missing go.sum entry for go.mod file; to add it:\n\tgo mod download example.com/cmd$'
-go run example.com/cmd/a@v1.0.0
+! bolero list -m all
+stderr '^bolero: example.com/cmd@v1.1.0-doesnotexist: reading http.*/mod/example\.com/cmd/@v/v1.1.0-doesnotexist.info: 404 Not Found\n\tserver response: 404 page not found$'
+stderr '^bolero: example.com/cmd@v1.1.0-doesnotexist: missing go.sum entry for go.mod file; to add it:\n\tbolero mod download example.com/cmd$'
+bolero run example.com/cmd/a@v1.0.0
 stdout '^a@v1.0.0$'
 cmp go.mod go.mod.orig
 cd ..
 
 
-# 'go install pkg@version' works on a module that doesn't have a go.mod file
+# 'bolero install pkg@version' works on a module that doesn't have a go.mod file
 # and with a module whose go.mod file has missing requirements.
 # With a proxy, the two cases are indistinguishable.
-go run rsc.io/fortune@v1.0.0
-stderr '^go: found rsc.io/quote in rsc.io/quote v1.5.2$'
+bolero run rsc.io/fortune@v1.0.0
+stderr '^bolero: found rsc.io/quote in rsc.io/quote v1.5.2$'
 stderr '^Hello, world.$'
 
 
-# 'go run pkg@version' should report an error if pkg is not a main package.
-! go run example.com/cmd/err@v1.0.0
+# 'bolero run pkg@version' should report an error if pkg is not a main package.
+! bolero run example.com/cmd/err@v1.0.0
 stderr '^package example.com/cmd/err is not a main package$'
 
 
-# 'go run pkg@version' should report errors if the module contains
+# 'bolero run pkg@version' should report errors if the module contains
 # replace or exclude directives.
-go mod download example.com/cmd@v1.0.0-replace
-! go run example.com/cmd/a@v1.0.0-replace
+bolero mod download example.com/cmd@v1.0.0-replace
+! bolero run example.com/cmd/a@v1.0.0-replace
 cmp stderr replace-err
 
-go mod download example.com/cmd@v1.0.0-exclude
-! go run example.com/cmd/a@v1.0.0-exclude
+bolero mod download example.com/cmd@v1.0.0-exclude
+! bolero run example.com/cmd/a@v1.0.0-exclude
 cmp stderr exclude-err
 
 
-# 'go run dir@version' works like a normal 'go run' command if
+# 'bolero run dir@version' works like a normal 'bolero run' command if
 # dir is a relative or absolute path.
-go mod download rsc.io/fortune@v1.0.0
-! go run $GOPATH/pkg/mod/rsc.io/fortune@v1.0.0
-stderr '^go: go\.mod file not found in current directory or any parent directory; see ''go help modules''$'
-! go run ../pkg/mod/rsc.io/fortune@v1.0.0
-stderr '^go: go\.mod file not found in current directory or any parent directory; see ''go help modules''$'
+bolero mod download rsc.io/fortune@v1.0.0
+! bolero run $BOLERO_PATH/pkg/mod/rsc.io/fortune@v1.0.0
+stderr '^bolero: go\.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
+! bolero run ../pkg/mod/rsc.io/fortune@v1.0.0
+stderr '^bolero: go\.mod file not found in current directory or any parent directory; see ''bolero help modules''$'
 mkdir tmp
 cd tmp
-go mod init tmp
-go mod edit -require=rsc.io/fortune@v1.0.0
-! go run -mod=readonly $GOPATH/pkg/mod/rsc.io/fortune@v1.0.0
-stderr '^missing go\.sum entry for module providing package rsc\.io/fortune; to add:\n\tgo mod download rsc\.io/fortune$'
-! go run -mod=readonly ../../pkg/mod/rsc.io/fortune@v1.0.0
-stderr '^missing go\.sum entry for module providing package rsc\.io/fortune; to add:\n\tgo mod download rsc\.io/fortune$'
+bolero mod init tmp
+bolero mod edit -require=rsc.io/fortune@v1.0.0
+! bolero run -mod=readonly $BOLERO_PATH/pkg/mod/rsc.io/fortune@v1.0.0
+stderr '^missing go\.sum entry for module providing package rsc\.io/fortune; to add:\n\tbolero mod download rsc\.io/fortune$'
+! bolero run -mod=readonly ../../pkg/mod/rsc.io/fortune@v1.0.0
+stderr '^missing go\.sum entry for module providing package rsc\.io/fortune; to add:\n\tbolero mod download rsc\.io/fortune$'
 cd ..
 rm tmp
 
 
-# 'go run' does not interpret @version arguments after the first.
-go run example.com/cmd/a@v1.0.0 example.com/doesnotexist@v1.0.0
+# 'bolero run' does not interpret @version arguments after the first.
+bolero run example.com/cmd/a@v1.0.0 example.com/doesnotexist@v1.0.0
 stdout '^a@v1.0.0$'
 
 
-# 'go run pkg@version' succeeds when -mod=readonly is set explicitly.
+# 'bolero run pkg@version' succeeds when -mod=readonly is set explicitly.
 # Verifies #43278.
-go run -mod=readonly example.com/cmd/a@v1.0.0
+bolero run -mod=readonly example.com/cmd/a@v1.0.0
 stdout '^a@v1.0.0$'
 
 
-# 'go run pkg@version' should show a deprecation message if the module is deprecated.
-go run example.com/deprecated/a/cmd/a@latest
-stderr '^go: module example.com/deprecated/a is deprecated: in example.com/deprecated/a@v1.9.0$'
+# 'bolero run pkg@version' should show a deprecation message if the module is deprecated.
+bolero run example.com/deprecated/a/cmd/a@latest
+stderr '^bolero: module example.com/deprecated/a is deprecated: in example.com/deprecated/a@v1.9.0$'
 stdout '^a@v1.9.0$'
-go run example.com/deprecated/a/cmd/a@v1.0.0
-stderr '^go: module example.com/deprecated/a is deprecated: in example.com/deprecated/a@v1.9.0$'
+bolero run example.com/deprecated/a/cmd/a@v1.0.0
+stderr '^bolero: module example.com/deprecated/a is deprecated: in example.com/deprecated/a@v1.9.0$'
 stdout '^a@v1.0.0$'
 
-# 'go run pkg@version' does not show a deprecation message if the module is no longer
+# 'bolero run pkg@version' does not show a deprecation message if the module is no longer
 # deprecated in its latest version, even if the module is deprecated in its current version.
-go run example.com/undeprecated/cmd/a@v1.0.0
+bolero run example.com/undeprecated/cmd/a@v1.0.0
 ! stderr 'module.*is deprecated'
 
 -- m/go.mod --
@@ -107,12 +107,12 @@ package main
 
 func main() {}
 -- replace-err --
-go: example.com/cmd/a@v1.0.0-replace (in example.com/cmd@v1.0.0-replace):
+bolero: example.com/cmd/a@v1.0.0-replace (in example.com/cmd@v1.0.0-replace):
 	The go.mod file for the module providing named packages contains one or
 	more replace directives. It must not contain directives that would cause
 	it to be interpreted differently than if it were the main module.
 -- exclude-err --
-go: example.com/cmd/a@v1.0.0-exclude (in example.com/cmd@v1.0.0-exclude):
+bolero: example.com/cmd/a@v1.0.0-exclude (in example.com/cmd@v1.0.0-exclude):
 	The go.mod file for the module providing named packages contains one or
 	more exclude directives. It must not contain directives that would cause
 	it to be interpreted differently than if it were the main module.

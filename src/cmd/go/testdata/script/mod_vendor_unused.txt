@@ -3,9 +3,9 @@
 # We need metadata about replacements in order to verify that modules.txt
 # remains in sync with the main module's go.mod file.
 
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-go mod vendor
+bolero mod vendor
 cmp go1.14-modules.txt vendor/modules.txt
 
 -- go.mod --

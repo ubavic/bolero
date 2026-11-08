@@ -23,7 +23,7 @@
 # a bit more than the direct call limit apart, but not more than 0x400
 # bytes beyond it (to verify the reloc calc).
 
-go build
+bolero build
 
 -- go.mod --
 

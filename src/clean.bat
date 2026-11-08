@@ -6,16 +6,16 @@
 
 setlocal
 
-go tool dist env -w -p >env.bat || exit /b 1
+bolero tool dist env -w -p >env.bat || exit /b 1
 call .\env.bat
 del env.bat
 echo.
 
-if not exist %GOTOOLDIR%\dist.exe (
-    echo cannot find %GOTOOLDIR%\dist.exe; nothing to clean
+if not exist %BOLERO_TOOLDIR%\dist.exe (
+    echo cannot find %BOLERO_TOOLDIR%\dist.exe; nothing to clean
     exit /b 1
 )
 
-"%GOBIN%\go" clean -i std
-"%GOBIN%\go" tool dist clean
-"%GOBIN%\go" clean -i cmd
+"%BOLERO_BIN%\bolero" clean -i std
+"%BOLERO_BIN%\bolero" tool dist clean
+"%BOLERO_BIN%\bolero" clean -i cmd

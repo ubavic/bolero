@@ -2,7 +2,7 @@
 
 [short] skip
 
-! go test -cpuprofile cpu.pprof -memprofile mem.pprof -timeout 1ms
+! bolero test -cpuprofile cpu.pprof -memprofile mem.pprof -timeout 1ms
 stdout '^panic: test timed out'
 grep . cpu.pprof
 grep . mem.pprof

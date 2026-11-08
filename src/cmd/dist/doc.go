@@ -6,7 +6,7 @@
 //
 // Usage:
 //
-//	go tool dist [command]
+//	bolero tool dist [command]
 //
 // The commands are:
 //

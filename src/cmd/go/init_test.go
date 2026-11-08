@@ -10,8 +10,8 @@ import (
 	"testing"
 )
 
-// BenchmarkExecGoEnv measures how long it takes for 'go env GOARCH' to run.
-// Since 'go' is executed, remember to run 'go install cmd/go' before running
+// BenchmarkExecGoEnv measures how long it takes for 'bolero env GOARCH' to run.
+// Since 'go' is executed, remember to run 'bolero install cmd/go' before running
 // the benchmark if any changes were done.
 func BenchmarkExecGoEnv(b *testing.B) {
 	testenv.MustHaveExec(b)

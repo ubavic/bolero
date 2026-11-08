@@ -1,6 +1,6 @@
 [short] skip
 
-go test xtestonly
+bolero test xtestonly
 ! stdout '^ok.*\[no tests to run\]'
 stdout '^ok'
 

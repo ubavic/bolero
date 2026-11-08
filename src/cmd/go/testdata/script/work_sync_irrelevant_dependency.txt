@@ -1,10 +1,10 @@
-# Test of go work sync in a workspace in which some dependency needed by `a`
+# Test of bolero work sync in a workspace in which some dependency needed by `a`
 # appears at a lower version in the build list of `b`, but is not needed at all
 # by `b` (so it should not be upgraded within b).
 #
 # a -> p 1.1
 # b -> q 1.0 -(through a test dependency)-> p 1.0
-go work sync
+bolero work sync
 cmp a/go.mod a/want_go.mod
 cmp b/go.mod b/want_go.mod
 

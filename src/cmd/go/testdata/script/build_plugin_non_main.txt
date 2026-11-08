@@ -1,8 +1,8 @@
 # Plugins are not supported on all platforms.
 [!buildmode:plugin] skip
 
-go build -n testdep
-! go build -buildmode=plugin testdep
+bolero build -n testdep
+! bolero build -buildmode=plugin testdep
 stderr '-buildmode=plugin requires exactly one main package'
 
 -- go.mod --

@@ -68,7 +68,7 @@ func test() error {
 		return err
 	}
 
-	out, err := exec.Command("go", "run", fn).CombinedOutput()
+	out, err := exec.Command("bolero", "run", fn).CombinedOutput()
 	if err != nil {
 		return err
 	}

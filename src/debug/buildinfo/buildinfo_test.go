@@ -82,7 +82,7 @@ func TestReadFile(t *testing.T) {
 		outPath := filepath.Join(dir, path.Base(t.Name()))
 		cmd := exec.Command(testenv.GoToolPath(t), "build", "-o="+outPath, "-buildmode="+buildmode)
 		cmd.Dir = dir
-		cmd.Env = append(os.Environ(), "GO111MODULE=on", "GOOS="+goos, "GOARCH="+goarch)
+		cmd.Env = append(os.Environ(), "BOLERO_MODULE=on", "GOOS="+goos, "GOARCH="+goarch)
 		stderr := &strings.Builder{}
 		cmd.Stderr = stderr
 		if err := cmd.Run(); err != nil {
@@ -108,7 +108,7 @@ func TestReadFile(t *testing.T) {
 		outPath := filepath.Join(gopathDir, path.Base(t.Name()))
 		cmd := exec.Command(testenv.GoToolPath(t), "build", "-o="+outPath, "-buildmode="+buildmode)
 		cmd.Dir = pkgDir
-		cmd.Env = append(os.Environ(), "GO111MODULE=off", "GOPATH="+gopathDir, "GOOS="+goos, "GOARCH="+goarch)
+		cmd.Env = append(os.Environ(), "BOLERO_MODULE=off", "BOLERO_PATH="+gopathDir, "GOOS="+goos, "GOARCH="+goarch)
 		stderr := &strings.Builder{}
 		cmd.Stderr = stderr
 		if err := cmd.Run(); err != nil {

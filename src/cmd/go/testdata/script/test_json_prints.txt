@@ -1,4 +1,4 @@
-go test -json
+bolero test -json
 
 stdout '"Action":"output","Package":"p","Output":"M1"}'
 stdout '"Action":"output","Package":"p","Test":"Test","Output":"=== RUN   Test\\n"}'

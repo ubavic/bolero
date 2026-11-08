@@ -1,18 +1,18 @@
 env TESTGO_VERSION=go1.24
 
-go list -f '{{.Module.GoVersion}}'
+bolero list -f '{{.Module.GoVersion}}'
 stdout 1.15
 
-go mod tidy
-go list -f '{{.Module.GoVersion}}'
+bolero mod tidy
+bolero list -f '{{.Module.GoVersion}}'
 stdout 1.15
 
-go get example.com/a@v1.0.1
-go list -f '{{.Module.GoVersion}}'
+bolero get example.com/a@v1.0.1
+bolero list -f '{{.Module.GoVersion}}'
 stdout 1.15
 
-go get example.com/a@v1.0.1 go@1.16
-go list -f '{{.Module.GoVersion}}'
+bolero get example.com/a@v1.0.1 go@1.16
+bolero list -f '{{.Module.GoVersion}}'
 stdout 1.16
 
 -- go.mod --

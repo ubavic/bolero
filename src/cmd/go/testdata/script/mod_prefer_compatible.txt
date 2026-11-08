@@ -5,31 +5,31 @@
 [!net:github.com] skip
 [!net:proxy.golang.org] skip
 
-env GO111MODULE=on
-env GOPROXY=
-env GOSUMDB=
+env BOLERO_MODULE=on
+env BOLERO_PROXY=
+env BOLERO_SUMDB=
 
 # github.com/russross/blackfriday v2.0.0+incompatible exists,
 # and should be resolved if we ask for it explicitly.
 
-go list -m github.com/russross/blackfriday@v2.0.0+incompatible
+bolero list -m github.com/russross/blackfriday@v2.0.0+incompatible
 stdout '^github.com/russross/blackfriday v2\.0\.0\+incompatible$'
 
 # blackfriday v1.5.2 has a go.mod file, so v1.5.2 should be preferred over
 # v2.0.0+incompatible when resolving latest, upgrade, and patch.
 
-go list -m github.com/russross/blackfriday@latest
+bolero list -m github.com/russross/blackfriday@latest
 stdout '^github.com/russross/blackfriday v1\.'
 
-go list -m github.com/russross/blackfriday@upgrade
+bolero list -m github.com/russross/blackfriday@upgrade
 stdout '^github.com/russross/blackfriday v1\.'
 
-! go list -m github.com/russross/blackfriday@patch
-stderr '^go: github.com/russross/blackfriday@patch: can''t query version "patch" of module github.com/russross/blackfriday: no existing version is required$'
+! bolero list -m github.com/russross/blackfriday@patch
+stderr '^bolero: github.com/russross/blackfriday@patch: can''t query version "patch" of module github.com/russross/blackfriday: no existing version is required$'
 
 
 # If we're fetching directly from version control, ignored +incompatible
-# versions should also be omitted by 'go list'.
+# versions should also be omitted by 'bolero list'.
 
 # (Note that they may still be included in results from a proxy: in proxy mode,
 # we would need to fetch the whole zipfile for the latest compatible version in
@@ -37,22 +37,22 @@ stderr '^go: github.com/russross/blackfriday@patch: can''t query version "patch"
 # the proxy is to avoid fetching unnecessary data.)
 
 [!git] stop
-env GOPROXY=direct
+env BOLERO_PROXY=direct
 
-go list -versions -m github.com/russross/blackfriday
+bolero list -versions -m github.com/russross/blackfriday
 stdout '^github.com/russross/blackfriday v1\.5\.1 v1\.5\.2' # and possibly others
 ! stdout ' v2\.'
 
 # For this module, v2.1.0 exists and has a go.mod file.
-# 'go list -m github.com/russross/blackfriday@v2.0' will check
+# 'bolero list -m github.com/russross/blackfriday@v2.0' will check
 # the latest v2.0 tag, discover that it isn't the right module, and stop there
 # (instead of spending the time to check O(N) previous tags).
 
-! go list -m github.com/russross/blackfriday@v2.0
-stderr '^go: module github.com/russross/blackfriday: no matching versions for query "v2\.0\"'
+! bolero list -m github.com/russross/blackfriday@v2.0
+stderr '^bolero: module github.com/russross/blackfriday: no matching versions for query "v2\.0\"'
 
 # (But asking for exactly v2.0.0+incompatible should still succeed.)
-go list -m github.com/russross/blackfriday@v2.0.0+incompatible
+bolero list -m github.com/russross/blackfriday@v2.0.0+incompatible
 stdout '^github.com/russross/blackfriday v2\.0\.0\+incompatible$'
 
 
@@ -60,20 +60,20 @@ stdout '^github.com/russross/blackfriday v2\.0\.0\+incompatible$'
 # +incompatible versions should still be listed, as they may still reflect the
 # intent of the module author.
 
-go list -versions -m github.com/rsc/legacytest
+bolero list -versions -m github.com/rsc/legacytest
 stdout '^github.com/rsc/legacytest v1\.0\.0 v1\.1\.0-pre v1\.2\.0 v2\.0\.0\+incompatible'
 
 # If we're fetching directly from version control, asking for a commit hash
 # corresponding to a +incompatible version should continue to produce the
 # +incompatible version tagged for that commit, even if it is no longer listed.
 
-go list -m github.com/russross/blackfriday@cadec560ec52
+bolero list -m github.com/russross/blackfriday@cadec560ec52
 stdout '^github.com/russross/blackfriday v2\.0\.0\+incompatible$'
 
 # Similarly, requesting an untagged commit should continue to produce a +incompatible
 # pseudo-version.
 
-go list -m github.com/rsc/legacytest@7303f7796364
+bolero list -m github.com/rsc/legacytest@7303f7796364
 stdout '^github.com/rsc/legacytest v2\.0\.1-0\.20180717164253-7303f7796364\+incompatible$'
 
 -- go.mod --

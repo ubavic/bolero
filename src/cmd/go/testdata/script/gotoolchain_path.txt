@@ -6,64 +6,64 @@
 env TESTGO_VERSION=go1.21pre3
 
 # Compile a fake toolchain to put in the path under various names.
-env GOTOOLCHAIN=
+env BOLERO_TOOLCHAIN=
 mkdir $WORK/bin
-go build -o $WORK/bin/go1.50.0$GOEXE ./fakego.go  # adds .exe extension implicitly on Windows
+bolero build -o $WORK/bin/go1.50.0$GOEXE ./fakego.go  # adds .exe extension implicitly on Windows
 
 [!GOOS:plan9] env PATH=$WORK/bin
 [GOOS:plan9] env path=$WORK/bin
 
-go version
+bolero version
 stdout go1.21pre3
 
-# GOTOOLCHAIN=go1.50.0
-env GOTOOLCHAIN=go1.50.0
-! go version
+# BOLERO_TOOLCHAIN=go1.50.0
+env BOLERO_TOOLCHAIN=go1.50.0
+! bolero version
 stderr 'running go1.50.0 from PATH'
 
-# GOTOOLCHAIN=path with toolchain line
-env GOTOOLCHAIN=local
-go mod init m
-go mod edit -toolchain=go1.50.0
+# BOLERO_TOOLCHAIN=path with toolchain line
+env BOLERO_TOOLCHAIN=local
+bolero mod init m
+bolero mod edit -toolchain=go1.50.0
 grep go1.50.0 go.mod
-env GOTOOLCHAIN=path
-! go version
+env BOLERO_TOOLCHAIN=path
+! bolero version
 stderr 'running go1.50.0 from PATH'
 
-# GOTOOLCHAIN=path with go line
-env GOTOOLCHAIN=local
-go mod edit -toolchain=none -go=1.50.0
+# BOLERO_TOOLCHAIN=path with go line
+env BOLERO_TOOLCHAIN=local
+bolero mod edit -toolchain=none -go=1.50.0
 grep 'go 1.50.0' go.mod
 ! grep toolchain go.mod
-env GOTOOLCHAIN=path
-! go version
+env BOLERO_TOOLCHAIN=path
+! bolero version
 stderr 'running go1.50.0 from PATH'
 
-# GOTOOLCHAIN=auto with toolchain line
-env GOTOOLCHAIN=local
-go mod edit -toolchain=go1.50.0 -go=1.21
+# BOLERO_TOOLCHAIN=auto with toolchain line
+env BOLERO_TOOLCHAIN=local
+bolero mod edit -toolchain=go1.50.0 -go=1.21
 grep 'go 1.21$' go.mod
 grep 'toolchain go1.50.0' go.mod
-env GOTOOLCHAIN=auto
-! go version
+env BOLERO_TOOLCHAIN=auto
+! bolero version
 stderr 'running go1.50.0 from PATH'
 
-# GOTOOLCHAIN=auto with go line
-env GOTOOLCHAIN=local
-go mod edit -toolchain=none -go=1.50.0
+# BOLERO_TOOLCHAIN=auto with go line
+env BOLERO_TOOLCHAIN=local
+bolero mod edit -toolchain=none -go=1.50.0
 grep 'go 1.50.0$' go.mod
 ! grep toolchain go.mod
-env GOTOOLCHAIN=auto
-! go version
+env BOLERO_TOOLCHAIN=auto
+! bolero version
 stderr 'running go1.50.0 from PATH'
 
 # NewerToolchain should find Go 1.50.0.
-env GOTOOLCHAIN=local
-go mod edit -toolchain=none -go=1.21
+env BOLERO_TOOLCHAIN=local
+bolero mod edit -toolchain=none -go=1.21
 grep 'go 1.21$' go.mod
 ! grep toolchain go.mod
-env GOTOOLCHAIN=path
-! go run rsc.io/fortune@v0.0.1
+env BOLERO_TOOLCHAIN=path
+! bolero run rsc.io/fortune@v0.0.1
 stderr 'running go1.50.0 from PATH'
 
 -- fakego.go --
@@ -81,5 +81,5 @@ func main() {
 	name := filepath.Base(exe)
 	name = strings.TrimSuffix(name, ".exe")
 	fmt.Fprintf(os.Stderr, "running %s from PATH\n", name)
-	os.Exit(1) // fail in case we are running this accidentally (like in "go mod edit")
+	os.Exit(1) // fail in case we are running this accidentally (like in "bolero mod edit")
 }

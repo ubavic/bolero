@@ -94,7 +94,7 @@ func matchPackages(loaderstate *State, ctx context.Context, m *search.Match, tag
 			elem := ""
 			relPkgDir := filepath.ToSlash(pkgDir[len(root):])
 
-			// Don't use GOROOT/src but do walk down into it.
+			// Don't use BOLERO_ROOT/src but do walk down into it.
 			if pkgDir == root {
 				if importPathRoot == "" {
 					return nil
@@ -256,7 +256,7 @@ func walkFromIndex(index *modindex.Module, importPathRoot string, isMatch, treeC
 			return
 		}
 
-		// Don't use GOROOT/src.
+		// Don't use BOLERO_ROOT/src.
 		if reldir == "" && importPathRoot == "" {
 			return
 		}
@@ -282,7 +282,7 @@ func walkFromIndex(index *modindex.Module, importPathRoot string, isMatch, treeC
 // requirement graph.
 //
 // If m is the zero module.Version, MatchInModule matches the pattern
-// against the standard library (std and cmd) in GOROOT/src.
+// against the standard library (std and cmd) in BOLERO_ROOT/src.
 func MatchInModule(loaderstate *State, ctx context.Context, pattern string, m module.Version, tags map[string]bool) *search.Match {
 	match := search.NewMatch(pattern)
 	if m == (module.Version{}) {

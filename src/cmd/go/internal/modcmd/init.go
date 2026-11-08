@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// go mod init
+// bolero mod init
 
 package modcmd
 
@@ -13,7 +13,7 @@ import (
 )
 
 var cmdInit = &base.Command{
-	UsageLine: "go mod init [module-path]",
+	UsageLine: "bolero mod init [module-path]",
 	Short:     "initialize new module in current directory",
 	Long: `
 Init initializes and writes a new go.mod file in the current directory, in
@@ -22,9 +22,9 @@ must not already exist.
 
 Init accepts one optional argument, the module path for the new module. If the
 module path argument is omitted, init will attempt to infer the module path
-using import comments in .go files and the current directory (if in GOPATH).
+using import comments in .go files and the current directory (if in BOLERO_PATH).
 
-See https://golang.org/ref/mod#go-mod-init for more about 'go mod init'.
+See https://golang.org/ref/mod#go-mod-init for more about 'bolero mod init'.
 `,
 	Run: runInit,
 }
@@ -37,7 +37,7 @@ func init() {
 func runInit(ctx context.Context, cmd *base.Command, args []string) {
 	moduleLoaderState := modload.NewState()
 	if len(args) > 1 {
-		base.Fatalf("go: 'go mod init' accepts at most one argument")
+		base.Fatalf("bolero: 'bolero mod init' accepts at most one argument")
 	}
 	var modPath string
 	if len(args) == 1 {

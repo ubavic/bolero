@@ -43,7 +43,7 @@ func regenerate() error {
 		return err
 	}
 
-	cmd := exec.Command("gofmt")
+	cmd := exec.Command("bolerofmt")
 	cmd.Stdin = buf
 	cmd.Stdout = f
 	cmd.Stderr = os.Stderr

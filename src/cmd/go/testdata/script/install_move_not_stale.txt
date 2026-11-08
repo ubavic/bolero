@@ -9,18 +9,18 @@
 [!symlink] skip
 [short] skip
 
-go build net
+bolero build net
 ! stale net
 
-symlink new -> $GOROOT
-env OLDGOROOT=$GOROOT
-env GOROOT=$WORK${/}gopath${/}src${/}new
-go env GOROOT
+symlink new -> $BOLERO_ROOT
+env OLDGOROOT=$BOLERO_ROOT
+env BOLERO_ROOT=$WORK${/}gopath${/}src${/}new
+bolero env BOLERO_ROOT
 stdout $WORK[\\/]gopath[\\/]src[\\/]new
 cd new
 ! stale net
 
 # Add a control case to check that std is
 # stale with an empty cache
-env GOCACHE=$WORK${/}gopath${/}cache
+env BOLERO_CACHE=$WORK${/}gopath${/}cache
 stale net

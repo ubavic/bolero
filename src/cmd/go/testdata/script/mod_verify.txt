@@ -1,66 +1,66 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 [short] skip
 
 # With good go.sum, verify succeeds by avoiding download.
 cp go.sum.good go.sum
-go mod verify
-! exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.zip
+bolero mod verify
+! exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.zip
 
 # With bad go.sum, verify succeeds by avoiding download.
 cp go.sum.bad go.sum
-go mod verify
-! exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.zip
+bolero mod verify
+! exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.zip
 
 # With bad go.sum, sync (which must download) fails.
 rm go.sum
 cp go.sum.bad go.sum
-! go mod tidy
+! bolero mod tidy
 stderr 'checksum mismatch'
-! exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.zip
+! exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.zip
 
 # With good go.sum, sync works.
 rm go.sum
 cp go.sum.good go.sum
-go mod tidy
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.zip
-exists $GOPATH/pkg/mod/rsc.io/quote@v1.1.0/quote.go
+bolero mod tidy
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.zip
+exists $BOLERO_PATH/pkg/mod/rsc.io/quote@v1.1.0/quote.go
 
 # go.sum should have the new checksum for go.mod
 grep '^rsc.io/quote v1.1.0/go.mod ' go.sum
 
 # verify should work
-go mod verify
+bolero mod verify
 
 # basic loading of module graph should detect incorrect go.mod files.
-go mod graph
+bolero mod graph
 cp go.sum.bad2 go.sum
-! go mod graph
+! bolero mod graph
 stderr 'go.mod: checksum mismatch'
 
 # go.sum should be created and updated automatically.
 rm go.sum
-go mod tidy
+bolero mod tidy
 grep '^rsc.io/quote v1.1.0/go.mod ' go.sum
 grep '^rsc.io/quote v1.1.0 ' go.sum
 
 # verify should fail on a missing ziphash. tidy should restore it.
-rm $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.ziphash
-! go mod verify
-stderr '^rsc.io/quote v1.1.0: missing ziphash: open '$GOPATH'[/\\]pkg[/\\]mod[/\\]cache[/\\]download[/\\]rsc.io[/\\]quote[/\\]@v[/\\]v1.1.0.ziphash'
-go mod tidy
-exists $GOPATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.ziphash
-go mod verify
+rm $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.ziphash
+! bolero mod verify
+stderr '^rsc.io/quote v1.1.0: missing ziphash: open '$BOLERO_PATH'[/\\]pkg[/\\]mod[/\\]cache[/\\]download[/\\]rsc.io[/\\]quote[/\\]@v[/\\]v1.1.0.ziphash'
+bolero mod tidy
+exists $BOLERO_PATH/pkg/mod/cache/download/rsc.io/quote/@v/v1.1.0.ziphash
+bolero mod verify
 
 # Packages below module root should not be mentioned in go.sum.
 rm go.sum
-go mod edit -droprequire rsc.io/quote
-go get rsc.io/quote/buggy
+bolero mod edit -droprequire rsc.io/quote
+bolero get rsc.io/quote/buggy
 grep '^rsc.io/quote v1.5.2/go.mod ' go.sum
 ! grep buggy go.sum
 
 # non-existent packages below module root should not be mentioned in go.sum
-go mod edit -droprequire rsc.io/quote
-! go list rsc.io/quote/morebuggy
+bolero mod edit -droprequire rsc.io/quote
+! bolero list rsc.io/quote/morebuggy
 grep '^rsc.io/quote v1.5.2/go.mod ' go.sum
 ! grep buggy go.sum
 

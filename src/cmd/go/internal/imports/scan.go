@@ -97,7 +97,7 @@ Files:
 	return keys(imports), keys(testImports), nil
 }
 
-var ErrNoGo = fmt.Errorf("no Go source files")
+var ErrNoGo = fmt.Errorf("no Bolero source files")
 
 func keys(m map[string]bool) []string {
 	list := make([]string, 0, len(m))

@@ -6,21 +6,21 @@
 
 [short] skip  # links and runs binaries
 
-env GOFLAGS=-trimpath
-env GOCACHE=$WORK/gocache
+env BOLERO_FLAGS=-trimpath
+env BOLERO_CACHE=$WORK/gocache
 
 
 # When we build a binary in module mode with -trimpath, the -D flag (for the
 # "local import prefix") should not be passed to it.
 
 cd $WORK/tmp/foo
-go build -x -o a.exe main.go
+bolero build -x -o a.exe main.go
 stderr ${/}compile$GOEXE.*' -nolocalimports'
 ! stderr ${/}compile$GOEXE.*' -D[ =]'
 
-go tool buildid a.exe
+bolero tool buildid a.exe
 cp stdout ../foo-buildid.txt
-go version a.exe
+bolero version a.exe
 cp stdout ../foo-version.txt
 cd ..
 
@@ -32,12 +32,12 @@ cd ..
 mkdir bar
 cp foo/main.go bar/main.go
 cd bar
-go build -x -o a.exe main.go
+bolero build -x -o a.exe main.go
 ! stderr ${/}compile$GOEXE
 
-go tool buildid a.exe
+bolero tool buildid a.exe
 cp stdout ../bar-buildid.txt
-go version a.exe
+bolero version a.exe
 cp stdout ../bar-version.txt
 cd ..
 

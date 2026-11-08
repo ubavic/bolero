@@ -4,17 +4,17 @@
 
 # We can't build package bad, which uses #cgo LDFLAGS.
 cd bad
-! go build
+! bolero build
 stderr no-such-warning
 
 # We can build package ok with the same flags in CGO_LDFLAGS.
 env CGO_LDFLAGS=-Wno-such-warning -Wno-unknown-warning-option
 cd ../ok
-go build
+bolero build
 
 # Build a main program that actually uses LDFLAGS.
 cd ..
-go build -ldflags=-v
+bolero build -ldflags=-v
 
 # Because we passed -v the Go linker should print the external linker
 # command which should include the flag we passed in CGO_LDFLAGS.

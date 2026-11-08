@@ -1,8 +1,8 @@
 [short] skip
 
-go test -timeout=0 -run=TestNoDeadline
-go test -timeout=1m -run=TestDeadlineWithinMinute
-go test -timeout=1m -run=TestSubtestDeadlineWithinMinute
+bolero test -timeout=0 -run=TestNoDeadline
+bolero test -timeout=1m -run=TestDeadlineWithinMinute
+bolero test -timeout=1m -run=TestSubtestDeadlineWithinMinute
 
 -- go.mod --
 module m

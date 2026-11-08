@@ -6,7 +6,7 @@
 # Environment variables that control run.bash:
 #
 # GO_TEST_SHARDS: number of "dist test" test shards that the
-# $GOROOT/test directory will be sliced up into for parallel
+# $BOLERO_ROOT/test directory will be sliced up into for parallel
 # execution. Defaults to 1, unless GO_BUILDER_NAME is also specified,
 # in which case it defaults to 10.
 #
@@ -24,13 +24,13 @@
 
 set -e
 
-if [ ! -f ../bin/go ]; then
-	echo 'run.bash must be run from $GOROOT/src after installing cmd/go' 1>&2
+if [ ! -f ../bin/bolero ]; then
+	echo 'run.bash must be run from $BOLERO_ROOT/src after installing cmd/go' 1>&2
 	exit 1
 fi
 
-export GOENV=off
-eval $(../bin/go tool dist env)
+export BOLERO_ENV=off
+eval $(../bin/bolero tool dist env)
 
 unset CDPATH	# in case user has it set
 
@@ -49,5 +49,5 @@ if ulimit -T &> /dev/null; then
 	[ "$(ulimit -H -T)" = "unlimited" ] || ulimit -S -T $(ulimit -H -T)
 fi
 
-export GOPATH=/nonexist-gopath
-exec ../bin/go tool dist test -rebuild "$@"
+export BOLERO_PATH=/nonexist-gopath
+exec ../bin/bolero tool dist test -rebuild "$@"

@@ -23,7 +23,7 @@ func TestNooptCgoBuild(t *testing.T) {
 	cmd.Dir = filepath.Join(testenv.GOROOT(t), "src", "runtime", "testdata", "testprogcgo")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Logf("go build output: %s", out)
+		t.Logf("bolero build output: %s", out)
 		t.Fatal(err)
 	}
 }

@@ -1,6 +1,6 @@
-env GO111MODULE=on
+env BOLERO_MODULE=on
 
-# go help get shows usage for get
-go help get
-stdout 'usage: go get'
+# bolero help get shows usage for get
+bolero help get
+stdout 'usage: bolero get'
 stdout 'updates go.mod to require those versions'

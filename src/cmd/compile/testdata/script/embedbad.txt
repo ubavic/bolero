@@ -1,6 +1,6 @@
 # Check that compiler does not silently crash at bad embed error.
 
-! go build
+! bolero build
 stderr 'multiple files for type string'
 stderr 'multiple files for type \[\]byte'
 

@@ -71,11 +71,11 @@ func mustHaveCxx(t *testing.T) {
 	// Ask the go tool for the CXX it's configured to use.
 	cxx, err := exec.Command(testenv.GoToolPath(t), "env", "CXX").CombinedOutput()
 	if err != nil {
-		t.Fatalf("go env CXX failed: %s", err)
+		t.Fatalf("bolero env CXX failed: %s", err)
 	}
 	args, err := quoted.Split(string(cxx))
 	if err != nil {
-		t.Skipf("could not parse 'go env CXX' output %q: %s", string(cxx), err)
+		t.Skipf("could not parse 'bolero env CXX' output %q: %s", string(cxx), err)
 	}
 	if len(args) == 0 {
 		t.Skip("no C++ compiler")

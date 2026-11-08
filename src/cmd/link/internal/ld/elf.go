@@ -875,7 +875,7 @@ func addbuildinfo(ctxt *Link) {
 	if val == "gobuildid" {
 		buildID := *flagBuildid
 		if buildID == "" {
-			Exitf("-B gobuildid requires a Go build ID supplied via -buildid")
+			Exitf("-B gobuildid requires a build ID supplied via -buildid")
 		}
 
 		if ctxt.IsDarwin() {

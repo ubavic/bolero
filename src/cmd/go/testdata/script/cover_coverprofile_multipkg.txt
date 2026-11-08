@@ -1,5 +1,5 @@
 
-# Testcase for #63356. In this bug we're doing a "go test -coverprofile"
+# Testcase for #63356. In this bug we're doing a "bolero test -coverprofile"
 # run for a collection of packages, mostly independent (hence tests can
 # be done in parallel) and in the original bug, temp coverage profile
 # files were not being properly qualified and were colliding, resulting
@@ -10,10 +10,10 @@
 [short] skip
 
 # Kick off test.
-go test -p=10 -vet=off -count=1 -coverprofile=cov.p ./...
+bolero test -p=10 -vet=off -count=1 -coverprofile=cov.p ./...
 
 # Make sure resulting profile is digestible.
-go tool cover -func=cov.p
+bolero tool cover -func=cov.p
 
 # No extraneous extra files please.
 ! exists _cover_.out

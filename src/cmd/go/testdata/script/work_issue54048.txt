@@ -1,5 +1,5 @@
-! go list -m -json all
-stderr 'go: module example.com/foo appears multiple times in workspace'
+! bolero list -m -json all
+stderr 'bolero: module example.com/foo appears multiple times in workspace'
 
 -- go.work --
 go 1.18

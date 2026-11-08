@@ -5,7 +5,7 @@
 /*
 Cgo enables the creation of Go packages that call C code.
 
-# Using cgo with the go command
+# Using cgo with the bolero command
 
 To use cgo write normal Go code that imports a pseudo-package "C".
 The Go code can then refer to types such as C.size_t, variables such
@@ -26,7 +26,7 @@ declared in the preamble may be used, even if they start with a
 lower-case letter. Exception: static variables in the preamble may
 not be referenced from Go code; static functions are permitted.
 
-See $GOROOT/cmd/cgo/internal/teststdio and $GOROOT/misc/cgo/gmp for examples. See
+See $BOLERO_ROOT/cmd/cgo/internal/teststdio and $BOLERO_ROOT/misc/cgo/gmp for examples. See
 "C? Go? Cgo!" for an introduction to using cgo:
 https://golang.org/doc/articles/c_go_cgo.html.
 
@@ -123,19 +123,19 @@ it is expected to work. It is disabled by default when cross-compiling
 as well as when the CC environment variable is unset and the default
 C compiler (typically gcc or clang) cannot be found on the system PATH.
 You can override the default by setting the CGO_ENABLED
-environment variable when running the go tool: set it to 1 to enable
-the use of cgo, and to 0 to disable it. The go tool will set the
+environment variable when running the bolero tool: set it to 1 to enable
+the use of cgo, and to 0 to disable it. The bolero tool will set the
 build constraint "cgo" if cgo is enabled. The special import "C"
 implies the "cgo" build constraint, as though the file also said
 "//go:build cgo". Therefore, if cgo is disabled, files that import
-"C" will not be built by the go tool. (For more about build constraints
+"C" will not be built by the bolero tool. (For more about build constraints
 see https://golang.org/pkg/go/build/#hdr-Build_Constraints).
 
 When cross-compiling, you must specify a C cross-compiler for cgo to
 use. You can do this by setting the generic CC_FOR_TARGET or the
 more specific CC_FOR_${GOOS}_${GOARCH} (for example, CC_FOR_linux_arm)
 environment variable when building the toolchain using make.bash,
-or you can set the CC environment variable any time you run the go tool.
+or you can set the CC environment variable any time you run the bolero tool.
 
 The CXX_FOR_TARGET, CXX_FOR_${GOOS}_${GOARCH}, and CXX
 environment variables work in a similar way for C++ code.
@@ -496,26 +496,26 @@ empty such reference is 0, not nil.
 These special cases were introduced in Go 1.10. For auto-updating code
 from Go 1.9 and earlier, use the cftype or jni rewrites in the Go fix tool:
 
-	go tool fix -r cftype <pkg>
-	go tool fix -r jni <pkg>
+	bolero tool fix -r cftype <pkg>
+	bolero tool fix -r jni <pkg>
 
 It will replace nil with 0 in the appropriate places.
 
 The EGLDisplay case was introduced in Go 1.12. Use the egl rewrite
 to auto-update code from Go 1.11 and earlier:
 
-	go tool fix -r egl <pkg>
+	bolero tool fix -r egl <pkg>
 
 The EGLConfig case was introduced in Go 1.15. Use the eglconf rewrite
 to auto-update code from Go 1.14 and earlier:
 
-	go tool fix -r eglconf <pkg>
+	bolero tool fix -r eglconf <pkg>
 
 # Using cgo directly
 
 Usage:
 
-	go tool cgo [cgo options] [-- compiler options] gofiles...
+	bolero tool cgo [cgo options] [-- compiler options] gofiles...
 
 Cgo transforms the specified input Go source files into several output
 Go and C source files.
@@ -827,7 +827,7 @@ presented to cmd/link as part of a larger program, contains:
 	_all.o        # gcc-compiled object for _cgo_export.c, *.cgo2.c
 
 If there is an error generating the _cgo_import.go file, then, instead
-of adding _cgo_import.go to the package, the go tool adds an empty
+of adding _cgo_import.go to the package, the bolero tool adds an empty
 file named dynimportfail. The _cgo_import.go file is only needed when
 using internal linking mode, which is not the default when linking
 programs that use cgo (as described below). If the linker sees a file
@@ -1073,7 +1073,7 @@ math library.
 
 cmd/link Command Line Interface
 
-The go command and any other Go-aware build systems invoke cmd/link
+The bolero command and any other Go-aware build systems invoke cmd/link
 to link a collection of packages into a single binary. By default, cmd/link will
 present the same interface it does today:
 
@@ -1101,7 +1101,7 @@ the host linker. The default value for the host linker is $CC, split
 into fields, or else "gcc". The specific host linker command line can
 be overridden using command line flags: cmd/link -extld=clang
 -extldflags='-ggdb -O3'. If any package in a build includes a .cc or
-other file compiled by the C++ compiler, the go tool will use the
+other file compiled by the C++ compiler, the bolero tool will use the
 -extld option to set the host linker to the C++ compiler.
 
 These defaults mean that Go-aware build systems can ignore the linking

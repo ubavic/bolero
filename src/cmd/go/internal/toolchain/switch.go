@@ -27,7 +27,7 @@ import (
 // The client calls [Switcher.Error] repeatedly with errors encountered
 // and then calls [Switcher.Switch]. If the errors included any
 // *gover.TooNewErrors (potentially wrapped) and switching is
-// permitted by GOTOOLCHAIN, Switch switches to a new toolchain.
+// permitted by BOLERO_TOOLCHAIN, Switch switches to a new toolchain.
 // Otherwise Switch prints all the errors using base.Error.
 //
 // See https://go.dev/doc/toolchain#switch.
@@ -106,7 +106,7 @@ func (s *Switcher) Switch(ctx context.Context) {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, "go: %v requires go >= %v; switching to %v\n", s.TooNew.What, s.TooNew.GoVersion, tv)
+	fmt.Fprintf(os.Stderr, "bolero: %v requires go >= %v; switching to %v\n", s.TooNew.What, s.TooNew.GoVersion, tv)
 	counterSwitchExec.Inc()
 	Exec(s.loaderstate, tv)
 	panic("unreachable")
@@ -145,7 +145,7 @@ func NewerToolchain(ctx context.Context, f *modfetch.Fetcher, version string) (s
 	return newerToolchain(version, list)
 }
 
-// autoToolchains returns the list of toolchain versions available to GOTOOLCHAIN=auto or =min+auto mode.
+// autoToolchains returns the list of toolchain versions available to BOLERO_TOOLCHAIN=auto or =min+auto mode.
 func autoToolchains(ctx context.Context, f *modfetch.Fetcher) ([]string, error) {
 	var versions *modfetch.Versions
 	err := modfetch.TryProxies(func(proxy string) error {
@@ -162,7 +162,7 @@ func autoToolchains(ctx context.Context, f *modfetch.Fetcher) ([]string, error) 
 	return versions.List, nil
 }
 
-// pathToolchains returns the list of toolchain versions available to GOTOOLCHAIN=path or =min+path mode.
+// pathToolchains returns the list of toolchain versions available to BOLERO_TOOLCHAIN=path or =min+path mode.
 func pathToolchains(ctx context.Context) ([]string, error) {
 	have := make(map[string]bool)
 	var list []string
@@ -233,14 +233,14 @@ func newerToolchain(need string, list []string) (string, error) {
 	return "go" + latest, nil
 }
 
-// HasAuto reports whether the GOTOOLCHAIN setting allows "auto" upgrades.
+// HasAuto reports whether the BOLERO_TOOLCHAIN setting allows "auto" upgrades.
 func HasAuto() bool {
-	env := cfg.Getenv("GOTOOLCHAIN")
+	env := cfg.Getenv("BOLERO_TOOLCHAIN")
 	return env == "auto" || strings.HasSuffix(env, "+auto")
 }
 
-// HasPath reports whether the GOTOOLCHAIN setting allows "path" upgrades.
+// HasPath reports whether the BOLERO_TOOLCHAIN setting allows "path" upgrades.
 func HasPath() bool {
-	env := cfg.Getenv("GOTOOLCHAIN")
+	env := cfg.Getenv("BOLERO_TOOLCHAIN")
 	return env == "path" || strings.HasSuffix(env, "+path")
 }

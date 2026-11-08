@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Asm, typically invoked as “go tool asm”, assembles the source file into an object
+Asm, typically invoked as “bolero tool asm”, assembles the source file into an object
 file named for the basename of the argument source file with a .o suffix. The
 object file can then be combined with other objects into a package archive.
 
@@ -11,7 +11,7 @@ object file can then be combined with other objects into a package archive.
 
 Usage:
 
-	go tool asm [flags] file
+	bolero tool asm [flags] file
 
 The specified file must be a Go assembly file.
 The same assembler is used for all target operating systems and architectures.
@@ -24,7 +24,7 @@ Flags:
 		Can be repeated to define multiple symbols.
 	-I dir1 -I dir2
 		Search for #include files in dir1, dir2, etc,
-		after consulting $GOROOT/pkg/$GOOS_$GOARCH.
+		after consulting $BOLERO_ROOT/pkg/$GOOS_$GOARCH.
 	-S
 		Print assembly and machine code.
 	-V
